@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<title>DODGER vs YANKEE — Diamond Brawl 3D Gauntlet</title>
+<title>Fantasy Baseball Battle Royale</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -123,7 +123,7 @@ html,body{
 .charCard.selected .badge{display:block}
 .progress{width:min(72vw,360px);height:13px;border:1px solid var(--line);background:var(--panel);border-radius:4px;overflow:hidden}
 .progressFill{height:100%;width:0%;background:linear-gradient(90deg,var(--dodger-bright),var(--gold));transition:width .25s ease}
-.loadBallWrap,.loadBall-wrap{position:relative;width:60px;height:66px}
+.loadBall-wrap{position:relative;width:60px;height:66px}
 .loadBall{
   position:absolute;left:50%;top:0;width:32px;height:32px;margin-left:-16px;border-radius:50%;
   background:radial-gradient(circle at 32% 28%,#fff,#dfe5ee 62%,#b6c0ce);
@@ -211,7 +211,7 @@ html,body{
 <div id="menuScreen" class="screen">
   <div class="beam left"></div><div class="beam right"></div><div class="diamondMark"></div><div class="baseball"></div>
   <p class="eyebrow">Gauntlet · Best of 3 · One on One</p>
-  <h1 class="title">DIAMOND<br/><span class="gold">BRAWL</span></h1>
+  <h1 class="title" style="font-size:clamp(26px,7.5vw,68px)">FANTASY<br/>BASEBALL<br/><span class="gold">BATTLE ROYALE</span></h1>
   <p class="subtitle">11 Fighters · Fight All 10</p>
   <button id="startBtn" class="btnPlate">Start Gauntlet</button>
   <button id="sfxMenuBtn" class="btnGhost">SFX: ON</button>
@@ -229,14 +229,14 @@ html,body{
   <p class="eyebrow">Step up to the plate</p>
   <h2 class="title">CHOOSE YOUR <span class="gold">FIGHTER</span></h2>
   <p class="subtitle">You will face the other 10 in random order</p>
-  <div id="selectRow" class="selectRow"></div>
+  <div id="selectRow"></div>
   <button id="playBtn" class="btnPlate">Play Ball</button>
   <button id="backBtn" class="btnGhost">Main Menu</button>
 </div>
 
 <div id="loadingScreen" class="screen hidden">
   <div class="loadBall-wrap"><div class="loadBall"></div><div class="loadShadow"></div></div>
-  <h2 class="title" style="font-size:clamp(24px,6vw,44px)">LOADING <span class="gold">STADIUM</span></h2>
+  <h2 class="title" style="font-size:clamp(24px,6vw,44px)">LOADING <span class="gold">FIGHTER</span></h2>
   <p id="loadingStatus" class="subtitle">LOADING MODELS…</p>
   <div class="progress"><div id="loadingFill" class="progressFill"></div></div>
   <button id="loadingBackBtn" class="btnGhost hidden">Main Menu</button>
@@ -594,6 +594,8 @@ function playSfx(t){
   }
 }
 
+const waitMinLoad = (ms = 350) => new Promise(r => setTimeout(r, ms));
+
 /* ===================== THREE SCENE ===================== */
 
 function initThree(){
@@ -740,12 +742,12 @@ function buildScoreboard(){
 
   g.textAlign = "center";
   g.fillStyle = "#f2c14e";
-  g.font = "bold 84px Bungee,Arial Black,sans-serif";
-  g.fillText("DIAMOND BRAWL", 512, 122);
+  g.font = "bold 72px Bungee,Arial Black,sans-serif";
+  g.fillText("FANTASY BASEBALL", 512, 110);
 
   g.fillStyle = "#e8eef7";
-  g.font = "bold 44px Barlow Condensed,Arial Narrow,sans-serif";
-  g.fillText("11 FIGHTER GAUNTLET", 512, 200);
+  g.font = "bold 62px Barlow Condensed,Arial Narrow,sans-serif";
+  g.fillText("BATTLE ROYALE · 11 FIGHTERS", 512, 200);
 
   const t = new THREE.CanvasTexture(cv);
   t.anisotropy = 4;
@@ -935,24 +937,23 @@ function retargetClip(clip, info, template){
   return tracks.length ? new THREE.AnimationClip(clip.name, clip.duration, tracks) : null;
 }
 
-async function preloadAll(step){
-  for(const k of Object.keys(CHARACTERS)){
-    const c = CHARACTERS[k];
+/* Load ONE character's model + anims (with progress steps). Cached files resolve instantly. */
+async function preloadCharacter(key, step){
+  const c = CHARACTERS[key];
 
-    loadingStatus.textContent = `LOADING ${c.fighterName}…`;
-    const asset = await loadModelAsset(c);
+  loadingStatus.textContent = `LOADING ${c.fighterName} (${c.team})…`;
+  const asset = await loadModelAsset(c);
 
-    let info = null;
-    if(asset.template) info = collectBoneInfo(asset.template);
+  let info = null;
+  if(asset.template) info = collectBoneInfo(asset.template);
 
+  step();
+
+  for(const [s, url] of Object.entries(c.anims)){
+    loadingStatus.textContent = `LOADING ${c.fighterName} ${s.toUpperCase()}…`;
+    const raw = await loadRawClip(url);
+    asset.clips[s] = (raw && info && asset.template) ? retargetClip(raw, info, asset.template) : null;
     step();
-
-    for(const [s, url] of Object.entries(c.anims)){
-      loadingStatus.textContent = `LOADING ${c.fighterName} ${s.toUpperCase()}…`;
-      const raw = await loadRawClip(url);
-      asset.clips[s] = (raw && info && asset.template) ? retargetClip(raw, info, asset.template) : null;
-      step();
-    }
   }
 }
 
@@ -1345,17 +1346,8 @@ function resetRound(){
   updateHUD();
 }
 
+/* Enter the arena after loading is done */
 function startMatch(){
-  state.playerChar = selectedChar;
-  state.queue = shuffle(Object.keys(CHARACTERS).filter(k => k !== selectedChar));
-  state.opponentIndex = 0;
-  state.matchesWon = 0;
-  state.cpuChar = state.queue[0];
-
-  state.round = 1;
-  state.pWins = 0;
-  state.cWins = 0;
-
   showScreen("gameScreen");
   touchControls.style.display = isTouch() ? "flex" : "none";
 
@@ -1364,6 +1356,82 @@ function startMatch(){
     resetRound();
     state.running = true;
   });
+}
+
+/* Kick off a fresh gauntlet: pick order, load player + first opponent, then fight */
+async function beginGauntlet(){
+  ensureAudio();
+
+  state.playerChar = selectedChar;
+  state.queue = shuffle(Object.keys(CHARACTERS).filter(k => k !== selectedChar));
+  state.opponentIndex = 0;
+  state.cpuChar = state.queue[0];
+  state.matchesWon = 0;
+
+  state.round = 1;
+  state.pWins = 0;
+  state.cWins = 0;
+
+  showScreen("loadingScreen");
+  loadingBackBtn.classList.add("hidden");
+  loadingFill.style.width = "0%";
+
+  const toLoad = [state.playerChar, state.cpuChar];
+  const total = toLoad.length * 3;
+  let done = 0;
+
+  try{
+    for(const k of toLoad){
+      await preloadCharacter(k, () => {
+        done++;
+        loadingFill.style.width = `${(done / total) * 100}%`;
+      });
+    }
+
+    await waitMinLoad();
+    startMatch();
+  }catch(e){
+    console.error(e);
+    loadingStatus.innerHTML = "COULD NOT LOAD FBX FILES.<br><br>Make sure the FBX files are next to this HTML<br>and you are running a local server.";
+    loadingBackBtn.classList.remove("hidden");
+  }
+}
+
+/* Between gauntlet fights: load ONLY the next opponent, then resume */
+async function loadNextFight(){
+  state.running = false;
+
+  showScreen("loadingScreen");
+  loadingBackBtn.classList.add("hidden");
+  loadingFill.style.width = "0%";
+
+  const c = CHARACTERS[state.cpuChar];
+  loadingStatus.textContent = `NEXT OPPONENT · LOADING ${c.fighterName} (${c.team})…`;
+
+  let done = 0;
+  const total = 3;
+
+  try{
+    await preloadCharacter(state.cpuChar, () => {
+      done++;
+      loadingFill.style.width = `${(done / total) * 100}%`;
+    });
+
+    await waitMinLoad();
+
+    showScreen("gameScreen");
+    touchControls.style.display = isTouch() ? "flex" : "none";
+
+    requestAnimationFrame(() => {
+      onResize();
+      resetRound();
+      state.running = true;
+    });
+  }catch(e){
+    console.error(e);
+    loadingStatus.innerHTML = "COULD NOT LOAD FBX FILES.<br><br>Make sure the FBX files are next to this HTML<br>and you are running a local server.";
+    loadingBackBtn.classList.remove("hidden");
+  }
 }
 
 function handleMatchEnd(){
@@ -1381,11 +1449,7 @@ function handleMatchEnd(){
     state.pWins = 0;
     state.cWins = 0;
 
-    resetRound();
-
-    const c = CHARACTERS[state.cpuChar];
-    state.message = `NEXT: ${c.fighterName} (${c.team})`;
-    state.messageTimer = 1.8;
+    loadNextFight();
   }else if(state.cWins >= 2){
     endGauntlet(false);
   }else{
@@ -1768,39 +1832,13 @@ startBtn.addEventListener("click", () => {
   showScreen("selectScreen");
 });
 
-playBtn.addEventListener("click", async () => {
-  ensureAudio();
-  showScreen("loadingScreen");
-  loadingBackBtn.classList.add("hidden");
-
-  loadingStatus.textContent = "LOADING STADIUM…";
-  loadingFill.style.width = "0%";
-
-  const total = Object.keys(CHARACTERS).length * 3;
-  let done = 0;
-
-  try{
-    await preloadAll(() => {
-      done++;
-      loadingFill.style.width = `${(done / total) * 100}%`;
-    });
-
-    startMatch();
-  }catch(e){
-    console.error(e);
-    loadingStatus.innerHTML = "COULD NOT LOAD FBX FILES.<br><br>Make sure all FBX files are next to this HTML<br>and you are running a local server.";
-    loadingBackBtn.classList.remove("hidden");
-  }
-});
+playBtn.addEventListener("click", () => beginGauntlet());
 
 backBtn.addEventListener("click", () => showScreen("menuScreen"));
 loadingBackBtn.addEventListener("click", () => showScreen("menuScreen"));
 mainMenuBtn.addEventListener("click", () => showScreen("menuScreen"));
 
-rematchBtn.addEventListener("click", () => {
-  ensureAudio();
-  startMatch();
-});
+rematchBtn.addEventListener("click", () => beginGauntlet());
 
 menuBtn.addEventListener("click", () => {
   state.running = false;
