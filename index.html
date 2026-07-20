@@ -307,7 +307,7 @@ import * as SkeletonUtils from "three/addons/utils/SkeletonUtils.js";
 
 /* ===================== CONFIG ===================== */
 
-function makeCharacter(fileBase, fighterName, team, cssColor, placeholderColor, cardBg, yOffset = 0){
+function makeCharacter(fileBase, fighterName, team, cssColor, placeholderColor, cardBg, yOffset){
   return {
     name: team.toUpperCase(),
     fighterName,
@@ -320,113 +320,37 @@ function makeCharacter(fileBase, fighterName, team, cssColor, placeholderColor, 
       punch: `${fileBase}Punch.fbx`
     },
     modelRotationY: 0,
-    modelYOffset: yOffset,
+    modelYOffset: yOffset || 0,
     cardBg
   };
 }
 
 const CHARACTERS = {
-  dodger: makeCharacter(
-    "Hyle",
-    "HYLE",
-    "Dodger",
-    "#2f8fe0",
-    0x005a9c,
-    "linear-gradient(160deg,#0a6cb8,#005a9c 55%,#003c6b)",
-    0
-  ),
-  yankee: makeCharacter(
-    "Kevo",
-    "KEVO",
-    "Yankee",
-    "#8fa6bd",
-    0x0c2340,
-    "repeating-linear-gradient(90deg,rgba(255,255,255,.10) 0 2px,transparent 2px 15px),linear-gradient(160deg,#16335c,#0c2340 60%,#060f1f)",
-    0
-  ),
-  paul: makeCharacter(
-    "Paul",
-    "PAUL",
-    "Orioles",
-    "#df4601",
-    0xdf4601,
-    "linear-gradient(160deg,#151515,#df4601 65%,#4d1700)",
-    -5                    // ← PAUL'S OFFSET — tweak this number
-  ),
-  ted: makeCharacter(
-    "Ted",
-    "TED",
-    "Red Sox",
-    "#ff2d3f",
-    0xc6011f,
-    "linear-gradient(160deg,#5c0010,#c6011f 60%,#1d0006)",
-    0
-  ),
-  scherz: makeCharacter(
-    "Scherz",
-    "SCHERZ",
-    "Royals",
-    "#3f8cff",
-    0x004687,
-    "linear-gradient(0deg,rgba(255,255,255,.28),transparent 38%),linear-gradient(160deg,#001733,#004687 60%,#000a14)",
-    0
-  ),
-  doug: makeCharacter(
-    "Doug",
-    "DOUG",
-    "Royals",
-    "#004687",
-    0xeaf4ff,
-    "linear-gradient(0deg,rgba(0,70,135,.30),transparent 42%),linear-gradient(160deg,#ffffff,#d9e9ff 45%,#004687)",
-    0
-  ),
-  danny: makeCharacter(
-    "Danny",
-    "DANNY",
-    "Avalanche",
-    "#b56a7f",
-    0x6f263d,
-    "linear-gradient(160deg,#230711,#6f263d 60%,#0d0309)",
-    0
-  ),
-  nick: makeCharacter(
-    "Nick",
-    "NICK",
-    "Cardinals",
-    "#ff4d5e",
-    0xc41e3a,
-    "linear-gradient(160deg,#4d0511,#c41e3a 60%,#190207)",
-    0
-  ),
-  josh: makeCharacter(
-    "Josh",
-    "JOSH",
-    "Cubs",
-    "#2f59c4",
-    0xeaf1ff,
-    "linear-gradient(0deg,rgba(239,62,66,.22),transparent 36%),linear-gradient(160deg,#ffffff,#dbe8ff 45%,#0e3386)",
-    0
-  ),
-  dan: makeCharacter(
-    "Dan",
-    "DAN",
-    "Cubs",
-    "#8fb2ff",
-    0x0e3386,
-    "linear-gradient(0deg,rgba(239,62,66,.25),transparent 38%),linear-gradient(160deg,#05122f,#0e3386 60%,#020a1b)",
-    0
-  ),
-  nate: makeCharacter(
-    "Nate",
-    "NATE",
-    "DJ Pink Bunny",
-    "#ff5fd2",
-    0xff5fd2,
-    "linear-gradient(160deg,#ffbdf0,#ff5fd2 55%,#96117b)",
-    0
-  )
+  dodger: makeCharacter("Hyle","HYLE","Dodger","#2f8fe0",0x005a9c,
+    "linear-gradient(160deg,#0a6cb8,#005a9c 55%,#003c6b)", 0),
+  yankee: makeCharacter("Kevo","KEVO","Yankee","#8fa6bd",0x0c2340,
+    "repeating-linear-gradient(90deg,rgba(255,255,255,.10) 0 2px,transparent 2px 15px),linear-gradient(160deg,#16335c,#0c2340 60%,#060f1f)", 0),
+  paul: makeCharacter("Paul","PAUL","Orioles","#df4601",0xdf4601,
+    "linear-gradient(160deg,#151515,#df4601 65%,#4d1700)", -4),   // ← PAUL: tweak this
+  ted: makeCharacter("Ted","TED","Red Sox","#ff2d3f",0xc6011f,
+    "linear-gradient(160deg,#5c0010,#c6011f 60%,#1d0006)", 0),
+  scherz: makeCharacter("Scherz","SCHERZ","Royals","#3f8cff",0x004687,
+    "linear-gradient(0deg,rgba(255,255,255,.28),transparent 38%),linear-gradient(160deg,#001733,#004687 60%,#000a14)", 0),
+  doug: makeCharacter("Doug","DOUG","Royals","#004687",0xeaf4ff,
+    "linear-gradient(0deg,rgba(0,70,135,.30),transparent 42%),linear-gradient(160deg,#ffffff,#d9e9ff 45%,#004687)", 0),
+  danny: makeCharacter("Danny","DANNY","Avalanche","#b56a7f",0x6f263d,
+    "linear-gradient(160deg,#230711,#6f263d 60%,#0d0309)", 0),
+  nick: makeCharacter("Nick","NICK","Cardinals","#ff4d5e",0xc41e3a,
+    "linear-gradient(160deg,#4d0511,#c41e3a 60%,#190207)", 0),
+  josh: makeCharacter("Josh","JOSH","Cubs","#2f59c4",0xeaf1ff,
+    "linear-gradient(0deg,rgba(239,62,66,.22),transparent 36%),linear-gradient(160deg,#ffffff,#dbe8ff 45%,#0e3386)", 0),
+  dan: makeCharacter("Dan","DAN","Cubs","#8fb2ff",0x0e3386,
+    "linear-gradient(0deg,rgba(239,62,66,.25),transparent 38%),linear-gradient(160deg,#05122f,#0e3386 60%,#020a1b)", 0),
+  nate: makeCharacter("Nate","NATE","DJ Pink Bunny","#ff5fd2",0xff5fd2,
+    "linear-gradient(160deg,#ffbdf0,#ff5fd2 55%,#96117b)", 0)
 };
-const ATTACKS = {
+  
+  const ATTACKS = {
   punch:{
     duration:.30, activeStart:.07, activeEnd:.18, range:22, damage:7, knock:46, meter:10,
     color:0xffffff, y:22, effectW:8, effectH:6, effectD:22
@@ -859,7 +783,6 @@ async function loadModelAsset(cfg){
     raw.position.x -= center.x;
     raw.position.z -= center.z;
     raw.position.y -= groundY;
-    raw.position.y += cfg.modelYOffset || 0;
 
     raw.updateMatrixWorld(true);
     raw.traverse(setMeshFlags);
@@ -1143,9 +1066,10 @@ class Fighter{
         this.placeholder.material?.dispose();
         this.placeholder = null;
       }
-
-      this.modelVisual.add(clone);
-      this.model = clone;
+      
+clone.position.y += this.char.modelYOffset || 0;   // ← per-fighter ground offset
+console.warn(`[offset] ${this.char.fighterName} → ${this.char.modelYOffset || 0}`);
+this.modelVisual.add(clone); this.model=clone;
 
       this.mixer = new THREE.AnimationMixer(clone);
 
