@@ -824,10 +824,31 @@ async function loadModelAsset(cfg){
     raw.updateMatrixWorld(true);
     box = new THREE.Box3().setFromObject(raw);
     const center = box.getCenter(new THREE.Vector3());
+    const h = box.max.y - box.min.y;
+
+    /* Ground-plant fix #1:
+       Some FBX exports contain geometry below the soles (base, shadow disc,
+       helper meshes), so the bounding-box bottom sits below the feet and the
+       character floats. Compare against the lowest bind-pose bone (toes/feet)
+       and plant on that instead when the gap is significant. */
+    let minBoneY = Infinity;
+    const wp = new THREE.Vector3();
+    raw.traverse(o => {
+      if(o.isBone){
+        o.getWorldPosition(wp);
+        if(wp.y < minBoneY) minBoneY = wp.y;
+      }
+    });
+
+    let groundY = box.min.y;
+    if(isFinite(minBoneY) && minBoneY < box.max.y && (minBoneY - box.min.y) > h * .04){
+      console.warn(`[model] ${cfg.model}: geometry extends ${(minBoneY - box.min.y).toFixed(2)} below feet — planting on lowest bone instead`);
+      groundY = minBoneY - h * .01;
+    }
 
     raw.position.x -= center.x;
     raw.position.z -= center.z;
-    raw.position.y -= box.min.y;
+    raw.position.y -= groundY;
     raw.position.y += cfg.modelYOffset || 0;
 
     raw.updateMatrixWorld(true);
@@ -841,7 +862,6 @@ async function loadModelAsset(cfg){
   modelCache.set(cfg.model, asset);
   return asset;
 }
-
 async function loadRawClip(url){
   if(rawAnimCache.has(url)) return rawAnimCache.get(url);
 
@@ -866,6 +886,7 @@ function retargetClip(clip, info, template){
   const hipsT = norm.get("hips") || null;
 
   let ratio = 1;
+  let hipsBindY = 0;
 
   if(hipsT){
     let hb = null;
@@ -884,6 +905,7 @@ function retargetClip(clip, info, template){
     if(hb && ht && ht.values.length >= 3 && hb.position.y > 0 && ht.values[1] !== 0){
       const r = hb.position.y / ht.values[1];
       if(isFinite(r) && r > 0) ratio = r;
+      hipsBindY = hb.position.y;
     }
   }
 
@@ -911,9 +933,9 @@ function retargetClip(clip, info, template){
     bound++;
 
     const rename = tgt !== nn;
-    const scale = ratio !== 1 && tgt === hipsT && prop === "position";
+    const isHipsPos = tgt === hipsT && prop === "position" && hipsBindY > 0;
 
-    if(!rename && !scale){
+    if(!rename && !isHipsPos){
       tracks.push(tr);
       continue;
     }
@@ -922,9 +944,27 @@ function retargetClip(clip, info, template){
 
     if(rename) t.name = tgt + rest;
 
-    if(scale){
+    if(isHipsPos){
       const v = t.values.slice();
-      for(let i = 0; i < v.length; i++) v[i] *= ratio;
+
+      /* Ground-plant fix #2:
+         Rebase hips Y so the animation's LOWEST hips position (deepest
+         crouch) lands exactly on the model's bind-pose hips height.
+         Pure ratio scaling alone leaves the character floating whenever
+         the exported animation's hips sit higher than the bind pose. */
+      let minY = Infinity;
+      for(let i = 1; i < v.length; i += 3){
+        if(v[i] < minY) minY = v[i];
+      }
+      if(!isFinite(minY) || minY <= 0) minY = v[1] || 1;
+
+      const rY = hipsBindY / minY;
+
+      for(let i = 0; i < v.length; i += 3){
+        v[i]     *= ratio;                              // x
+        v[i + 1] = hipsBindY + (v[i + 1] - minY) * rY;  // y
+        v[i + 2] *= ratio;                              // z
+      }
       t.values = v;
     }
 
@@ -936,7 +976,6 @@ function retargetClip(clip, info, template){
 
   return tracks.length ? new THREE.AnimationClip(clip.name, clip.duration, tracks) : null;
 }
-
 /* Load ONE character's model + anims (with progress steps). Cached files resolve instantly. */
 async function preloadCharacter(key, step){
   const c = CHARACTERS[key];
