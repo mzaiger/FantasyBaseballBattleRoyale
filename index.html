@@ -853,6 +853,9 @@ async function loadModelAsset(cfg){
     if (cfg.model === "Paul.fbx") {
   raw.position.y -= 17;   // ← change this number if he sinks or still floats
 }
+        if (cfg.model === "Ted.fbx") {
+  raw.position.y -= 17;   // ← change this number if he sinks or still floats
+}
 
 
     raw.updateMatrixWorld(true);
