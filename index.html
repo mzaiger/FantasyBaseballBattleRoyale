@@ -850,6 +850,10 @@ async function loadModelAsset(cfg){
     raw.position.z -= center.z;
     raw.position.y -= groundY;
     raw.position.y += cfg.modelYOffset || 0;
+    if (cfg.model === "Paul.fbx") {
+  raw.position.y -= 5;   // ← change this number if he sinks or still floats
+}
+
 
     raw.updateMatrixWorld(true);
     raw.traverse(setMeshFlags);
