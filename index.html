@@ -1,1822 +1,1923 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Fantasy Baseball Battle Royale</title>
-
-  <style>
-    :root {
-      --gold: #f2c14e;
-      --blue: #3fa7ff;
-      --red: #ff4d4d;
-      --panel: rgba(4, 8, 15, 0.72);
-      --line: rgba(255, 255, 255, 0.14);
-      --text-shadow: 0 2px 18px rgba(0, 0, 0, 0.72);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      background: #04060a;
-      color: #fff;
-      font-family: Arial, "Helvetica Neue", sans-serif;
-      user-select: none;
-    }
-
-    #game-canvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-      z-index: 0;
-    }
-
-    .vignette {
-      position: fixed;
-      inset: 0;
-      z-index: 5;
-      pointer-events: none;
-      background:
-        radial-gradient(
-          ellipse at center,
-          transparent 42%,
-          rgba(0, 0, 0, 0.16) 68%,
-          rgba(0, 0, 0, 0.52) 100%
-        );
-    }
-
-    .letterbox {
-      position: fixed;
-      left: 0;
-      width: 100%;
-      height: 42px;
-      background: linear-gradient(rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0.18));
-      z-index: 6;
-      pointer-events: none;
-      opacity: 0.55;
-    }
-
-    .letterbox.top {
-      top: 0;
-    }
-
-    .letterbox.bottom {
-      bottom: 0;
-      transform: scaleY(-1);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .screen {
-      position: fixed;
-      inset: 0;
-      z-index: 20;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      text-align: center;
-      padding: 24px;
-      background:
-        radial-gradient(circle at 50% 20%, rgba(20, 52, 94, 0.34), transparent 34%),
-        radial-gradient(circle at 50% 80%, rgba(0, 0, 0, 0.56), transparent 42%),
-        linear-gradient(rgba(2, 4, 8, 0.36), rgba(2, 4, 8, 0.72));
-      backdrop-filter: blur(2px);
-    }
-
-    .screen.hud {
-      background: none;
-      backdrop-filter: none;
-      justify-content: space-between;
-      pointer-events: none;
-    }
-
-    .kicker {
-      font-size: 14px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.78);
-      text-shadow: var(--text-shadow);
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(34px, 7vw, 84px);
-      line-height: 0.92;
-      text-transform: uppercase;
-      letter-spacing: 0.02em;
-      color: #fff;
-      text-shadow: var(--text-shadow);
-    }
-
-    h1 span {
-      display: block;
-      color: var(--gold);
-      text-shadow:
-        0 0 18px rgba(242, 193, 78, 0.24),
-        var(--text-shadow);
-    }
-
-    h2 {
-      margin: 0;
-      font-size: clamp(28px, 5vw, 60px);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      text-shadow: var(--text-shadow);
-    }
-
-    .sub {
-      color: rgba(255, 255, 255, 0.82);
-      font-size: 16px;
-      letter-spacing: 0.08em;
-      text-shadow: var(--text-shadow);
-    }
-
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 18px 22px;
-      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
-    }
-
-    button {
-      appearance: none;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 12px;
-      padding: 13px 22px;
-      margin: 4px;
-      color: #fff;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
-      font-size: 16px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
-      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      border-color: rgba(255, 255, 255, 0.38);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
-    }
-
-    button.primary {
-      background: linear-gradient(180deg, rgba(242, 193, 78, 0.92), rgba(174, 122, 21, 0.92));
-      color: #1d1300;
-      border-color: rgba(255, 231, 173, 0.62);
-    }
-
-    button.small {
-      padding: 9px 13px;
-      font-size: 13px;
-    }
-
-    .controls-card {
-      font-size: 13px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.78);
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 999px;
-      padding: 10px 16px;
-      text-shadow: var(--text-shadow);
-    }
-
-    .hud-top {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-      padding: 18px 20px 0;
-    }
-
-    .fighter-tag {
-      max-width: 34vw;
-      padding: 10px 14px;
-      border-radius: 12px;
-      background: rgba(0, 0, 0, 0.38);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      font-weight: 900;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      font-size: 14px;
-      text-shadow: var(--text-shadow);
-      pointer-events: auto;
-    }
-
-    .fighter-tag.left {
-      color: #d9ecff;
-      border-left: 4px solid var(--blue);
-    }
-
-    .fighter-tag.right {
-      color: #ffd8d8;
-      border-right: 4px solid var(--red);
-    }
-
-    .round-center {
-      min-width: 190px;
-      padding: 8px 16px;
-      border-radius: 14px;
-      background: rgba(0, 0, 0, 0.38);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      pointer-events: auto;
-    }
-
-    .round-center .timer {
-      font-size: 34px;
-      font-weight: 900;
-      color: var(--gold);
-      text-shadow: 0 0 18px rgba(242, 193, 78, 0.22), var(--text-shadow);
-    }
-
-    .round-center .rounds {
-      font-size: 12px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.74);
-    }
-
-    .hud-bottom {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 16px;
-      padding: 0 20px 20px;
-    }
-
-    .hud-cluster {
-      display: flex;
-      gap: 8px;
-      pointer-events: auto;
-    }
-
-    .control-strip {
-      padding: 10px 14px;
-      border-radius: 12px;
-      background: rgba(0, 0, 0, 0.32);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.74);
-      font-size: 12px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      pointer-events: auto;
-    }
-
-    .loading-box {
-      min-width: min(480px, 90vw);
-    }
-
-    .loading-bar-track {
-      width: 100%;
-      height: 12px;
-      border-radius: 999px;
-      overflow: hidden;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      margin-top: 14px;
-    }
-
-    .loading-bar-fill {
-      width: 35%;
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #f2c14e, #fff2c7, #f2c14e);
-      animation: loadingSlide 1.15s linear infinite;
-    }
-
-    @keyframes loadingSlide {
-      0% {
-        transform: translateX(-140%);
-      }
-      100% {
-        transform: translateX(360%);
-      }
-    }
-
-    .flash {
-      position: fixed;
-      inset: 0;
-      z-index: 18;
-      pointer-events: none;
-      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.18) 42%, transparent 72%);
-      opacity: 0;
-    }
-  </style>
-
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-      }
-    }
-  </script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>Fantasy Baseball Battle Royale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  --dodger:#005a9c;
+  --dodger-bright:#2f8fe0;
+  --yankee:#0c2340;
+  --yankee-steel:#8fa6bd;
+  --gold:#f2c14e;
+  --stitch:#ef3e42;
+  --night:#050b18;
+  --panel:#0a1428;
+  --line:rgba(255,255,255,.16);
+  --font-display:"Bungee","Arial Black",sans-serif;
+  --font-body:"Barlow Condensed","Arial Narrow",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;width:100%;height:100%;overflow:hidden;background:var(--night);color:#eef3fa;
+  font-family:var(--font-body);touch-action:manipulation;user-select:none;-webkit-user-select:none;
+  -webkit-touch-callout:none;-webkit-text-size-adjust:100%
+}
+.screen{
+  position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;padding:20px;text-align:center;overflow:hidden;
+  background:
+    radial-gradient(1100px 480px at 50% -12%,rgba(47,143,224,.22),transparent 60%),
+    radial-gradient(900px 420px at 88% 112%,rgba(21,128,61,.28),transparent 60%),
+    linear-gradient(180deg,#040914 0%,#081226 55%,#0a1a2f 100%);
+  z-index:30
+}
+.hidden{display:none!important}
+#gameScreen.screen{display:block;padding:0;background:transparent;z-index:10;touch-action:none}
+#loadingScreen{z-index:40}
+#selectScreen{justify-content:flex-start;padding-top:calc(14px + env(safe-area-inset-top,0px));gap:10px}
+#selectScreen .title{font-size:clamp(24px,6vw,46px);margin:2px 0}
+#selectScreen .subtitle{margin:0}
+.beam{position:absolute;top:-22%;width:30vw;height:150%;background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,0));filter:blur(8px);pointer-events:none}
+.beam.left{left:4%;transform:rotate(15deg);animation:swayL 9s ease-in-out infinite alternate}
+.beam.right{right:4%;transform:rotate(-15deg);animation:swayR 11s ease-in-out infinite alternate}
+@keyframes swayL{from{transform:rotate(12deg)}to{transform:rotate(19deg)}}
+@keyframes swayR{from{transform:rotate(-12deg)}to{transform:rotate(-19deg)}}
+.baseball{
+  position:absolute;right:9%;top:16%;width:76px;height:76px;border-radius:50%;overflow:hidden;
+  background:radial-gradient(circle at 32% 28%,#fff,#dfe5ee 62%,#b6c0ce);
+  box-shadow:inset -10px -12px 20px rgba(10,20,40,.28),0 20px 34px rgba(0,0,0,.4);
+  animation:floatBall 7s ease-in-out infinite alternate;pointer-events:none
+}
+.baseball::before,.baseball::after{
+  content:"";position:absolute;top:-16px;bottom:-16px;width:60px;border:3px dashed var(--stitch);border-radius:50%
+}
+.baseball::before{left:-38px}
+.baseball::after{right:-38px}
+@keyframes floatBall{from{transform:translateY(-10px) rotate(-8deg)}to{transform:translateY(12px) rotate(10deg)}}
+.diamondMark{position:absolute;width:240px;height:240px;border:2px solid rgba(242,193,78,.18);transform:rotate(45deg);animation:diamondPulse 5s ease-in-out infinite;pointer-events:none}
+@keyframes diamondPulse{0%,100%{opacity:.5;transform:rotate(45deg) scale(1)}50%{opacity:1;transform:rotate(45deg) scale(1.06)}}
+.eyebrow{font-weight:700;letter-spacing:.42em;font-size:clamp(11px,2.6vw,15px);color:var(--gold);text-transform:uppercase;margin:0}
+.title{
+  font-family:var(--font-display);font-weight:400;line-height:1.02;font-size:clamp(34px,9vw,82px);margin:0;color:#fff;
+  text-shadow:0 3px 0 rgba(0,0,0,.45),0 12px 34px rgba(47,143,224,.35);
+  animation:titleIn .6s cubic-bezier(.2,1.3,.3,1) both
+}
+.title .gold{color:var(--gold);text-shadow:0 3px 0 rgba(0,0,0,.45),0 12px 34px rgba(242,193,78,.35)}
+@keyframes titleIn{from{transform:translateY(26px) scale(.92);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+.subtitle{opacity:.92;font-size:clamp(15px,3.6vw,22px);font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin:0}
+.btnPlate{
+  appearance:none;border:0;cursor:pointer;font-family:var(--font-body);font-weight:800;font-size:21px;letter-spacing:.14em;
+  text-transform:uppercase;color:#132238;background:linear-gradient(180deg,#ffd76a,var(--gold));
+  padding:16px 40px 24px;min-width:min(84vw,300px);
+  clip-path:polygon(0 0,100% 0,100% 60%,50% 100%,0 60%);
+  filter:drop-shadow(0 9px 0 rgba(0,0,0,.38));transition:transform .14s ease,filter .14s ease
+}
+.btnPlate:hover{transform:translateY(-3px);filter:drop-shadow(0 12px 0 rgba(0,0,0,.38)) brightness(1.06)}
+.btnPlate:active{transform:translateY(2px);filter:drop-shadow(0 5px 0 rgba(0,0,0,.38))}
+.btnGhost{
+  appearance:none;cursor:pointer;font-family:var(--font-body);font-weight:700;font-size:17px;letter-spacing:.16em;
+  text-transform:uppercase;color:#e8eef7;background:rgba(255,255,255,.05);border:2px solid var(--line);
+  border-radius:10px;padding:12px 26px;min-width:min(84vw,300px);transition:all .16s ease
+}
+.btnGhost:hover{border-color:var(--gold);color:var(--gold);background:rgba(242,193,78,.08);transform:translateY(-2px)}
+.btnGhost:active{transform:translateY(1px)}
+.ticket{
+  border:1px dashed rgba(255,255,255,.30);background:rgba(255,255,255,.04);border-radius:10px;
+  padding:12px 20px;font-size:15px;font-weight:600;letter-spacing:.08em;line-height:2;max-width:min(94vw,620px)
+}
+.key{
+  display:inline-block;min-width:24px;text-align:center;padding:1px 7px;margin:0 2px;border:1px solid var(--line);
+  border-bottom-width:3px;border-radius:6px;background:#101c33;font-weight:800;color:var(--gold)
+}
+#selectRow{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;
+  width:min(96vw,1040px);flex:1;min-height:0;overflow-y:auto;padding:8px;
+  touch-action:pan-y;-webkit-overflow-scrolling:touch;scrollbar-width:thin;align-content:start;justify-items:center
+}
+.charCard{
+  position:relative;width:100%;min-height:156px;border-radius:14px;border:3px solid rgba(255,255,255,.22);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;overflow:hidden;
+  box-shadow:0 16px 34px rgba(0,0,0,.35);transition:transform .18s ease,box-shadow .18s ease
+}
+.charCard:hover{transform:translateY(-5px) rotate(-1deg);box-shadow:0 22px 44px rgba(0,0,0,.45)}
+.charCard .cname{
+  font-family:var(--font-display);font-size:clamp(24px,5.8vw,36px);color:#fff;
+  text-shadow:0 3px 0 rgba(0,0,0,.55),0 0 18px rgba(0,0,0,.35);position:relative;z-index:1
+}
+.charCard .cteam{
+  font-weight:800;letter-spacing:.24em;font-size:13px;text-transform:uppercase;opacity:.96;
+  text-shadow:0 2px 8px rgba(0,0,0,.55);position:relative;z-index:1
+}
+.cardShade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.06),rgba(0,0,0,.46));pointer-events:none}
+.charCard .badge{
+  display:none;position:absolute;top:10px;right:-34px;transform:rotate(35deg);background:var(--gold);
+  color:#132238;font-weight:800;font-size:11px;letter-spacing:.12em;padding:3px 40px;z-index:2
+}
+.charCard.selected{outline:4px solid var(--gold);outline-offset:3px}
+.charCard.selected .badge{display:block}
+.progress{width:min(72vw,360px);height:13px;border:1px solid var(--line);background:var(--panel);border-radius:4px;overflow:hidden}
+.progressFill{height:100%;width:0%;background:linear-gradient(90deg,var(--dodger-bright),var(--gold));transition:width .25s ease}
+.loadBall-wrap{position:relative;width:60px;height:66px}
+.loadBall{
+  position:absolute;left:50%;top:0;width:32px;height:32px;margin-left:-16px;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,#fff,#dfe5ee 62%,#b6c0ce);
+  animation:bounce .55s cubic-bezier(.3,0,.7,1) infinite alternate
+}
+.loadShadow{
+  position:absolute;left:50%;bottom:0;width:36px;height:8px;margin-left:-18px;border-radius:50%;
+  background:rgba(0,0,0,.45);animation:shadowPulse .55s cubic-bezier(.3,0,.7,1) infinite alternate
+}
+@keyframes bounce{from{transform:translateY(0) scale(1,1)}to{transform:translateY(28px) scale(1.12,.85)}}
+@keyframes shadowPulse{from{transform:scale(.7);opacity:.5}to{transform:scale(1.15);opacity:.9}}
+#gameContainer{position:absolute;inset:0;z-index:0}
+#gameContainer canvas{display:block;width:100%;height:100%;touch-action:none}
+#vignette{position:fixed;inset:0;z-index:11;pointer-events:none;background:radial-gradient(125% 95% at 50% 40%,transparent 55%,rgba(2,6,14,.55) 100%)}
+#hud{
+  position:fixed;top:0;left:0;right:0;z-index:12;display:flex;justify-content:space-between;align-items:flex-start;
+  gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 0;pointer-events:none
+}
+.panel{flex:1;max-width:44%;background:rgba(4,10,22,.78);border:1px solid var(--line);padding:8px 14px 10px}
+.panel.p1{clip-path:polygon(0 0,100% 0,calc(100% - 18px) 100%,0 100%)}
+.panel.p2{clip-path:polygon(18px 0,100% 0,100% 100%,0 100%);text-align:right}
+.fname{font-weight:800;font-size:18px;letter-spacing:.08em;text-transform:uppercase;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.fteam{font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;margin-top:1px}
+.p1 .fteam{color:var(--dodger-bright)}
+.p2 .fteam{color:var(--yankee-steel)}
+.bar{position:relative;height:16px;margin-top:6px;border-radius:4px;overflow:hidden;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2)}
+.bar::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 9%,rgba(0,0,0,.28) 9% 10%);pointer-events:none}
+.fill{height:100%;width:100%;transition:width .09s linear}
+.healthFill{background:linear-gradient(90deg,#f97316,#22c55e)}
+.specialBar{height:8px;margin-top:5px}
+.specialFill{background:linear-gradient(90deg,var(--gold),#fb7185);width:0%}
+.pips{margin-top:7px;display:flex;gap:6px}
+.p2 .pips{justify-content:flex-end}
+.pips span{width:10px;height:10px;border:1px solid var(--gold);transform:rotate(45deg);background:transparent;transition:all .25s ease}
+.pips span.won{background:var(--gold);box-shadow:0 0 9px rgba(242,193,78,.85)}
+#roundText{
+  position:fixed;top:96px;left:50%;transform:translateX(-50%);z-index:13;font-family:var(--font-display);
+  font-size:clamp(24px,7vw,54px);text-align:center;width:min(94vw,900px);color:#fff;
+  text-shadow:0 3px 0 rgba(0,0,0,.5),0 0 30px rgba(242,193,78,.45);pointer-events:none;padding:0 10px
+}
+#roundText.pop{animation:popIn .5s cubic-bezier(.2,1.4,.3,1) both}
+@keyframes popIn{0%{transform:translateX(-50%) scale(.35);opacity:0}60%{transform:translateX(-50%) scale(1.1);opacity:1}100%{transform:translateX(-50%) scale(1);opacity:1}}
+.topButtons{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:10px;z-index:25;display:flex;gap:8px}
+.iconBtn{
+  appearance:none;cursor:pointer;font-family:var(--font-body);font-weight:800;font-size:13px;letter-spacing:.1em;
+  border:1px solid rgba(255,255,255,.24);background:rgba(0,0,0,.5);color:#fff;border-radius:9px;padding:8px 12px;
+  transition:all .15s ease
+}
+.iconBtn:hover{border-color:var(--gold);color:var(--gold)}
+#touchControls{position:fixed;left:0;right:0;bottom:0;z-index:20;display:none;padding:10px 12px calc(14px + var(--safe-bottom));pointer-events:none}
+.touchRow{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.pad,.actions{display:flex;gap:10px;pointer-events:auto}
+.actions{flex-wrap:wrap;justify-content:flex-end;max-width:56vw}
+.tbtn{
+  width:62px;height:62px;border-radius:50%;border:2px solid rgba(255,255,255,.28);background:rgba(8,16,32,.74);
+  color:#fff;font-family:var(--font-body);font-weight:800;font-size:13px;letter-spacing:.06em;display:flex;
+  align-items:center;justify-content:center;touch-action:none;box-shadow:0 6px 0 rgba(0,0,0,.38);
+  transition:transform .08s ease,background .08s ease
+}
+.tbtn.xl{width:76px;height:76px;font-size:16px;border-color:rgba(242,193,78,.55)}
+.tbtn.wide{border-radius:16px;width:74px}
+.tbtn.active{background:var(--gold);color:#132238;border-color:var(--gold);transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.38)}
+.tbtn.disabled{opacity:.35}
+#winnerText{
+  font-family:var(--font-display);font-size:clamp(26px,8vw,58px);color:var(--gold);
+  text-shadow:0 3px 0 rgba(0,0,0,.5),0 0 34px rgba(242,193,78,.5);
+  animation:titleIn .55s cubic-bezier(.2,1.3,.3,1) both
+}
+#finalScore{font-weight:800;font-size:clamp(16px,4vw,24px);letter-spacing:.3em;color:#cdd8e6}
+@media(max-height:700px){
+  #selectRow{grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:10px}
+  .charCard{min-height:128px}
+}
+@media(max-height:520px){
+  .tbtn{width:52px;height:52px;font-size:11px}
+  .tbtn.xl{width:64px;height:64px}
+  .tbtn.wide{width:64px}
+  .actions{max-width:62vw}
+  .baseball{display:none}
+}
+</style>
 </head>
-
 <body>
-  <canvas id="game-canvas"></canvas>
 
-  <div class="vignette"></div>
-  <div class="letterbox top"></div>
-  <div class="letterbox bottom"></div>
-  <div id="flash" class="flash"></div>
+<div id="menuScreen" class="screen">
+  <div class="beam left"></div><div class="beam right"></div><div class="diamondMark"></div><div class="baseball"></div>
+  <p class="eyebrow">Gauntlet · Best of 3 · One on One</p>
+  <h1 class="title" style="font-size:clamp(26px,7.5vw,68px)">FANTASY<br/>BASEBALL<br/><span class="gold">BATTLE ROYALE</span></h1>
+  <p class="subtitle">11 Fighters · Fight All 10</p>
+  <button id="startBtn" class="btnPlate">Start Gauntlet</button>
+  <button id="sfxMenuBtn" class="btnGhost">SFX: ON</button>
+  <div class="ticket">
+    <span class="key">A</span><span class="key">D</span> MOVE ·
+    <span class="key">W</span> JUMP ·
+    <span class="key">S</span> BLOCK<br/>
+    <span class="key">F</span> PUNCH ·
+    <span class="key">SPACE</span> SPECIAL
+  </div>
+</div>
 
-  <!-- TITLE SCREEN -->
-  <div id="screen-title" class="screen">
-    <div class="kicker">Gauntlet · Best of 3 · One on One</div>
-    <h1>
-      Fantasy Baseball
-      <span>Battle Royale</span>
-    </h1>
-    <div class="sub">11 Fighters · Fight All 10</div>
+<div id="selectScreen" class="screen hidden">
+  <div class="beam left"></div><div class="beam right"></div>
+  <p class="eyebrow">Step up to the plate</p>
+  <h2 class="title">CHOOSE YOUR <span class="gold">FIGHTER</span></h2>
+  <p class="subtitle">You will face the other 10 in random order</p>
+  <div id="selectRow"></div>
+  <button id="playBtn" class="btnPlate">Play Ball</button>
+  <button id="backBtn" class="btnGhost">Main Menu</button>
+</div>
 
-    <div>
-      <button id="btn-start-gauntlet" class="primary">Start Gauntlet</button>
-      <button id="btn-sfx-title">SFX: ON</button>
+<div id="loadingScreen" class="screen hidden">
+  <div class="loadBall-wrap"><div class="loadBall"></div><div class="loadShadow"></div></div>
+  <h2 class="title" style="font-size:clamp(24px,6vw,44px)">LOADING <span class="gold">FIGHTER</span></h2>
+  <p id="loadingStatus" class="subtitle">LOADING MODELS…</p>
+  <div class="progress"><div id="loadingFill" class="progressFill"></div></div>
+  <button id="loadingBackBtn" class="btnGhost hidden">Main Menu</button>
+</div>
+
+<div id="gameScreen" class="screen hidden">
+  <div id="gameContainer"></div><div id="vignette"></div>
+  <div id="hud">
+    <div class="panel p1">
+      <div class="fname" id="p1Name">HYLE</div>
+      <div class="fteam" id="p1Team">DODGER · YOU</div>
+      <div class="bar"><div id="p1Health" class="fill healthFill"></div></div>
+      <div class="bar specialBar"><div id="p1Special" class="fill specialFill"></div></div>
+      <div class="pips" id="p1Pips"><span></span><span></span></div>
     </div>
-
-    <div class="controls-card">
-      A / D Move · W Jump · S Block · F Punch · Space Special
+    <div class="panel p2">
+      <div class="fname" id="p2Name">KEVO</div>
+      <div class="fteam" id="p2Team">YANKEE · CPU</div>
+      <div class="bar"><div id="p2Health" class="fill healthFill"></div></div>
+      <div class="bar specialBar"><div id="p2Special" class="fill specialFill"></div></div>
+      <div class="pips" id="p2Pips"><span></span><span></span></div>
     </div>
   </div>
-
-  <!-- CHOOSE FIGHTER SCREEN -->
-  <div id="screen-choose" class="screen hidden">
-    <div class="kicker">Step up to the plate</div>
-    <h2>Choose Your Fighter</h2>
-    <div class="sub">You will face the other 10 in random order</div>
-
-    <div>
-      <button id="btn-play-ball" class="primary">Play Ball</button>
-      <button data-goto="title">Main Menu</button>
-    </div>
+  <div id="roundText"></div>
+  <div class="topButtons">
+    <button id="sfxGameBtn" class="iconBtn">🔊 SFX</button>
+    <button id="menuBtn" class="iconBtn">MENU</button>
   </div>
-
-  <!-- LOADING SCREEN -->
-  <div id="screen-loading" class="screen hidden">
-    <div class="panel loading-box">
-      <div class="kicker">Loading Fighter</div>
-      <h2 id="loading-status">LOADING MODELS…</h2>
-
-      <div class="loading-bar-track">
-        <div class="loading-bar-fill"></div>
+  <div id="touchControls">
+    <div class="touchRow">
+      <div class="pad">
+        <div class="tbtn" data-action="left">◀</div>
+        <div class="tbtn" data-action="right">▶</div>
       </div>
-
-      <div style="margin-top:16px;">
-        <button id="btn-loading-menu" class="small">Main Menu</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- FIGHT HUD -->
-  <div id="screen-fight" class="screen hud hidden">
-    <div class="hud-top">
-      <div class="fighter-tag left">
-        HYLE DODGER · YOU
-      </div>
-
-      <div class="round-center">
-        <div id="timer" class="timer">60</div>
-        <div class="rounds">ROUNDS 0 — 0</div>
-      </div>
-
-      <div class="fighter-tag right">
-        KEVO YANKEE · CPU
-      </div>
-    </div>
-
-    <div class="hud-bottom">
-      <div class="hud-cluster">
-        <button id="btn-sfx-hud" class="small">🔊 SFX</button>
-        <button id="btn-menu-hud" class="small">MENU</button>
-      </div>
-
-      <div class="control-strip">
-        ◀▶ Move · W Jump · S Block · F Punch · SP Special
-      </div>
-
-      <div class="hud-cluster">
-        <button id="btn-gameover-test" class="small">Game Over Test</button>
+      <div class="actions">
+        <div class="tbtn" data-action="jump">JUMP</div>
+        <div class="tbtn" data-action="block">BLK</div>
+        <div class="tbtn xl" data-action="punch">PUNCH</div>
+        <div class="tbtn wide disabled" data-action="special">SP 60</div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- GAME OVER SCREEN -->
-  <div id="screen-gameover" class="screen hidden">
-    <div class="kicker">Final out</div>
-    <h2>★ GAME OVER ★</h2>
-    <div class="sub">WINNER</div>
-    <div class="sub">ROUNDS 0 — 0</div>
+<div id="gameOverScreen" class="screen hidden">
+  <div class="beam left"></div><div class="beam right"></div>
+  <p id="gameOverEyebrow" class="eyebrow">Final out</p>
+  <h2 class="title" style="font-size:clamp(24px,6vw,44px)">★ GAME <span class="gold">OVER</span> ★</h2>
+  <div id="winnerText">WINNER</div>
+  <div id="finalScore">ROUNDS 0 — 0</div>
+  <button id="rematchBtn" class="btnPlate">Rematch</button>
+  <button id="mainMenuBtn" class="btnGhost">Main Menu</button>
+</div>
 
-    <div>
-      <button id="btn-rematch" class="primary">Rematch</button>
-      <button data-goto="title">Main Menu</button>
-    </div>
-  </div>
+<script type="importmap">
+{
+  "imports":{
+    "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
 
-  <script type="module">
-    import * as THREE from "three";
-    import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
-    import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
-    import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
-    import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
-    import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
-    import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+<script type="module">
+import * as THREE from "three";
+import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
+import * as SkeletonUtils from "three/addons/utils/SkeletonUtils.js";
 
-    /*
-      ============================================================
-      CONFIG
-      ============================================================
+/* ===================== CONFIG ===================== */
 
-      Put your FBX files here, or change these paths:
+function makeCharacter(fileBase, fighterName, team, cssColor, placeholderColor, cardBg){
+  return {
+    name: team.toUpperCase(),
+    fighterName,
+    team,
+    cssColor,
+    color: placeholderColor,
+    model: `${fileBase}.fbx`,
+    anims: {
+      idle: `${fileBase}Idle.fbx`,
+      punch: `${fileBase}Punch.fbx`
+    },
+    modelRotationY: 0,
+    modelYOffset: 0,
+    cardBg
+  };
+}
 
-        ./models/Hyle.fbx
-        ./models/HyleIdle.fbx
-        ./models/HylePunch.fbx
+const CHARACTERS = {
+  dodger: makeCharacter(
+    "Hyle",
+    "HYLE",
+    "Dodger",
+    "#2f8fe0",
+    0x005a9c,
+    "linear-gradient(160deg,#0a6cb8,#005a9c 55%,#003c6b)"
+  ),
+  yankee: makeCharacter(
+    "Kevo",
+    "KEVO",
+    "Yankee",
+    "#8fa6bd",
+    0x0c2340,
+    "repeating-linear-gradient(90deg,rgba(255,255,255,.10) 0 2px,transparent 2px 15px),linear-gradient(160deg,#16335c,#0c2340 60%,#060f1f)"
+  ),
+  paul: makeCharacter(
+    "Paul",
+    "PAUL",
+    "Orioles",
+    "#df4601",
+    0xdf4601,
+    "linear-gradient(160deg,#151515,#df4601 65%,#4d1700)"
+  ),
+  ted: makeCharacter(
+    "Ted",
+    "TED",
+    "Red Sox",
+    "#ff2d3f",
+    0xc6011f,
+    "linear-gradient(160deg,#5c0010,#c6011f 60%,#1d0006)"
+  ),
+  scherz: makeCharacter(
+    "Scherz",
+    "SCHERZ",
+    "Royals",
+    "#3f8cff",
+    0x004687,
+    "linear-gradient(0deg,rgba(255,255,255,.28),transparent 38%),linear-gradient(160deg,#001733,#004687 60%,#000a14)"
+  ),
+  doug: makeCharacter(
+    "Doug",
+    "DOUG",
+    "Royals",
+    "#004687",
+    0xeaf4ff,
+    "linear-gradient(0deg,rgba(0,70,135,.30),transparent 42%),linear-gradient(160deg,#ffffff,#d9e9ff 45%,#004687)"
+  ),
+  danny: makeCharacter(
+    "Danny",
+    "DANNY",
+    "Avalanche",
+    "#b56a7f",
+    0x6f263d,
+    "linear-gradient(160deg,#230711,#6f263d 60%,#0d0309)"
+  ),
+  nick: makeCharacter(
+    "Nick",
+    "NICK",
+    "Cardinals",
+    "#ff4d5e",
+    0xc41e3a,
+    "linear-gradient(160deg,#4d0511,#c41e3a 60%,#190207)"
+  ),
+  josh: makeCharacter(
+    "Josh",
+    "JOSH",
+    "Cubs",
+    "#2f59c4",
+    0xeaf1ff,
+    "linear-gradient(0deg,rgba(239,62,66,.22),transparent 36%),linear-gradient(160deg,#ffffff,#dbe8ff 45%,#0e3386)"
+  ),
+  dan: makeCharacter(
+    "Dan",
+    "DAN",
+    "Cubs",
+    "#8fb2ff",
+    0x0e3386,
+    "linear-gradient(0deg,rgba(239,62,66,.25),transparent 38%),linear-gradient(160deg,#05122f,#0e3386 60%,#020a1b)"
+  ),
+  nate: makeCharacter(
+    "Nate",
+    "NATE",
+    "DJ Pink Bunny",
+    "#ff5fd2",
+    0xff5fd2,
+    "linear-gradient(160deg,#ffbdf0,#ff5fd2 55%,#96117b)"
+  )
+};
 
-      If the files are missing, a placeholder fighter is created
-      automatically so you can still evaluate lighting/stadium.
+const ATTACKS = {
+  punch:{
+    duration:.30, activeStart:.07, activeEnd:.18, range:22, damage:7, knock:46, meter:10,
+    color:0xffffff, y:22, effectW:8, effectH:6, effectD:22
+  },
+  special:{
+    duration:.62, activeStart:.16, activeEnd:.42, range:44, damage:26, knock:140, meter:0,
+    color:0xfacc15, y:20, effectW:18, effectH:22, effectD:46
+  }
+};
 
-      MERGE NOTE:
-      If you already have working game logic, keep your logic and
-      lift these systems from this file:
+const ARENA_BOUNDS = 86;
+const TARGET_H = 36;
 
-        - renderer setup
-        - lighting rig
-        - stadium construction
-        - addCombatRimToMaterial()
-        - EffectComposer / bloom
-        - camera shake / hit-stop helpers
-    */
+/* ===================== DOM ===================== */
 
-    const MODEL_PATHS = {
-      hyle: "./models/Hyle.fbx",
-      idle: "./models/HyleIdle.fbx",
-      punch: "./models/HylePunch.fbx"
-    };
+const $ = id => document.getElementById(id);
 
-    const TRY_LOAD_FBX = true;
+const menuScreen = $("menuScreen");
+const selectScreen = $("selectScreen");
+const loadingScreen = $("loadingScreen");
+const gameScreen = $("gameScreen");
+const gameOverScreen = $("gameOverScreen");
+const gameContainer = $("gameContainer");
 
-    const TARGET_FIGHTER_HEIGHT = 1.85;
-    const CAMERA_FOV = 38;
+const startBtn = $("startBtn");
+const playBtn = $("playBtn");
+const backBtn = $("backBtn");
+const rematchBtn = $("rematchBtn");
+const mainMenuBtn = $("mainMenuBtn");
+const menuBtn = $("menuBtn");
+const loadingBackBtn = $("loadingBackBtn");
 
-    /*
-      ============================================================
-      UI
-      ============================================================
-    */
+const sfxMenuBtn = $("sfxMenuBtn");
+const sfxGameBtn = $("sfxGameBtn");
 
-    const screens = {
-      title: document.getElementById("screen-title"),
-      choose: document.getElementById("screen-choose"),
-      loading: document.getElementById("screen-loading"),
-      fight: document.getElementById("screen-fight"),
-      gameover: document.getElementById("screen-gameover")
-    };
+const loadingStatus = $("loadingStatus");
+const loadingFill = $("loadingFill");
 
-    const loadingStatus = document.getElementById("loading-status");
-    const timerEl = document.getElementById("timer");
-    const flashEl = document.getElementById("flash");
+const touchControls = $("touchControls");
+const roundText = $("roundText");
+const winnerText = $("winnerText");
+const finalScore = $("finalScore");
+const gameOverEyebrow = $("gameOverEyebrow");
 
-    let currentScreen = "title";
-    let sfxOn = true;
-    let isEnteringFight = false;
+const p1Name = $("p1Name");
+const p2Name = $("p2Name");
+const p1Team = $("p1Team");
+const p2Team = $("p2Team");
+const p1Health = $("p1Health");
+const p2Health = $("p2Health");
+const p1Special = $("p1Special");
+const p2Special = $("p2Special");
+const p1Pips = $("p1Pips");
+const p2Pips = $("p2Pips");
 
-    function showScreen(name) {
-      currentScreen = name;
+const selectRow = $("selectRow");
+const specialTouchBtn = document.querySelector('[data-action="special"]');
 
-      for (const key of Object.keys(screens)) {
-        screens[key].classList.add("hidden");
+/* ===================== STATE ===================== */
+
+let scene, camera, renderer, clock;
+let effects = [];
+let player = null;
+let cpu = null;
+let audioCtx = null;
+let selectedChar = "dodger";
+let camShake = 0;
+let lastMessage = "";
+
+const modelCache = new Map();
+const rawAnimCache = new Map();
+const fbxLoader = new FBXLoader();
+
+const state = {
+  playerChar: "dodger",
+  cpuChar: "yankee",
+  round: 1,
+  pWins: 0,
+  cWins: 0,
+  running: false,
+  over: false,
+  message: "",
+  messageTimer: 0,
+  transitionTimer: 0,
+  sfx: true,
+  queue: [],
+  opponentIndex: 0,
+  matchesWon: 0
+};
+
+const input = {
+  left: false,
+  right: false,
+  block: false,
+  queue: []
+};
+
+/* ===================== UTILS ===================== */
+
+const isTouch = () => ("ontouchstart" in window || navigator.maxTouchPoints > 0 || matchMedia("(pointer:coarse)").matches);
+
+function shuffle(arr){
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function showScreen(id){
+  [menuScreen, selectScreen, loadingScreen, gameScreen, gameOverScreen].forEach(s => s.classList.add("hidden"));
+  $(id).classList.remove("hidden");
+}
+
+function updateSfxButtons(){
+  sfxMenuBtn.textContent = `SFX: ${state.sfx ? "ON" : "OFF"}`;
+  sfxGameBtn.textContent = state.sfx ? "🔊 SFX" : "🔇 SFX";
+}
+
+function ensureAudio(){
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") audioCtx.resume();
+  }catch(e){}
+}
+
+function playSfx(t){
+  if(!state.sfx) return;
+  ensureAudio();
+  if(!audioCtx) return;
+
+  const n = audioCtx.currentTime;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.connect(g);
+  g.connect(audioCtx.destination);
+
+  if(t === "hit"){
+    o.type = "square";
+    o.frequency.setValueAtTime(200, n);
+    o.frequency.exponentialRampToValueAtTime(70, n + .11);
+    g.gain.setValueAtTime(.075, n);
+    g.gain.exponentialRampToValueAtTime(.001, n + .13);
+    o.start(n);
+    o.stop(n + .14);
+    if(navigator.vibrate){ try{ navigator.vibrate(18); }catch(e){} }
+  }
+  else if(t === "block"){
+    o.type = "triangle";
+    o.frequency.setValueAtTime(320, n);
+    o.frequency.exponentialRampToValueAtTime(180, n + .07);
+    g.gain.setValueAtTime(.05, n);
+    g.gain.exponentialRampToValueAtTime(.001, n + .09);
+    o.start(n);
+    o.stop(n + .1);
+  }
+  else if(t === "win"){
+    o.type = "sawtooth";
+    o.frequency.setValueAtTime(330, n);
+    o.frequency.setValueAtTime(440, n + .09);
+    o.frequency.setValueAtTime(550, n + .18);
+    g.gain.setValueAtTime(.055, n);
+    g.gain.exponentialRampToValueAtTime(.001, n + .34);
+    o.start(n);
+    o.stop(n + .35);
+  }
+  else if(t === "special"){
+    o.type = "sawtooth";
+    o.frequency.setValueAtTime(140, n);
+    o.frequency.exponentialRampToValueAtTime(760, n + .22);
+    g.gain.setValueAtTime(.075, n);
+    g.gain.exponentialRampToValueAtTime(.001, n + .3);
+    o.start(n);
+    o.stop(n + .31);
+  }
+}
+
+const waitMinLoad = (ms = 350) => new Promise(r => setTimeout(r, ms));
+
+/* ===================== THREE SCENE ===================== */
+
+function initThree(){
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x08101f);
+  scene.fog = new THREE.Fog(0x08101f, 210, 460);
+
+  camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, .1, 1000);
+  camera.position.set(0, 62, 145);
+  camera.lookAt(0, 26, 0);
+
+  renderer = new THREE.WebGLRenderer({ antialias:true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  gameContainer.appendChild(renderer.domElement);
+
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x223344, 1.15));
+
+  const dir = new THREE.DirectionalLight(0xffffff, 1.35);
+  dir.position.set(70, 130, 60);
+  dir.castShadow = true;
+  dir.shadow.mapSize.set(2048, 2048);
+  dir.shadow.camera.left = -170;
+  dir.shadow.camera.right = 170;
+  dir.shadow.camera.top = 170;
+  dir.shadow.camera.bottom = -170;
+  dir.shadow.camera.far = 400;
+  dir.shadow.camera.updateProjectionMatrix();
+  scene.add(dir);
+
+  const gnd = new THREE.Mesh(
+    new THREE.PlaneGeometry(460, 260),
+    new THREE.MeshStandardMaterial({ color:0x15803d, roughness:.95 })
+  );
+  gnd.rotation.x = -Math.PI / 2;
+  gnd.receiveShadow = true;
+  scene.add(gnd);
+
+  const dirt = new THREE.Mesh(
+    new THREE.CircleGeometry(38, 48),
+    new THREE.MeshStandardMaterial({ color:0x92400e, roughness:1 })
+  );
+  dirt.rotation.x = -Math.PI / 2;
+  dirt.position.y = .05;
+  dirt.receiveShadow = true;
+  scene.add(dirt);
+
+  const bM = new THREE.MeshStandardMaterial({ color:0xf8fafc, roughness:.6 });
+  const bG = new THREE.BoxGeometry(5, .4, 5);
+  [[0,.2,32],[32,.2,0],[0,.2,-32],[-32,.2,0]].forEach(p => {
+    const b = new THREE.Mesh(bG, bM);
+    b.position.set(...p);
+    b.receiveShadow = true;
+    scene.add(b);
+  });
+
+  const sM = new THREE.MeshStandardMaterial({ color:0x1f2937, roughness:.8 });
+
+  const bs = new THREE.Mesh(new THREE.BoxGeometry(380, 52, 28), sM);
+  bs.position.set(0, 26, -102);
+  bs.receiveShadow = true;
+  scene.add(bs);
+
+  const ls = new THREE.Mesh(new THREE.BoxGeometry(28, 44, 235), sM);
+  ls.position.set(-175, 22, 0);
+  ls.receiveShadow = true;
+  scene.add(ls);
+
+  const rs = ls.clone();
+  rs.position.x = 175;
+  scene.add(rs);
+
+  const pM = new THREE.MeshStandardMaterial({ color:0x334155, roughness:.6, metalness:.35 });
+  const lM = new THREE.MeshStandardMaterial({ color:0xffffff, emissive:0xffffff, emissiveIntensity:2.4 });
+
+  [[-125,92,-85],[125,92,-85],[-125,92,85],[125,92,85]].forEach(p => {
+    const po = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 2.2, 92, 12), pM);
+    po.position.set(p[0], 46, p[2]);
+    po.castShadow = true;
+    scene.add(po);
+
+    const la = new THREE.Mesh(new THREE.SphereGeometry(4.2, 18, 18), lM);
+    la.position.set(...p);
+    scene.add(la);
+  });
+
+  buildCrowd();
+  buildScoreboard();
+}
+
+function buildCrowd(){
+  const pal = [0x94a3b8,0x64748b,0xf2c14e,0x2f8fe0,0xef3e42,0xe2e8f0,0x334155,0x005a9c];
+  const sp = [];
+
+  for(let r = 0; r < 6; r++){
+    for(let x = -172; x <= 172; x += 4.6){
+      sp.push([x + (Math.random() - .5) * 1.6, 53.4 + r * 1.25, -92 - r * 4.4]);
+    }
+  }
+
+  for(let r = 0; r < 5; r++){
+    for(let z = -108; z <= 108; z += 4.6){
+      sp.push([-163 - r * 4.4, 45.4 + r * 1.25, z + (Math.random() - .5) * 1.6]);
+      sp.push([163 + r * 4.4, 45.4 + r * 1.25, z + (Math.random() - .5) * 1.6]);
+    }
+  }
+
+  const cr = new THREE.InstancedMesh(
+    new THREE.BoxGeometry(1.6, 2.2, 1.6),
+    new THREE.MeshStandardMaterial({ roughness:.9 }),
+    sp.length
+  );
+
+  const d = new THREE.Object3D();
+  const c = new THREE.Color();
+
+  sp.forEach((s, i) => {
+    d.position.set(...s);
+    d.rotation.y = Math.random() * Math.PI;
+    d.updateMatrix();
+    cr.setMatrixAt(i, d.matrix);
+    cr.setColorAt(i, c.setHex(pal[(Math.random() * pal.length) | 0]));
+  });
+
+  cr.instanceMatrix.needsUpdate = true;
+  if(cr.instanceColor) cr.instanceColor.needsUpdate = true;
+  scene.add(cr);
+}
+
+function buildScoreboard(){
+  const cv = document.createElement("canvas");
+  cv.width = 1024;
+  cv.height = 256;
+
+  const g = cv.getContext("2d");
+  g.fillStyle = "#0a1428";
+  g.fillRect(0, 0, 1024, 256);
+
+  g.strokeStyle = "#f2c14e";
+  g.lineWidth = 10;
+  g.strokeRect(10, 10, 1004, 236);
+
+  g.textAlign = "center";
+  g.fillStyle = "#f2c14e";
+  g.font = "bold 72px Bungee,Arial Black,sans-serif";
+  g.fillText("FANTASY BASEBALL", 512, 110);
+
+  g.fillStyle = "#e8eef7";
+  g.font = "bold 62px Barlow Condensed,Arial Narrow,sans-serif";
+  g.fillText("BATTLE ROYALE · 11 FIGHTERS", 512, 200);
+
+  const t = new THREE.CanvasTexture(cv);
+  t.anisotropy = 4;
+
+  const b = new THREE.Mesh(
+    new THREE.PlaneGeometry(96, 24),
+    new THREE.MeshBasicMaterial({ map:t })
+  );
+  b.position.set(0, 30, -87.6);
+  scene.add(b);
+}
+
+function onResize(){
+  const w = gameContainer.clientWidth || innerWidth;
+  const h = gameContainer.clientHeight || innerHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}
+
+/* ===================== FBX + MIXAMO RETARGETING ===================== */
+
+function setMeshFlags(o){
+  if(o.isMesh || o.isSkinnedMesh){
+    o.castShadow = true;
+    o.receiveShadow = false;
+    if(o.material){
+      if(Array.isArray(o.material)) o.material.forEach(m => m.side = THREE.DoubleSide);
+      else o.material.side = THREE.DoubleSide;
+    }
+  }
+}
+
+function normalizeBoneName(n){
+  let s = String(n || "").toLowerCase().trim();
+  s = s.replace(/^mixamorig[\s:_.-]*/, "");
+  s = s.replace(/^(character|char|armature|skeleton|rig|valvebiped|bip)[\s:_.-]*/, "");
+  s = s.replace(/[\s:_.-]+/g, "");
+  return s;
+}
+
+function collectBoneInfo(root){
+  const actual = new Set();
+  const norm = new Map();
+
+  root.traverse(o => {
+    if(o.isBone && o.name){
+      actual.add(o.name);
+      const n = normalizeBoneName(o.name);
+      if(n && !norm.has(n)) norm.set(n, o.name);
+    }
+  });
+
+  return { actual, norm };
+}
+
+async function loadModelAsset(cfg){
+  if(modelCache.has(cfg.model)) return modelCache.get(cfg.model);
+
+  const asset = {
+    template: null,
+    clips: {}
+  };
+
+  try{
+    const raw = await fbxLoader.loadAsync(cfg.model);
+
+    raw.updateMatrixWorld(true);
+    let box = new THREE.Box3().setFromObject(raw);
+    const size = box.getSize(new THREE.Vector3());
+    const scale = size.y ? TARGET_H / size.y : 1;
+    raw.scale.setScalar(scale);
+
+    raw.updateMatrixWorld(true);
+    box = new THREE.Box3().setFromObject(raw);
+    const center = box.getCenter(new THREE.Vector3());
+    const h = box.max.y - box.min.y;
+
+    /* Ground-plant fix #1:
+       Some FBX exports contain geometry below the soles (base, shadow disc,
+       helper meshes), so the bounding-box bottom sits below the feet and the
+       character floats. Compare against the lowest bind-pose bone (toes/feet)
+       and plant on that instead when the gap is significant. */
+    let minBoneY = Infinity;
+    const wp = new THREE.Vector3();
+    raw.traverse(o => {
+      if(o.isBone){
+        o.getWorldPosition(wp);
+        if(wp.y < minBoneY) minBoneY = wp.y;
       }
+    });
 
-      screens[name].classList.remove("hidden");
+    let groundY = box.min.y;
+    if(isFinite(minBoneY) && minBoneY < box.max.y && (minBoneY - box.min.y) > h * .04){
+      console.warn(`[model] ${cfg.model}: geometry extends ${(minBoneY - box.min.y).toFixed(2)} below feet — planting on lowest bone instead`);
+      groundY = minBoneY - h * .01;
+    }
 
-      // Prevent buttons from stealing Space / F keyboard input.
-      if (document.activeElement && document.activeElement.blur) {
-        document.activeElement.blur();
+    raw.position.x -= center.x;
+    raw.position.z -= center.z;
+    raw.position.y -= groundY;
+    raw.position.y += cfg.modelYOffset || 0;
+    if (cfg.model === "Paul.fbx") {
+  raw.position.y -= 17;   // ← change this number if he sinks or still floats
+}
+        if (cfg.model === "Ted.fbx") {
+  raw.position.y -= 17;   // ← change this number if he sinks or still floats
+}
+
+
+    raw.updateMatrixWorld(true);
+    raw.traverse(setMeshFlags);
+
+    asset.template = raw;
+  }catch(e){
+    console.warn(`[model] Could not load ${cfg.model}. Using placeholder capsule.`, e);
+  }
+
+  modelCache.set(cfg.model, asset);
+  return asset;
+}
+async function loadRawClip(url){
+  if(rawAnimCache.has(url)) return rawAnimCache.get(url);
+
+  let clip = null;
+
+  try{
+    const g = await fbxLoader.loadAsync(url);
+    for(const c of (g.animations || [])){
+      if(c.tracks && c.tracks.length && (!clip || c.tracks.length > clip.tracks.length)) clip = c;
+    }
+    if(!clip) console.warn(`[anim] No clip found in ${url}`);
+  }catch(e){
+    console.warn(`[anim] Could not load ${url}`, e);
+  }
+
+  rawAnimCache.set(url, clip);
+  return clip;
+}
+
+function retargetClip(clip, info, template){
+  const { actual, norm } = info;
+  const hipsT = norm.get("hips") || null;
+
+  let ratio = 1;
+  let hipsBindY = 0;
+
+  if(hipsT){
+    let hb = null;
+    template.traverse(o => {
+      if(o.isBone && o.name === hipsT) hb = o;
+    });
+
+    const ht = clip.tracks.find(t => {
+      const d = t.name.indexOf(".");
+      if(d < 0) return false;
+      const n = t.name.slice(0, d);
+      const p = t.name.slice(d + 1);
+      return p === "position" && (n === hipsT || norm.get(normalizeBoneName(n)) === hipsT);
+    });
+
+    if(hb && ht && ht.values.length >= 3 && hb.position.y > 0 && ht.values[1] !== 0){
+      const r = hb.position.y / ht.values[1];
+      if(isFinite(r) && r > 0) ratio = r;
+      hipsBindY = hb.position.y;
+    }
+  }
+
+  let bound = 0;
+  let dropped = 0;
+  const tracks = [];
+
+  for(const tr of clip.tracks){
+    const d = tr.name.indexOf(".");
+    if(d < 0){
+      tracks.push(tr);
+      continue;
+    }
+
+    const nn = tr.name.slice(0, d);
+    const rest = tr.name.slice(d);
+    const prop = rest.slice(1);
+
+    let tgt = actual.has(nn) ? nn : (norm.get(normalizeBoneName(nn)) || null);
+    if(!tgt){
+      dropped++;
+      continue;
+    }
+
+    bound++;
+
+    const rename = tgt !== nn;
+    const isHipsPos = tgt === hipsT && prop === "position" && hipsBindY > 0;
+
+    if(!rename && !isHipsPos){
+      tracks.push(tr);
+      continue;
+    }
+
+    const t = tr.clone();
+
+    if(rename) t.name = tgt + rest;
+
+    if(isHipsPos){
+      const v = t.values.slice();
+
+      /* Ground-plant fix #2:
+         Rebase hips Y so the animation's LOWEST hips position (deepest
+         crouch) lands exactly on the model's bind-pose hips height.
+         Pure ratio scaling alone leaves the character floating whenever
+         the exported animation's hips sit higher than the bind pose. */
+      let minY = Infinity;
+      for(let i = 1; i < v.length; i += 3){
+        if(v[i] < minY) minY = v[i];
       }
+      if(!isFinite(minY) || minY <= 0) minY = v[1] || 1;
 
-      if (name === "fight") {
-        startRoundTimer();
-      } else {
-        stopRoundTimer();
+      const rY = hipsBindY / minY;
+
+      for(let i = 0; i < v.length; i += 3){
+        v[i]     *= ratio;                              // x
+        v[i + 1] = hipsBindY + (v[i + 1] - minY) * rY;  // y
+        v[i + 2] *= ratio;                              // z
       }
+      t.values = v;
     }
 
-    document.getElementById("btn-start-gauntlet").addEventListener("click", () => {
-      showScreen("choose");
-    });
+    tracks.push(t);
+  }
 
-    document.getElementById("btn-play-ball").addEventListener("click", async () => {
-      await enterFight();
-    });
+  console.warn(`[anim] "${clip.name}" → ${bound} bound, ${dropped} dropped${ratio !== 1 ? `, scale ×${ratio.toFixed(4)}` : ""}`);
+  if(!bound) console.warn("[anim] 0 tracks bound! Model bones:", [...actual].join(", "));
 
-    document.getElementById("btn-loading-menu").addEventListener("click", () => {
-      showScreen("title");
-    });
+  return tracks.length ? new THREE.AnimationClip(clip.name, clip.duration, tracks) : null;
+}
+/* Load ONE character's model + anims (with progress steps). Cached files resolve instantly. */
+async function preloadCharacter(key, step){
+  const c = CHARACTERS[key];
 
-    document.getElementById("btn-menu-hud").addEventListener("click", () => {
-      showScreen("title");
-    });
+  loadingStatus.textContent = `LOADING ${c.fighterName} (${c.team})…`;
+  const asset = await loadModelAsset(c);
 
-    document.getElementById("btn-gameover-test").addEventListener("click", () => {
-      showScreen("gameover");
-    });
+  let info = null;
+  if(asset.template) info = collectBoneInfo(asset.template);
 
-    document.getElementById("btn-rematch").addEventListener("click", async () => {
-      await enterFight();
-    });
+  step();
 
-    document.querySelectorAll("[data-goto]").forEach((button) => {
-      button.addEventListener("click", () => {
-        showScreen(button.dataset.goto);
-      });
-    });
+  for(const [s, url] of Object.entries(c.anims)){
+    loadingStatus.textContent = `LOADING ${c.fighterName} ${s.toUpperCase()}…`;
+    const raw = await loadRawClip(url);
+    asset.clips[s] = (raw && info && asset.template) ? retargetClip(raw, info, asset.template) : null;
+    step();
+  }
+}
 
-    function toggleSFX() {
-      sfxOn = !sfxOn;
-      const label = sfxOn ? "SFX: ON" : "SFX: OFF";
-      const hudLabel = sfxOn ? "🔊 SFX" : "🔇 SFX";
+/* ===================== FIGHTER ===================== */
 
-      document.getElementById("btn-sfx-title").textContent = label;
-      document.getElementById("btn-sfx-hud").textContent = hudLabel;
-    }
+class Fighter{
+  constructor(ck, x, isCPU){
+    this.char = CHARACTERS[ck];
+    this.isCPU = isCPU;
 
-    document.getElementById("btn-sfx-title").addEventListener("click", toggleSFX);
-    document.getElementById("btn-sfx-hud").addEventListener("click", toggleSFX);
+    this.x = x;
+    this.y = 0;
+    this.vx = 0;
+    this.vy = 0;
+    this.face = 1;
+    this.onGround = true;
 
-    let roundTimerInterval = null;
-    let roundTime = 60;
+    this.width = 13;
+    this.height = 36;
+    this.health = 100;
+    this.special = 0;
 
-    function startRoundTimer() {
-      stopRoundTimer();
-      roundTime = 60;
-      timerEl.textContent = String(roundTime);
+    this.blocking = false;
+    this.attack = null;
+    this.attackCooldown = 0;
+    this.hitstun = 0;
 
-      roundTimerInterval = setInterval(() => {
-        roundTime = Math.max(0, roundTime - 1);
-        timerEl.textContent = String(roundTime);
-      }, 1000);
-    }
+    this.aiTimer = 0;
+    this.aiState = {};
+    this.animTime = 0;
 
-    function stopRoundTimer() {
-      if (roundTimerInterval) {
-        clearInterval(roundTimerInterval);
-        roundTimerInterval = null;
-      }
-    }
+    this.mixer = null;
+    this.clipsByState = {};
+    this.currentAction = null;
+    this.currentClip = null;
+    this.currentAnim = "";
 
-    /*
-      ============================================================
-      RENDERER
-      ============================================================
-    */
+    this.model = null;
+    this.disposed = false;
 
-    const canvas = document.getElementById("game-canvas");
+    this.group = new THREE.Group();
+    this.group.position.set(x, 0, 0);
+    scene.add(this.group);
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true,
-      powerPreference: "high-performance"
-    });
+    this.modelRoot = new THREE.Group();
+    this.modelRoot.rotation.y = this.char.modelRotationY || 0;
+    this.group.add(this.modelRoot);
 
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.modelVisual = new THREE.Group();
+    this.modelRoot.add(this.modelVisual);
 
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.12;
-
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-    if ("useLegacyLights" in renderer) {
-      renderer.useLegacyLights = false;
-    }
-
-    /*
-      ============================================================
-      SCENE / CAMERA
-      ============================================================
-    */
-
-    const scene = new THREE.Scene();
-    scene.background = makeSkyGradientTexture();
-    scene.fog = new THREE.FogExp2(0x091019, 0.022);
-
-    const camera = new THREE.PerspectiveCamera(
-      CAMERA_FOV,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      200
+    this.placeholder = new THREE.Mesh(
+      new THREE.CapsuleGeometry(4.8, 18, 8, 18),
+      new THREE.MeshStandardMaterial({
+        color: this.char.color,
+        transparent: true,
+        opacity: .72,
+        roughness: .6
+      })
     );
+    this.placeholder.position.y = 18;
+    this.placeholder.castShadow = true;
+    this.modelVisual.add(this.placeholder);
 
-    const cameraBase = new THREE.Vector3(0, 1.75, 5.6);
-    const cameraTarget = new THREE.Vector3(0, 1.15, 0);
-
-    camera.position.copy(cameraBase);
-    camera.lookAt(cameraTarget);
-
-    // Neutral PBR environment.
-    // For final art, replace this with a stadium HDRI.
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmremGenerator.fromScene(
-      new RoomEnvironment(renderer),
-      0.04
-    ).texture;
-
-    /*
-      ============================================================
-      LIGHTING RIG
-      ============================================================
-
-      Broadcast-style fight lighting:
-        - warm key
-        - cool low fill
-        - cool rim
-        - fighter spotlight pool
-    */
-
-    const keyLight = new THREE.DirectionalLight(0xfff0d8, 2.3);
-    keyLight.position.set(3.5, 6.0, 2.5);
-    keyLight.castShadow = true;
-    keyLight.shadow.mapSize.set(2048, 2048);
-    keyLight.shadow.camera.near = 0.5;
-    keyLight.shadow.camera.far = 25;
-    keyLight.shadow.camera.left = -6;
-    keyLight.shadow.camera.right = 6;
-    keyLight.shadow.camera.top = 6;
-    keyLight.shadow.camera.bottom = -6;
-    keyLight.shadow.bias = -0.00015;
-    keyLight.shadow.normalBias = 0.03;
-    keyLight.shadow.radius = 3;
-    scene.add(keyLight);
-
-    const fillLight = new THREE.HemisphereLight(
-      0x8fb7ff,
-      0x241a12,
-      0.35
+    this.shield = new THREE.Mesh(
+      new THREE.SphereGeometry(13.5, 20, 20),
+      new THREE.MeshBasicMaterial({
+        color: 0x60a5fa,
+        transparent: true,
+        opacity: .18,
+        depthWrite: false
+      })
     );
-    scene.add(fillLight);
+    this.shield.position.y = 18;
+    this.shield.visible = false;
+    this.group.add(this.shield);
 
-    const rimLight = new THREE.DirectionalLight(0x86d7ff, 1.8);
-    rimLight.position.set(-4.0, 4.5, -3.5);
-    scene.add(rimLight);
-
-    const fighterSpot = new THREE.SpotLight(
-      0xfff4e0,
-      65,
-      18,
-      Math.PI / 7,
-      0.35,
-      1.8
+    this.specialRing = new THREE.Mesh(
+      new THREE.RingGeometry(8.6, 10.8, 36),
+      new THREE.MeshBasicMaterial({
+        color: 0xfacc15,
+        transparent: true,
+        opacity: .62,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      })
     );
+    this.specialRing.rotation.x = -Math.PI / 2;
+    this.specialRing.position.y = .16;
+    this.specialRing.visible = false;
+    this.group.add(this.specialRing);
 
-    fighterSpot.position.set(0, 7, -1);
-    fighterSpot.target.position.set(0, 1, 0);
-    fighterSpot.castShadow = true;
-    fighterSpot.shadow.mapSize.set(1024, 1024);
-    fighterSpot.shadow.bias = -0.0002;
-
-    scene.add(fighterSpot);
-    scene.add(fighterSpot.target);
-
-    /*
-      ============================================================
-      STADIUM
-      ============================================================
-    */
-
-    const world = new THREE.Group();
-    scene.add(world);
-
-    buildStadium();
-
-    const dust = makeDust();
-    scene.add(dust);
-
-    /*
-      ============================================================
-      FIGHTER ROOT
-      ============================================================
-    */
-
-    const fighter = new THREE.Group();
-    fighter.name = "HyleRoot";
-    scene.add(fighter);
-
-    const contactShadow = makeContactShadow();
-    scene.add(contactShadow);
-
-    let mixer = null;
-    let idleAction = null;
-    let punchAction = null;
-
-    let useProceduralFallback = false;
-    let fallbackParts = null;
-
-    /*
-      ============================================================
-      POST PROCESSING
-      ============================================================
-    */
-
-    const composer = new EffectComposer(renderer);
-    composer.addPass(new RenderPass(scene, camera));
-
-    const bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(window.innerWidth, window.innerHeight),
-      0.22,
-      0.65,
-      0.62
+    this.effect = new THREE.Mesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: .75,
+        depthWrite: false
+      })
     );
+    this.effect.visible = false;
+    this.group.add(this.effect);
 
-    composer.addPass(bloomPass);
-    composer.addPass(new OutputPass());
+    this.loadModel();
+  }
 
-    const BASE_BLOOM = 0.22;
+  async loadModel(){
+    try{
+      const asset = await loadModelAsset(this.char);
+      if(this.disposed || !asset.template) return;
 
-    /*
-      ============================================================
-      INPUT / GAME FEEL STATE
-      ============================================================
+      const clone = SkeletonUtils.clone(asset.template);
 
-      MERGE NOTE:
-      Replace this simple movement/animation stub with your
-      existing gameplay state machine. The presentation hooks
-      (triggerPunch, triggerSpecial, addTrauma, hitStop) are
-      what you want to keep.
-    */
-
-    const keys = {
-      a: false,
-      d: false,
-      w: false,
-      s: false
-    };
-
-    const moveState = {
-      velocityY: 0,
-      grounded: true,
-      punchTime: -1,
-      block: false
-    };
-
-    let trauma = 0;
-    let hitStop = 0;
-    let specialPulse = 0;
-
-    const FIGHTER_BOUNDS_X = 3.15;
-    const MOVE_SPEED = 2.35;
-    const JUMP_VELOCITY = 4.35;
-    const GRAVITY = 11.8;
-
-    window.addEventListener("keydown", (event) => {
-      if (currentScreen !== "fight") return;
-
-      switch (event.code) {
-        case "KeyA":
-        case "ArrowLeft":
-          keys.a = true;
-          break;
-
-        case "KeyD":
-        case "ArrowRight":
-          keys.d = true;
-          break;
-
-        case "KeyW":
-        case "ArrowUp":
-          keys.w = true;
-          break;
-
-        case "KeyS":
-        case "ArrowDown":
-          keys.s = true;
-          moveState.block = true;
-          break;
-
-        case "KeyF":
-          triggerPunch();
-          break;
-
-        case "Space":
-          event.preventDefault();
-          triggerSpecial();
-          break;
-      }
-    });
-
-    window.addEventListener("keyup", (event) => {
-      switch (event.code) {
-        case "KeyA":
-        case "ArrowLeft":
-          keys.a = false;
-          break;
-
-        case "KeyD":
-        case "ArrowRight":
-          keys.d = false;
-          break;
-
-        case "KeyW":
-        case "ArrowUp":
-          keys.w = false;
-          break;
-
-        case "KeyS":
-        case "ArrowDown":
-          keys.s = false;
-          moveState.block = false;
-          break;
-      }
-    });
-
-    function triggerPunch() {
-      if (punchAction && idleAction) {
-        punchAction.reset();
-        punchAction.setLoop(THREE.LoopOnce, 1);
-        punchAction.clampWhenFinished = true;
-        punchAction.play();
-
-        idleAction.crossFadeTo(punchAction, 0.06, false);
-      } else {
-        moveState.punchTime = 0;
-      }
-
-      addTrauma(0.14);
-      hitStop = Math.max(hitStop, 0.025);
-      flashScreen(0.06);
-    }
-
-    function triggerSpecial() {
-      triggerPunch();
-
-      addTrauma(0.42);
-      hitStop = Math.max(hitStop, 0.055);
-      specialPulse = 1.0;
-      flashScreen(0.34);
-    }
-
-    function addTrauma(amount) {
-      trauma = Math.min(1, trauma + amount);
-    }
-
-    function flashScreen(opacity) {
-      flashEl.style.opacity = String(opacity);
-    }
-
-    if (mixer) {
-      mixer.addEventListener("finished", onMixerFinished);
-    }
-
-    function onMixerFinished(event) {
-      if (event.action === punchAction && idleAction) {
-        punchAction.crossFadeTo(idleAction, 0.08, false);
-        idleAction.reset().play();
-      }
-    }
-
-    /*
-      ============================================================
-      MODEL LOADING
-      ============================================================
-    */
-
-    async function enterFight() {
-      if (isEnteringFight) return;
-      isEnteringFight = true;
-
-      showScreen("loading");
-      loadingStatus.textContent = "LOADING MODELS…";
-
-      await loadFighterPresentation();
-
-      // Small artificial load beat so the loading screen reads clearly.
-      await wait(450);
-
-      showScreen("fight");
-      isEnteringFight = false;
-    }
-
-    async function loadFighterPresentation() {
-      // Clear old fighter visuals.
-      while (fighter.children.length) {
-        fighter.remove(fighter.children[0]);
-      }
-
-      mixer = null;
-      idleAction = null;
-      punchAction = null;
-      useProceduralFallback = false;
-      fallbackParts = null;
-
-      let model = null;
-
-      if (TRY_LOAD_FBX) {
-        const loader = new FBXLoader();
-
-        try {
-          loadingStatus.textContent = "LOADING HYLE…";
-          model = await loader.loadAsync(MODEL_PATHS.hyle);
-        } catch (error) {
-          console.warn("Could not load Hyle.fbx. Using fallback fighter.", error);
-        }
-
-        if (model) {
-          mixer = new THREE.AnimationMixer(model);
-          mixer.addEventListener("finished", onMixerFinished);
-
-          if (Array.isArray(model.animations) && model.animations.length > 0) {
-            idleAction = mixer.clipAction(model.animations[0]);
-          }
-
-          try {
-            loadingStatus.textContent = "LOADING HYLE IDLE…";
-            const idleFbx = await loader.loadAsync(MODEL_PATHS.idle);
-
-            if (Array.isArray(idleFbx.animations) && idleFbx.animations.length > 0) {
-              idleAction = mixer.clipAction(idleFbx.animations[0]);
+      clone.traverse(o => {
+        if(o.isMesh || o.isSkinnedMesh){
+          if(o.geometry) o.geometry = o.geometry.clone();
+          if(o.material){
+            if(Array.isArray(o.material)){
+              o.material = o.material.map(m => {
+                const c = m.clone();
+                c.side = THREE.DoubleSide;
+                return c;
+              });
+            }else{
+              o.material = o.material.clone();
+              o.material.side = THREE.DoubleSide;
             }
-          } catch (error) {
-            console.warn("Could not load HyleIdle.fbx.", error);
           }
-
-          try {
-            loadingStatus.textContent = "LOADING HYLE PUNCH…";
-            const punchFbx = await loader.loadAsync(MODEL_PATHS.punch);
-
-            if (Array.isArray(punchFbx.animations) && punchFbx.animations.length > 0) {
-              punchAction = mixer.clipAction(punchFbx.animations[0]);
-              punchAction.setLoop(THREE.LoopOnce, 1);
-              punchAction.clampWhenFinished = true;
-            }
-          } catch (error) {
-            console.warn("Could not load HylePunch.fbx.", error);
-          }
+          o.castShadow = true;
+          o.receiveShadow = false;
         }
-      }
-
-      if (!model) {
-        model = createFallbackFighter();
-        useProceduralFallback = true;
-        fallbackParts = model.userData;
-      }
-
-      normalizeModel(model, TARGET_FIGHTER_HEIGHT);
-      applyFightPresentation(model);
-
-      fighter.add(model);
-      fighter.position.set(0, 0, 0);
-
-      if (idleAction) {
-        idleAction.reset().play();
-      }
-    }
-
-    function normalizeModel(object, targetHeight) {
-      const box = new THREE.Box3().setFromObject(object);
-      const size = box.getSize(new THREE.Vector3());
-
-      if (!isFinite(size.y) || size.y <= 0) return;
-
-      const scale = targetHeight / size.y;
-      object.scale.multiplyScalar(scale);
-
-      const scaledBox = new THREE.Box3().setFromObject(object);
-      const center = scaledBox.getCenter(new THREE.Vector3());
-
-      object.position.x -= center.x;
-      object.position.z -= center.z;
-      object.position.y -= scaledBox.min.y;
-    }
-
-    function applyFightPresentation(object) {
-      object.traverse((child) => {
-        if (!child.isMesh) return;
-
-        child.castShadow = true;
-        child.receiveShadow = true;
-
-        const materials = Array.isArray(child.material)
-          ? child.material
-          : [child.material];
-
-        materials.forEach((material) => {
-          if (!material) return;
-
-          if (
-            material.isMeshStandardMaterial ||
-            material.isMeshPhysicalMaterial
-          ) {
-            if (material.userData.combatRimApplied) return;
-
-            material.envMapIntensity = 0.88;
-
-            addCombatRimToMaterial(material, {
-              color: new THREE.Color(0x9edcff),
-              intensity: 0.32,
-              power: 2.6
-            });
-
-            material.userData.combatRimApplied = true;
-            material.needsUpdate = true;
-          }
-        });
       });
-    }
 
-    function addCombatRimToMaterial(material, options = {}) {
-      const rimColor = options.color || new THREE.Color(0x9edcff);
-      const rimIntensity = options.intensity ?? 0.32;
-      const rimPower = options.power ?? 2.6;
+      if(this.placeholder){
+        this.modelVisual.remove(this.placeholder);
+        this.placeholder.geometry?.dispose();
+        this.placeholder.material?.dispose();
+        this.placeholder = null;
+      }
 
-      material.onBeforeCompile = (shader) => {
-        shader.uniforms.uRimColor = { value: rimColor };
-        shader.uniforms.uRimIntensity = { value: rimIntensity };
-        shader.uniforms.uRimPower = { value: rimPower };
+      this.modelVisual.add(clone);
+      this.model = clone;
 
-        shader.fragmentShader = shader.fragmentShader.replace(
-          "#include <common>",
-          `
-          #include <common>
-          uniform vec3 uRimColor;
-          uniform float uRimIntensity;
-          uniform float uRimPower;
-          `
-        );
+      this.mixer = new THREE.AnimationMixer(clone);
 
-        shader.fragmentShader = shader.fragmentShader.replace(
-          "#include <emissivemap_fragment>",
-          `
-          #include <emissivemap_fragment>
-          {
-            vec3 rimViewDir = normalize(vViewPosition);
-            float rimDot = clamp(dot(normal, rimViewDir), 0.0, 1.0);
-            float rimAmount = pow(1.0 - rimDot, uRimPower);
-            totalEmissiveRadiance += uRimColor * rimAmount * uRimIntensity;
-          }
-          `
-        );
+      const cl = asset.clips || {};
+      this.clipsByState = {
+        idle: cl.idle,
+        walk: cl.idle,
+        block: cl.idle,
+        hit: cl.idle,
+        punch: cl.punch || cl.idle,
+        special: cl.punch || cl.idle
       };
 
-      material.customProgramCacheKey = () => "combat-rim-material";
+      this.setAnim("idle", true);
+    }catch(e){
+      console.error("Model load failed:", this.char.model, e);
+    }
+  }
+
+  setAnim(s, force = false){
+    if(!this.mixer) return;
+    if(!force && this.currentAnim === s) return;
+
+    const clip = this.clipsByState[s] || this.clipsByState.idle;
+    if(!clip){
+      this.currentAnim = s;
+      return;
     }
 
-    function createFallbackFighter() {
-      const group = new THREE.Group();
-      group.name = "FallbackHyle";
-      group.userData.isProcedural = true;
-
-      const skin = new THREE.MeshPhysicalMaterial({
-        color: 0xb97a56,
-        roughness: 0.58,
-        metalness: 0.0,
-        clearcoat: 0.04,
-        clearcoatRoughness: 0.55
-      });
-
-      const jersey = new THREE.MeshStandardMaterial({
-        color: 0x1e5fd6,
-        roughness: 0.84,
-        metalness: 0.0
-      });
-
-      const pants = new THREE.MeshStandardMaterial({
-        color: 0xf2f2f2,
-        roughness: 0.88,
-        metalness: 0.0
-      });
-
-      const glove = new THREE.MeshPhysicalMaterial({
-        color: 0x6b3717,
-        roughness: 0.43,
-        metalness: 0.0,
-        clearcoat: 0.14,
-        clearcoatRoughness: 0.35
-      });
-
-      const cap = new THREE.MeshStandardMaterial({
-        color: 0x123a8c,
-        roughness: 0.8,
-        metalness: 0.0
-      });
-
-      const body = new THREE.Mesh(
-        new THREE.CapsuleGeometry(0.32, 0.78, 8, 16),
-        jersey
-      );
-      body.position.y = 1.08;
-      group.add(body);
-
-      const head = new THREE.Mesh(
-        new THREE.SphereGeometry(0.17, 32, 32),
-        skin
-      );
-      head.position.y = 1.72;
-      group.add(head);
-
-      const capTop = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.18, 0.18, 0.12, 24),
-        cap
-      );
-      capTop.position.y = 1.83;
-      group.add(capTop);
-
-      const capBrim = new THREE.Mesh(
-        new THREE.BoxGeometry(0.26, 0.02, 0.22),
-        cap
-      );
-      capBrim.position.set(0, 1.78, 0.17);
-      group.add(capBrim);
-
-      const leftGlove = new THREE.Mesh(
-        new THREE.SphereGeometry(0.11, 24, 24),
-        glove
-      );
-      leftGlove.position.set(-0.34, 1.3, 0.22);
-      group.add(leftGlove);
-
-      const rightGlove = new THREE.Mesh(
-        new THREE.SphereGeometry(0.11, 24, 24),
-        glove
-      );
-      rightGlove.position.set(0.34, 1.3, 0.22);
-      group.add(rightGlove);
-
-      const leftLeg = new THREE.Mesh(
-        new THREE.CapsuleGeometry(0.09, 0.55, 6, 12),
-        pants
-      );
-      leftLeg.position.set(-0.15, 0.42, 0);
-      group.add(leftLeg);
-
-      const rightLeg = new THREE.Mesh(
-        new THREE.CapsuleGeometry(0.09, 0.55, 6, 12),
-        pants
-      );
-      rightLeg.position.set(0.15, 0.42, 0);
-      group.add(rightLeg);
-
-      group.userData.head = head;
-      group.userData.leftGlove = leftGlove;
-      group.userData.rightGlove = rightGlove;
-      group.userData.defaultLeftGlove = leftGlove.position.clone();
-      group.userData.defaultRightGlove = rightGlove.position.clone();
-      group.userData.defaultBody = body.position.clone();
-      group.userData.body = body;
-
-      return group;
+    if(!force && this.currentClip === clip){
+      this.currentAnim = s;
+      return;
     }
 
-    /*
-      ============================================================
-      STADIUM BUILD
-      ============================================================
-    */
+    const atk = s === "punch" || s === "special";
+    const a = this.mixer.clipAction(clip);
 
-    function buildStadium() {
-      const grassTexture = makeGrassTexture();
-      const dirtTexture = makeDirtTexture();
+    a.reset();
+    a.enabled = true;
+    a.setEffectiveWeight(1);
 
-      const grassMaterial = new THREE.MeshStandardMaterial({
-        map: grassTexture,
-        roughness: 0.92,
-        metalness: 0.0
-      });
-
-      const dirtMaterial = new THREE.MeshStandardMaterial({
-        map: dirtTexture,
-        roughness: 0.96,
-        metalness: 0.0
-      });
-
-      const warningMaterial = new THREE.MeshStandardMaterial({
-        color: 0x432a18,
-        roughness: 1.0,
-        metalness: 0.0
-      });
-
-      const whiteLineMaterial = new THREE.MeshBasicMaterial({
-        color: 0xf5f1e6,
-        transparent: true,
-        opacity: 0.55
-      });
-
-      // Grass field.
-      const ground = new THREE.Mesh(
-        new THREE.PlaneGeometry(160, 160),
-        grassMaterial
-      );
-      ground.rotation.x = -Math.PI / 2;
-      ground.receiveShadow = true;
-      world.add(ground);
-
-      // Infield dirt.
-      const infield = new THREE.Mesh(
-        new THREE.CircleGeometry(8.5, 64),
-        dirtMaterial
-      );
-      infield.rotation.x = -Math.PI / 2;
-      infield.position.y = 0.01;
-      infield.receiveShadow = true;
-      world.add(infield);
-
-      // Dirt mound.
-      const mound = new THREE.Mesh(
-        new THREE.CircleGeometry(2.1, 48),
-        dirtMaterial
-      );
-      mound.rotation.x = -Math.PI / 2;
-      mound.position.set(0, 0.015, -6.0);
-      mound.receiveShadow = true;
-      world.add(mound);
-
-      // Warning track.
-      const warningTrack = new THREE.Mesh(
-        new THREE.RingGeometry(22, 24.5, 64),
-        warningMaterial
-      );
-      warningTrack.rotation.x = -Math.PI / 2;
-      warningTrack.position.y = 0.008;
-      warningTrack.receiveShadow = true;
-      world.add(warningTrack);
-
-      // Home plate.
-      const plate = new THREE.Mesh(
-        new THREE.PlaneGeometry(0.55, 0.55),
-        new THREE.MeshStandardMaterial({
-          color: 0xf8f6ef,
-          roughness: 0.5,
-          metalness: 0.0
-        })
-      );
-      plate.rotation.x = -Math.PI / 2;
-      plate.position.set(0, 0.02, 1.35);
-      plate.receiveShadow = true;
-      world.add(plate);
-
-      // Foul lines.
-      makeFoulLine(Math.PI / 4, whiteLineMaterial);
-      makeFoulLine(-Math.PI / 4, whiteLineMaterial);
-
-      // Outfield wall.
-      const outfieldWall = new THREE.Mesh(
-        new THREE.CylinderGeometry(35, 35, 3.2, 64, 1, true),
-        new THREE.MeshStandardMaterial({
-          color: 0x0d3320,
-          roughness: 0.92,
-          metalness: 0.0,
-          side: THREE.DoubleSide
-        })
-      );
-      outfieldWall.position.y = 1.6;
-      world.add(outfieldWall);
-
-      // Stadium lower bowl.
-      const lowerBowl = new THREE.Mesh(
-        new THREE.CylinderGeometry(18, 26, 8, 64, 1, true),
-        new THREE.MeshStandardMaterial({
-          color: 0x0b1524,
-          roughness: 0.94,
-          metalness: 0.0,
-          side: THREE.DoubleSide
-        })
-      );
-      lowerBowl.position.y = 4.0;
-      world.add(lowerBowl);
-
-      // Stadium upper deck.
-      const upperDeck = new THREE.Mesh(
-        new THREE.CylinderGeometry(26, 31, 7, 64, 1, true),
-        new THREE.MeshStandardMaterial({
-          color: 0x080d16,
-          roughness: 0.96,
-          metalness: 0.0,
-          side: THREE.DoubleSide
-        })
-      );
-      upperDeck.position.y = 10.5;
-      world.add(upperDeck);
-
-      // Trim light ring.
-      const trim = new THREE.Mesh(
-        new THREE.TorusGeometry(26, 0.16, 16, 80),
-        new THREE.MeshStandardMaterial({
-          color: 0x041018,
-          emissive: 0x35c3ff,
-          emissiveIntensity: 1.8,
-          roughness: 0.35,
-          metalness: 0.2
-        })
-      );
-      trim.rotation.x = Math.PI / 2;
-      trim.position.y = 8.1;
-      world.add(trim);
-
-      // Crowd points.
-      const crowd = makeCrowdPoints();
-      world.add(crowd);
-
-      // Floodlight towers.
-      const towerPositions = [
-        [-24, -18],
-        [24, -18],
-        [-26, 14],
-        [26, 14]
-      ];
-
-      towerPositions.forEach(([x, z]) => {
-        world.add(makeFloodlightTower(x, z));
-      });
+    if(atk){
+      a.setLoop(THREE.LoopOnce, 1);
+      a.clampWhenFinished = true;
+      const tgt = ATTACKS[s] ? ATTACKS[s].duration : .3;
+      a.timeScale = THREE.MathUtils.clamp(clip.duration / tgt, .4, 3.2);
+    }else{
+      a.setLoop(THREE.LoopRepeat, Infinity);
+      a.timeScale = 1;
     }
 
-    function makeFoulLine(angle, material) {
-      const line = new THREE.Mesh(
-        new THREE.BoxGeometry(0.08, 0.01, 30),
-        material
-      );
-
-      line.position.set(
-        Math.sin(angle) * 15,
-        0.02,
-        1.3 + Math.cos(angle) * 15
-      );
-
-      line.rotation.y = angle;
-      world.add(line);
+    if(this.currentAction && this.currentAction !== a){
+      a.crossFadeFrom(this.currentAction, .15, false);
     }
 
-    function makeCrowdPoints() {
-      const count = 2400;
-      const positions = new Float32Array(count * 3);
-      const colors = new Float32Array(count * 3);
+    a.play();
 
-      const color = new THREE.Color();
+    this.currentAction = a;
+    this.currentClip = clip;
+    this.currentAnim = s;
+  }
 
-      for (let i = 0; i < count; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const radius = 19.5 + Math.random() * 5.5;
-        const y = 1.2 + Math.random() * 6.6;
+  startAttack(t){
+    if(this.attack || this.attackCooldown > 0 || this.hitstun > 0) return;
+    if(t === "special" && this.special < 60) return;
 
-        positions[i * 3 + 0] = Math.cos(angle) * radius;
-        positions[i * 3 + 1] = y;
-        positions[i * 3 + 2] = Math.sin(angle) * radius;
+    const d = ATTACKS[t];
+    if(!d) return;
 
-        if (Math.random() < 0.18) {
-          color.setHSL(0.08 + Math.random() * 0.04, 0.9, 0.62);
-        } else {
-          color.setHSL(0.55 + Math.random() * 0.12, 0.75, 0.55 + Math.random() * 0.2);
-        }
+    this.attack = { type:t, ...d, timer:0, hasHit:false };
 
-        colors[i * 3 + 0] = color.r;
-        colors[i * 3 + 1] = color.g;
-        colors[i * 3 + 2] = color.b;
-      }
-
-      const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-      geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-
-      const material = new THREE.PointsMaterial({
-        size: 0.11,
-        vertexColors: true,
-        transparent: true,
-        opacity: 0.62,
-        depthWrite: false,
-        sizeAttenuation: true
-      });
-
-      return new THREE.Points(geometry, material);
+    if(t === "special"){
+      this.special = 0;
+      playSfx("special");
     }
-
-    function makeFloodlightTower(x, z) {
-      const tower = new THREE.Group();
-
-      const poleMaterial = new THREE.MeshStandardMaterial({
-        color: 0x22303e,
-        roughness: 0.7,
-        metalness: 0.25
-      });
-
-      const panelMaterial = new THREE.MeshStandardMaterial({
-        color: 0x111111,
-        emissive: 0xbfe8ff,
-        emissiveIntensity: 4.5,
-        roughness: 0.4,
-        metalness: 0.1
-      });
-
-      const pole = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.22, 0.3, 15, 12),
-        poleMaterial
-      );
-      pole.position.y = 7.5;
-      tower.add(pole);
-
-      const panel = new THREE.Mesh(
-        new THREE.BoxGeometry(2.6, 1.4, 0.4),
-        panelMaterial
-      );
-      panel.position.y = 14.8;
-      panel.lookAt(0, 1.2, 0);
-      tower.add(panel);
-
-      tower.position.set(x, 0, z);
-
-      return tower;
-    }
-
-    function makeDust() {
-      const count = 220;
-      const positions = new Float32Array(count * 3);
-
-      for (let i = 0; i < count; i++) {
-        const radius = 2.0 + Math.random() * 5.0;
-        const angle = Math.random() * Math.PI * 2;
-
-        positions[i * 3 + 0] = Math.cos(angle) * radius;
-        positions[i * 3 + 1] = 0.05 + Math.random() * 2.4;
-        positions[i * 3 + 2] = Math.sin(angle) * radius;
-      }
-
-      const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-
-      const material = new THREE.PointsMaterial({
-        color: 0xd9e8ff,
-        size: 0.025,
-        transparent: true,
-        opacity: 0.18,
-        depthWrite: false
-      });
-
-      return new THREE.Points(geometry, material);
-    }
-
-    function makeContactShadow() {
-      const texture = makeRadialShadowTexture();
-
-      const material = new THREE.MeshBasicMaterial({
-        map: texture,
-        transparent: true,
-        depthWrite: false,
-        opacity: 0.42
-      });
-
-      const mesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(2.1, 2.1),
-        material
-      );
-
-      mesh.rotation.x = -Math.PI / 2;
-      mesh.position.y = 0.015;
-      mesh.renderOrder = 2;
-
-      return mesh;
-    }
-
-    /*
-      ============================================================
-      PROCEDURAL TEXTURES
-      ============================================================
-    */
-
-    function makeSkyGradientTexture() {
-      const canvas = document.createElement("canvas");
-      canvas.width = 512;
-      canvas.height = 1024;
-
-      const ctx = canvas.getContext("2d");
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-
-      gradient.addColorStop(0.0, "#020509");
-      gradient.addColorStop(0.35, "#07172b");
-      gradient.addColorStop(0.68, "#0b2340");
-      gradient.addColorStop(1.0, "#020305");
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const texture = new THREE.CanvasTexture(canvas);
-      texture.colorSpace = THREE.SRGBColorSpace;
-
-      return texture;
-    }
-
-    function makeGrassTexture() {
-      const canvas = document.createElement("canvas");
-      canvas.width = 1024;
-      canvas.height = 1024;
-
-      const ctx = canvas.getContext("2d");
-
-      ctx.fillStyle = "#175722";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const stripeWidth = 64;
-
-      for (let x = 0; x < canvas.width; x += stripeWidth * 2) {
-        ctx.fillStyle = "rgba(255,255,255,0.055)";
-        ctx.fillRect(x, 0, stripeWidth, canvas.height);
-      }
-
-      for (let i = 0; i < 16000; i++) {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
-        const shade = 35 + Math.random() * 70;
-        ctx.fillStyle = `rgba(${shade * 0.3}, ${shade}, ${shade * 0.35}, 0.08)`;
-        ctx.fillRect(x, y, 2, 2);
-      }
-
-      const texture = new THREE.CanvasTexture(canvas);
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set(4, 4);
-      texture.anisotropy = 8;
-
-      return texture;
-    }
-
-    function makeDirtTexture() {
-      const canvas = document.createElement("canvas");
-      canvas.width = 512;
-      canvas.height = 512;
-
-      const ctx = canvas.getContext("2d");
-
-      ctx.fillStyle = "#7a4f2d";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      for (let i = 0; i < 9000; i++) {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
-        const shade = 40 + Math.random() * 90;
-        ctx.fillStyle = `rgba(${shade + 40}, ${shade * 0.7}, ${shade * 0.35}, 0.11)`;
-        ctx.fillRect(x, y, 2, 2);
-      }
-
-      const texture = new THREE.CanvasTexture(canvas);
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set(2, 2);
-      texture.anisotropy = 8;
-
-      return texture;
-    }
-
-    function makeRadialShadowTexture() {
-      const canvas = document.createElement("canvas");
-      canvas.width = 256;
-      canvas.height = 256;
-
-      const ctx = canvas.getContext("2d");
-      const gradient = ctx.createRadialGradient(
-        128,
-        128,
-        10,
-        128,
-        128,
-        125
-      );
-
-      gradient.addColorStop(0, "rgba(0,0,0,0.55)");
-      gradient.addColorStop(0.55, "rgba(0,0,0,0.24)");
-      gradient.addColorStop(1, "rgba(0,0,0,0)");
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      const texture = new THREE.CanvasTexture(canvas);
-      texture.colorSpace = THREE.SRGBColorSpace;
-
-      return texture;
-    }
-
-    /*
-      ============================================================
-      UPDATE LOOP
-      ============================================================
-    */
-
-    const clock = new THREE.Clock();
-
-    const temporaryCameraShake = new THREE.Vector3();
-    const temporaryFollow = new THREE.Vector3();
-
-    function animate() {
-      const rawDelta = clock.getDelta();
-
-      let delta = rawDelta;
-
-      if (hitStop > 0) {
-        hitStop -= rawDelta;
-        delta = 0;
-      }
-
-      updateFighterMovement(delta);
-      updateProceduralAnimation(delta);
-      updateCamera(rawDelta);
-      updatePresentation(rawDelta);
-
-      if (mixer && delta > 0) {
-        mixer.update(delta);
-      }
-
-      composer.render();
-    }
-
-    function updateFighterMovement(delta) {
-      if (currentScreen !== "fight") return;
-
-      let dx = 0;
-
-      if (keys.a) dx -= 1;
-      if (keys.d) dx += 1;
-
-      fighter.position.x = clamp(
-        fighter.position.x + dx * MOVE_SPEED * delta,
-        -FIGHTER_BOUNDS_X,
-        FIGHTER_BOUNDS_X
-      );
-
-      // Subtle orientation/lean while moving.
-      fighter.rotation.y = dx * 0.08;
-
-      if (keys.w && moveState.grounded) {
-        moveState.velocityY = JUMP_VELOCITY;
-        moveState.grounded = false;
-      }
-
-      moveState.velocityY -= GRAVITY * delta;
-      fighter.position.y += moveState.velocityY * delta;
-
-      if (fighter.position.y <= 0) {
-        fighter.position.y = 0;
-        moveState.velocityY = 0;
-        moveState.grounded = true;
-      }
-
-      // Contact shadow follows fighter.
-      contactShadow.position.x = fighter.position.x;
-      contactShadow.position.z = fighter.position.z;
-
-      const heightFactor = clamp(1 - fighter.position.y / 2.2, 0.12, 1);
-      contactShadow.material.opacity = 0.42 * heightFactor;
-
-      const shadowScale = 1 + fighter.position.y * 0.12;
-      contactShadow.scale.set(shadowScale, shadowScale, shadowScale);
-    }
-
-    function updateProceduralAnimation(delta) {
-      if (!useProceduralFallback || !fallbackParts) return;
-
-      const time = clock.elapsedTime;
-
-      const idleBob = Math.sin(time * 2.1) * 0.015;
-      const idleSway = Math.sin(time * 1.3) * 0.02;
-
-      const body = fallbackParts.body;
-      const head = fallbackParts.head;
-      const leftGlove = fallbackParts.leftGlove;
-      const rightGlove = fallbackParts.rightGlove;
-
-      body.position.copy(fallbackParts.defaultBody);
-      body.position.y += idleBob;
-      body.rotation.y = idleSway;
-
-      head.position.y = 1.72 + idleBob * 0.7;
-
-      leftGlove.position.copy(fallbackParts.defaultLeftGlove);
-      rightGlove.position.copy(fallbackParts.defaultRightGlove);
-
-      if (moveState.block) {
-        leftGlove.position.set(-0.18, 1.56, 0.34);
-        rightGlove.position.set(0.18, 1.56, 0.34);
-      }
-
-      if (moveState.punchTime >= 0) {
-        moveState.punchTime += delta;
-
-        const duration = 0.36;
-        const t = clamp(moveState.punchTime / duration, 0, 1);
-        const amount = Math.sin(t * Math.PI);
-
-        rightGlove.position.set(
-          0.28,
-          1.35 + amount * 0.04,
-          0.35 + amount * 0.78
-        );
-
-        body.rotation.y += amount * 0.22;
-        body.position.z += amount * 0.08;
-
-        if (t >= 1) {
-          moveState.punchTime = -1;
+  }
+
+  update(dt, opp, inp){
+    if(this.hitstun > 0) this.hitstun -= dt;
+    if(this.attackCooldown > 0) this.attackCooldown -= dt;
+
+    if(!this.attack) this.face = opp.x >= this.x ? 1 : -1;
+
+    const cc = this.hitstun <= 0 && !this.attack;
+    this.blocking = cc && !!inp.block && this.onGround;
+
+    if(cc && !this.blocking){
+      const sp = 56;
+
+      if(inp.left) this.vx = -sp;
+      else if(inp.right) this.vx = sp;
+      else this.vx *= this.onGround ? .75 : .95;
+
+      for(const a of inp.actionQueue || []){
+        if(a === "jump"){
+          if(this.onGround){
+            this.vy = 74;
+            this.onGround = false;
+          }
+        }else{
+          this.startAttack(a);
         }
       }
+    }else{
+      this.vx *= this.onGround ? .8 : .98;
     }
 
-    function updateCamera(delta) {
-      trauma = Math.max(0, trauma - delta * 1.8);
+    this.vy -= 190 * dt;
+    this.x += this.vx * dt;
+    this.y += this.vy * dt;
 
-      const traumaSquared = trauma * trauma;
-
-      temporaryCameraShake.set(
-        (Math.random() - 0.5) * traumaSquared * 0.12,
-        (Math.random() - 0.5) * traumaSquared * 0.08,
-        (Math.random() - 0.5) * traumaSquared * 0.05
-      );
-
-      temporaryFollow.set(
-        fighter.position.x * 0.22,
-        1.75 + fighter.position.y * 0.08,
-        5.6
-      );
-
-      cameraBase.lerp(temporaryFollow, 0.12);
-
-      cameraTarget.set(
-        fighter.position.x * 0.35,
-        1.15 + fighter.position.y * 0.45,
-        0
-      );
-
-      camera.position.copy(cameraBase).add(temporaryCameraShake);
-      camera.lookAt(cameraTarget);
+    if(this.y <= 0){
+      this.y = 0;
+      this.vy = 0;
+      this.onGround = true;
+    }else{
+      this.onGround = false;
     }
 
-    function updatePresentation(delta) {
-      specialPulse = Math.max(0, specialPulse - delta * 2.1);
+    this.x = Math.max(-ARENA_BOUNDS, Math.min(ARENA_BOUNDS, this.x));
 
-      bloomPass.strength =
-        BASE_BLOOM +
-        specialPulse * 0.55 +
-        (moveState.block ? 0.02 : 0);
+    if(this.attack){
+      this.attack.timer += dt;
+      if(this.attack.timer >= this.attack.duration){
+        this.attack = null;
+        this.attackCooldown = .12;
+      }
+    }
 
-      // Subtle light pulse during special.
-      fighterSpot.intensity = 65 + specialPulse * 28;
-      rimLight.intensity = 1.8 + specialPulse * 0.8;
+    this.special = Math.min(100, this.special + dt * 2.2);
 
-      // Fade screen flash.
-      const currentOpacity = parseFloat(flashEl.style.opacity || "0");
-      if (currentOpacity > 0) {
-        flashEl.style.opacity = String(Math.max(0, currentOpacity - delta * 1.7));
+    this.group.position.set(this.x, this.y, 0);
+    this.group.rotation.y = this.face * (Math.PI / 2);
+
+    this.animTime += dt;
+
+    if(this.attack){
+      const p = this.attack.timer / this.attack.duration;
+      this.modelVisual.position.z = Math.sin(p * Math.PI) * 2.2;
+    }else{
+      this.modelVisual.position.z *= .75;
+    }
+
+    this.modelVisual.rotation.x = this.blocking ? .12 : this.modelVisual.rotation.x * .8;
+
+    if(Math.abs(this.vx) > 5 && this.onGround && !this.attack && this.hitstun <= 0){
+      this.modelVisual.position.y = Math.sin(this.animTime * 12) * .7;
+    }else{
+      this.modelVisual.position.y *= .8;
+    }
+
+    this.modelVisual.rotation.z = this.hitstun > 0 ? Math.sin(this.animTime * 45) * .06 : this.modelVisual.rotation.z * .8;
+
+    let as = "idle";
+    if(this.hitstun > 0) as = "hit";
+    else if(this.blocking) as = "block";
+    else if(this.attack) as = this.attack.type;
+    else if(Math.abs(this.vx) > 5 && this.onGround) as = "walk";
+
+    this.setAnim(as);
+
+    if(this.mixer) this.mixer.update(dt);
+
+    this.shield.visible = this.blocking;
+    if(this.blocking) this.shield.material.opacity = .16 + Math.sin(this.animTime * 8) * .05;
+
+    this.specialRing.visible = this.special >= 60;
+    if(this.specialRing.visible) this.specialRing.scale.setScalar(1 + Math.sin(this.animTime * 6) * .05);
+
+    if(this.attack && this.attack.timer >= this.attack.activeStart && this.attack.timer <= this.attack.activeEnd){
+      const a = ATTACKS[this.attack.type];
+      this.effect.visible = true;
+      this.effect.scale.set(a.effectW, a.effectH, a.effectD);
+      this.effect.position.set(0, a.y, a.effectD / 2 + 6);
+      this.effect.material.color.set(a.color);
+      this.effect.material.opacity = this.attack.type === "special" ? .48 : .75;
+    }else{
+      this.effect.visible = false;
+    }
+  }
+
+  dispose(){
+    this.disposed = true;
+    scene.remove(this.group);
+
+    if(this.mixer) this.mixer.stopAllAction();
+
+    this.group.traverse(o => {
+      if(o.geometry) o.geometry.dispose();
+      if(o.material){
+        if(Array.isArray(o.material)) o.material.forEach(m => m.dispose());
+        else o.material.dispose();
+      }
+    });
+  }
+}
+
+/* ===================== MATCH ===================== */
+
+function clearEffects(){
+  for(const e of effects){
+    scene.remove(e.mesh);
+    e.mesh.geometry.dispose();
+    e.mesh.material.dispose();
+  }
+  effects = [];
+}
+
+function removeFighters(){
+  if(player){
+    player.dispose();
+    player = null;
+  }
+  if(cpu){
+    cpu.dispose();
+    cpu = null;
+  }
+}
+
+function resetRound(){
+  removeFighters();
+  clearEffects();
+
+  player = new Fighter(state.playerChar, -32, false);
+  cpu = new Fighter(state.cpuChar, 32, true);
+
+  player.face = 1;
+  cpu.face = -1;
+
+  input.left = false;
+  input.right = false;
+  input.block = false;
+  input.queue.length = 0;
+
+  state.over = false;
+  state.transitionTimer = 0;
+
+  if(state.round === 1){
+    const total = state.queue.length || 10;
+    const c = CHARACTERS[state.cpuChar];
+    state.message = `OPP ${state.opponentIndex + 1}/${total} · ${c.fighterName} (${c.team})`;
+  }else{
+    state.message = `ROUND ${state.round}`;
+  }
+
+  state.messageTimer = 1.45;
+  updateHUD();
+}
+
+/* Enter the arena after loading is done */
+function startMatch(){
+  showScreen("gameScreen");
+  touchControls.style.display = isTouch() ? "flex" : "none";
+
+  requestAnimationFrame(() => {
+    onResize();
+    resetRound();
+    state.running = true;
+  });
+}
+
+/* Kick off a fresh gauntlet: pick order, load player + first opponent, then fight */
+async function beginGauntlet(){
+  ensureAudio();
+
+  state.playerChar = selectedChar;
+  state.queue = shuffle(Object.keys(CHARACTERS).filter(k => k !== selectedChar));
+  state.opponentIndex = 0;
+  state.cpuChar = state.queue[0];
+  state.matchesWon = 0;
+
+  state.round = 1;
+  state.pWins = 0;
+  state.cWins = 0;
+
+  showScreen("loadingScreen");
+  loadingBackBtn.classList.add("hidden");
+  loadingFill.style.width = "0%";
+
+  const toLoad = [state.playerChar, state.cpuChar];
+  const total = toLoad.length * 3;
+  let done = 0;
+
+  try{
+    for(const k of toLoad){
+      await preloadCharacter(k, () => {
+        done++;
+        loadingFill.style.width = `${(done / total) * 100}%`;
+      });
+    }
+
+    await waitMinLoad();
+    startMatch();
+  }catch(e){
+    console.error(e);
+    loadingStatus.innerHTML = "COULD NOT LOAD FBX FILES.<br><br>Make sure the FBX files are next to this HTML<br>and you are running a local server.";
+    loadingBackBtn.classList.remove("hidden");
+  }
+}
+
+/* Between gauntlet fights: load ONLY the next opponent, then resume */
+async function loadNextFight(){
+  state.running = false;
+
+  showScreen("loadingScreen");
+  loadingBackBtn.classList.add("hidden");
+  loadingFill.style.width = "0%";
+
+  const c = CHARACTERS[state.cpuChar];
+  loadingStatus.textContent = `NEXT OPPONENT · LOADING ${c.fighterName} (${c.team})…`;
+
+  let done = 0;
+  const total = 3;
+
+  try{
+    await preloadCharacter(state.cpuChar, () => {
+      done++;
+      loadingFill.style.width = `${(done / total) * 100}%`;
+    });
+
+    await waitMinLoad();
+
+    showScreen("gameScreen");
+    touchControls.style.display = isTouch() ? "flex" : "none";
+
+    requestAnimationFrame(() => {
+      onResize();
+      resetRound();
+      state.running = true;
+    });
+  }catch(e){
+    console.error(e);
+    loadingStatus.innerHTML = "COULD NOT LOAD FBX FILES.<br><br>Make sure the FBX files are next to this HTML<br>and you are running a local server.";
+    loadingBackBtn.classList.remove("hidden");
+  }
+}
+
+function handleMatchEnd(){
+  if(state.pWins >= 2){
+    state.matchesWon++;
+
+    if(state.opponentIndex + 1 >= state.queue.length){
+      endGauntlet(true);
+      return;
+    }
+
+    state.opponentIndex++;
+    state.cpuChar = state.queue[state.opponentIndex];
+    state.round = 1;
+    state.pWins = 0;
+    state.cWins = 0;
+
+    loadNextFight();
+  }else if(state.cWins >= 2){
+    endGauntlet(false);
+  }else{
+    state.round++;
+    resetRound();
+  }
+}
+
+function endGauntlet(victory){
+  state.running = false;
+  touchControls.style.display = "none";
+
+  const pc = CHARACTERS[state.playerChar];
+
+  if(victory){
+    if(gameOverEyebrow) gameOverEyebrow.textContent = "Gauntlet complete";
+    winnerText.textContent = `${pc.fighterName} BEATS ALL ${state.queue.length}!`;
+    winnerText.style.textShadow = `0 3px 0 rgba(0,0,0,.5),0 0 34px ${pc.cssColor}`;
+    finalScore.textContent = `GAUNTLET CLEAR · ${state.matchesWon} WINS`;
+  }else{
+    const cc = CHARACTERS[state.cpuChar];
+    if(gameOverEyebrow) gameOverEyebrow.textContent = "Run ended";
+    winnerText.textContent = `${cc.fighterName} ENDS RUN`;
+    winnerText.style.textShadow = `0 3px 0 rgba(0,0,0,.5),0 0 34px ${cc.cssColor}`;
+    finalScore.textContent = `DEFEATED ${state.matchesWon} OF ${state.queue.length}`;
+  }
+
+  removeFighters();
+  clearEffects();
+  showScreen("gameOverScreen");
+}
+
+function spawnHit(x, y, t){
+  const m = new THREE.Mesh(
+    new THREE.SphereGeometry(2.2, 14, 14),
+    new THREE.MeshBasicMaterial({
+      color: ATTACKS[t]?.color || 0xffffff,
+      transparent: true,
+      opacity: .95,
+      depthWrite: false
+    })
+  );
+  m.position.set(x, y + 18, 0);
+  scene.add(m);
+  effects.push({ mesh:m, life:.22, max:.22 });
+}
+
+function processHits(a, d){
+  if(!a.attack || a.attack.hasHit) return;
+
+  const at = a.attack;
+  if(a.attack.timer < at.activeStart || a.attack.timer > at.activeEnd) return;
+
+  const dx = d.x - a.x;
+  const dy = Math.abs(d.y - a.y);
+  const front = a.face === 1 ? dx > -6 : dx < 6;
+
+  if(!front || Math.abs(dx) > at.range + d.width / 2 || dy >= 30) return;
+
+  a.attack.hasHit = true;
+
+  let dmg = at.damage;
+  const bl = d.blocking;
+
+  if(bl){
+    dmg = Math.max(1, Math.round(dmg * .25));
+    d.hitstun = .08;
+    d.vx = a.face * at.knock * .35;
+    playSfx("block");
+    camShake = Math.min(camShake + .7, 4);
+  }else{
+    d.hitstun = at.type === "special" ? .42 : .22;
+    d.vx = a.face * at.knock;
+    if(at.type === "special") d.vy = 38;
+    playSfx("hit");
+    camShake = Math.min(camShake + (at.type === "special" ? 2.6 : 1.4), 4);
+  }
+
+  d.health = Math.max(0, d.health - dmg);
+
+  a.special = Math.min(100, a.special + at.meter);
+  d.special = Math.min(100, d.special + at.meter * (bl ? .35 : .7));
+
+  spawnHit(d.x, d.y + 18, at.type);
+}
+
+function updateAI(c, p, dt){
+  const ai = { left:false, right:false, block:false, actionQueue:[] };
+
+  if(c.hitstun > 0 || c.attack) return ai;
+
+  c.aiTimer -= dt;
+
+  const dist = Math.abs(c.x - p.x);
+  const level = Math.min(9, state.opponentIndex || 0);
+
+  if(c.aiTimer <= 0){
+    c.aiTimer = Math.max(.085, .14 + Math.random() * .24 - level * .006);
+
+    const n = {};
+    const tw = p.x > c.x ? "right" : "left";
+
+    if(dist > 55){
+      n.move = tw;
+    }else if(dist > 28){
+      if(Math.random() < .78) n.move = tw;
+      if(Math.random() < (.26 + level * .02)) n.action = "punch";
+    }else{
+      if(p.attack && p.attack.timer < .18 && Math.random() < (.48 + level * .025)){
+        n.block = true;
+      }else{
+        const r = Math.random();
+        if(c.special >= 60 && r < (.24 + level * .02)) n.action = "special";
+        else if(r < (.62 + level * .015)) n.action = "punch";
+        else if(r < .8) n.block = true;
+        else n.move = Math.random() < .5 ? tw : null;
       }
 
-      // Ambient dust drift.
-      dust.rotation.y += delta * 0.01;
-      dust.material.opacity = 0.14 + Math.sin(clock.elapsedTime * 0.7) * 0.03;
+      if(Math.random() < .06) n.action = "jump";
     }
 
-    /*
-      ============================================================
-      UTILS
-      ============================================================
-    */
+    c.aiState = n;
+  }
 
-    function clamp(value, min, max) {
-      return Math.min(max, Math.max(min, value));
+  const s = c.aiState;
+
+  if(s.move === "left") ai.left = true;
+  if(s.move === "right") ai.right = true;
+  if(s.block) ai.block = true;
+
+  if(s.action){
+    ai.actionQueue.push(s.action);
+    s.action = null;
+  }
+
+  return ai;
+}
+
+function checkRoundEnd(){
+  if(state.over) return;
+  if(player.health > 0 && cpu.health > 0) return;
+
+  state.over = true;
+  state.transitionTimer = 1.85;
+
+  if(player.health <= 0 && cpu.health <= 0){
+    state.pWins++;
+    state.cWins++;
+    state.message = "DOUBLE KO";
+  }else if(cpu.health <= 0){
+    state.pWins++;
+    state.message = `${CHARACTERS[state.playerChar].fighterName} WINS ROUND ${state.round}`;
+  }else{
+    state.cWins++;
+    state.message = `${CHARACTERS[state.cpuChar].fighterName} WINS ROUND ${state.round}`;
+  }
+
+  state.messageTimer = 1.85;
+  playSfx("win");
+}
+
+function updateHUD(){
+  if(!player || !cpu) return;
+
+  const c1 = CHARACTERS[state.playerChar];
+  const c2 = CHARACTERS[state.cpuChar];
+
+  p1Name.textContent = c1.fighterName;
+  p2Name.textContent = c2.fighterName;
+
+  p1Team.textContent = `${c1.team} · YOU`;
+  p2Team.textContent = `${c2.team} · CPU`;
+
+  p1Health.style.width = `${player.health}%`;
+  p2Health.style.width = `${cpu.health}%`;
+
+  p1Special.style.width = `${player.special}%`;
+  p2Special.style.width = `${cpu.special}%`;
+
+  [...p1Pips.children].forEach((p, i) => p.classList.toggle("won", i < state.pWins));
+  [...p2Pips.children].forEach((p, i) => p.classList.toggle("won", i < state.cWins));
+
+  const msg = state.messageTimer > 0 ? state.message : "";
+  roundText.textContent = msg;
+
+  if(msg && msg !== lastMessage){
+    roundText.classList.remove("pop");
+    void roundText.offsetWidth;
+    roundText.classList.add("pop");
+  }
+
+  lastMessage = msg;
+
+  if(specialTouchBtn) specialTouchBtn.classList.toggle("disabled", player.special < 60);
+}
+
+function updateCamera(){
+  let tx = 0;
+  if(player && cpu) tx = ((player.x + cpu.x) / 2) * .35;
+
+  camera.position.x += (tx - camera.position.x) * .06;
+
+  const sy = camShake > 0 ? (Math.random() - .5) * camShake : 0;
+  const sx = camShake > 0 ? (Math.random() - .5) * camShake : 0;
+
+  camera.position.y = 62 + sy;
+  camera.lookAt(tx + sx * 2, 26, 0);
+}
+
+function update(dt){
+  if(!player || !cpu) return;
+
+  if(state.messageTimer > 0) state.messageTimer -= dt;
+
+  camShake = Math.max(0, camShake - dt * 9);
+
+  for(let i = effects.length - 1; i >= 0; i--){
+    const e = effects[i];
+    e.life -= dt;
+
+    const t = 1 - e.life / e.max;
+    e.mesh.scale.setScalar(1 + t * 3.5);
+    e.mesh.material.opacity = Math.max(0, e.life / e.max);
+
+    if(e.life <= 0){
+      scene.remove(e.mesh);
+      e.mesh.geometry.dispose();
+      e.mesh.material.dispose();
+      effects.splice(i, 1);
     }
+  }
 
-    function wait(ms) {
-      return new Promise((resolve) => setTimeout(resolve, ms));
+  const idle = { left:false, right:false, block:false, actionQueue:[] };
+
+  if(!state.over){
+    const q = input.queue.splice(0, input.queue.length);
+
+    player.update(dt, cpu, {
+      left: input.left,
+      right: input.right,
+      block: input.block,
+      actionQueue: q
+    });
+
+    cpu.update(dt, player, updateAI(cpu, player, dt));
+
+    processHits(player, cpu);
+    processHits(cpu, player);
+
+    checkRoundEnd();
+  }else{
+    player.update(dt, cpu, idle);
+    cpu.update(dt, player, idle);
+
+    if(state.transitionTimer > 0){
+      state.transitionTimer -= dt;
+      if(state.transitionTimer <= 0){
+        handleMatchEnd();
+      }
     }
+  }
 
-    function onWindowResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
+  updateHUD();
+}
 
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      composer.setSize(window.innerWidth, window.innerHeight);
-    }
+function animate(){
+  const dt = Math.min(clock.getDelta(), .033);
 
-    window.addEventListener("resize", onWindowResize);
+  if(!gameScreen.classList.contains("hidden")){
+    if(state.running) update(dt);
+    updateCamera();
+    renderer.render(scene, camera);
+  }
+}
 
-    // Start.
-    showScreen("title");
-    renderer.setAnimationLoop(animate);
-  </script>
+/* ===================== INPUT ===================== */
+
+const keyMap = {
+  KeyA: "left",
+  ArrowLeft: "left",
+  KeyD: "right",
+  ArrowRight: "right",
+  KeyW: "jump",
+  ArrowUp: "jump",
+  KeyS: "block",
+  ArrowDown: "block",
+  KeyF: "punch",
+  KeyK: "punch",
+  Space: "special"
+};
+
+addEventListener("keydown", e => {
+  if(!state.running) return;
+
+  const a = keyMap[e.code];
+  if(!a) return;
+
+  e.preventDefault();
+
+  if(["jump", "punch", "special"].includes(a)){
+    if(!e.repeat) input.queue.push(a);
+  }else{
+    input[a] = true;
+  }
+});
+
+addEventListener("keyup", e => {
+  const a = keyMap[e.code];
+  if(a && ["left", "right", "block"].includes(a)) input[a] = false;
+});
+
+addEventListener("blur", () => {
+  input.left = input.right = input.block = false;
+  input.queue.length = 0;
+});
+
+document.querySelectorAll("#touchControls .tbtn").forEach(b => {
+  const a = b.dataset.action;
+
+  const dn = e => {
+    e.preventDefault();
+    try{ b.setPointerCapture(e.pointerId); }catch(x){}
+    b.classList.add("active");
+
+    if(["left", "right", "block"].includes(a)) input[a] = true;
+    else input.queue.push(a);
+  };
+
+  const up = e => {
+    e.preventDefault();
+    b.classList.remove("active");
+
+    if(["left", "right", "block"].includes(a)) input[a] = false;
+  };
+
+  b.addEventListener("pointerdown", dn);
+  b.addEventListener("pointerup", up);
+  b.addEventListener("pointercancel", up);
+  b.addEventListener("pointerleave", up);
+  b.addEventListener("contextmenu", e => e.preventDefault());
+});
+
+/* ===================== UI ===================== */
+
+function buildCharacterSelect(){
+  selectRow.innerHTML = "";
+
+  const keys = Object.keys(CHARACTERS);
+
+  keys.forEach((key, i) => {
+    const c = CHARACTERS[key];
+
+    const card = document.createElement("div");
+    card.className = "charCard" + (i === 0 ? " selected" : "");
+    card.dataset.char = key;
+    card.style.background = c.cardBg;
+
+    card.innerHTML = `
+      <span class="badge">AT BAT</span>
+      <div class="cardShade"></div>
+      <div class="cname">${c.fighterName}</div>
+      <div class="cteam">${c.team} · You</div>
+    `;
+
+    card.addEventListener("click", () => {
+      selectedChar = key;
+      selectRow.querySelectorAll(".charCard").forEach(x => x.classList.remove("selected"));
+      card.classList.add("selected");
+      ensureAudio();
+    });
+
+    selectRow.appendChild(card);
+  });
+
+  selectedChar = keys[0];
+}
+
+startBtn.addEventListener("click", () => {
+  ensureAudio();
+  showScreen("selectScreen");
+});
+
+playBtn.addEventListener("click", () => beginGauntlet());
+
+backBtn.addEventListener("click", () => showScreen("menuScreen"));
+loadingBackBtn.addEventListener("click", () => showScreen("menuScreen"));
+mainMenuBtn.addEventListener("click", () => showScreen("menuScreen"));
+
+rematchBtn.addEventListener("click", () => beginGauntlet());
+
+menuBtn.addEventListener("click", () => {
+  state.running = false;
+  touchControls.style.display = "none";
+  removeFighters();
+  clearEffects();
+  showScreen("menuScreen");
+});
+
+function toggleSfx(){
+  state.sfx = !state.sfx;
+  updateSfxButtons();
+  if(state.sfx) playSfx("hit");
+}
+
+sfxMenuBtn.addEventListener("click", toggleSfx);
+sfxGameBtn.addEventListener("click", toggleSfx);
+
+addEventListener("resize", onResize);
+addEventListener("dblclick", e => e.preventDefault(), { passive:false });
+addEventListener("gesturestart", e => e.preventDefault());
+addEventListener("gesturechange", e => e.preventDefault());
+addEventListener("gestureend", e => e.preventDefault());
+addEventListener("wheel", e => { if(e.ctrlKey) e.preventDefault(); }, { passive:false });
+document.addEventListener("contextmenu", e => e.preventDefault());
+
+/* ===================== BOOT ===================== */
+
+initThree();
+buildCharacterSelect();
+updateSfxButtons();
+clock = new THREE.Clock();
+renderer.setAnimationLoop(animate);
+</script>
 </body>
 </html>
