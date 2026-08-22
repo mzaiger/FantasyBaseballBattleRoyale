@@ -1,3 +1,4 @@
+```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -137,35 +138,165 @@ html,body{
 @keyframes shadowPulse{from{transform:scale(.7);opacity:.5}to{transform:scale(1.15);opacity:.9}}
 #gameContainer{position:absolute;inset:0;z-index:0}
 #gameContainer canvas{display:block;width:100%;height:100%;touch-action:none}
-#vignette{position:fixed;inset:0;z-index:11;pointer-events:none;background:radial-gradient(125% 95% at 50% 40%,transparent 55%,rgba(2,6,14,.55) 100%)}
+#vignette{position:fixed;inset:0;z-index:11;pointer-events:none;background:radial-gradient(125% 95% at 50% 40%,transparent 60%,rgba(2,6,14,.42) 100%)}
+
+/* ===== Neon HUD ===== */
 #hud{
   position:fixed;top:0;left:0;right:0;z-index:12;display:flex;justify-content:space-between;align-items:flex-start;
   gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 0;pointer-events:none
 }
-.panel{flex:1;max-width:44%;background:rgba(4,10,22,.78);border:1px solid var(--line);padding:8px 14px 10px}
+.panel{
+  flex:1;max-width:44%;background:rgba(4,10,22,.78);border:1px solid var(--line);padding:8px 14px 10px;
+  box-shadow:0 0 22px rgba(47,143,224,.16),inset 0 0 26px rgba(0,0,0,.55)
+}
 .panel.p1{clip-path:polygon(0 0,100% 0,calc(100% - 18px) 100%,0 100%)}
-.panel.p2{clip-path:polygon(18px 0,100% 0,100% 100%,0 100%);text-align:right}
-.fname{font-weight:800;font-size:18px;letter-spacing:.08em;text-transform:uppercase;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.panel.p2{clip-path:polygon(18px 0,100% 0,100% 100%,0 100%);text-align:right;box-shadow:0 0 22px rgba(239,62,66,.14),inset 0 0 26px rgba(0,0,0,.55)}
+.fname{font-weight:800;font-size:18px;letter-spacing:.08em;text-transform:uppercase;text-shadow:0 2px 6px rgba(0,0,0,.6),0 0 14px rgba(125,211,252,.35)}
 .fteam{font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;margin-top:1px}
 .p1 .fteam{color:var(--dodger-bright)}
 .p2 .fteam{color:var(--yankee-steel)}
-.bar{position:relative;height:16px;margin-top:6px;border-radius:4px;overflow:hidden;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2)}
-.bar::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 9%,rgba(0,0,0,.28) 9% 10%);pointer-events:none}
-.fill{height:100%;width:100%;transition:width .09s linear}
-.healthFill{background:linear-gradient(90deg,#f97316,#22c55e)}
+
+/* Name rows + team gem badges */
+.nameRow{display:flex;align-items:center;gap:9px}
+.p2 .nameRow{flex-direction:row-reverse}
+.nameCol{min-width:0}
+.gem{
+  width:24px;height:24px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+  transform:rotate(45deg);border-radius:5px;background:var(--dodger-bright);
+  box-shadow:0 0 12px rgba(47,143,224,.7),inset 0 0 4px rgba(255,255,255,.4);
+  margin:0 3px
+}
+.gem i{transform:rotate(-45deg);font-style:normal;font-family:var(--font-display);font-size:12px;color:#0b1526;line-height:1}
+
+/* Neon health bars */
+.bar{
+  position:relative;height:16px;margin-top:6px;border-radius:4px;overflow:hidden;
+  background:rgba(0,0,0,.55);border:1px solid rgba(125,211,252,.42);
+  box-shadow:0 0 12px rgba(56,189,248,.22),inset 0 0 10px rgba(0,0,0,.65)
+}
+.bar::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 9%,rgba(0,0,0,.28) 9% 10%);pointer-events:none;z-index:3}
+.bar.hitFlash::before{
+  content:"";position:absolute;inset:-1px;z-index:4;pointer-events:none;
+  background:linear-gradient(90deg,rgba(255,255,255,.95),rgba(255,255,255,.25));
+  animation:barFlash .22s ease-out forwards
+}
+@keyframes barFlash{from{opacity:.95}to{opacity:0}}
+.fill{height:100%;width:100%;transition:width .09s linear;position:absolute;left:0;top:0}
+.ghostFill{z-index:1;background:linear-gradient(90deg,#ff7a59,#ff4d5e);transition:none}
+.healthFill{
+  z-index:2;background:linear-gradient(90deg,#15803d,#22c55e 45%,#86efac 70%,#4ade80);
+  background-size:200% 100%;animation:sheenMove 2.8s linear infinite;
+  box-shadow:0 0 14px rgba(74,222,128,.8),0 0 4px rgba(190,242,100,.55),inset 0 -3px 6px rgba(0,0,0,.25)
+}
+@keyframes sheenMove{from{background-position:0% 0}to{background-position:200% 0}}
 .specialBar{height:8px;margin-top:5px}
-.specialFill{background:linear-gradient(90deg,var(--gold),#fb7185);width:0%}
+.specialFill{
+  z-index:2;background:linear-gradient(90deg,var(--gold),#fb7185);width:0%;
+  background-size:200% 100%;animation:specialShimmer 2.4s linear infinite;
+  box-shadow:0 0 10px rgba(250,204,21,.7)
+}
+@keyframes specialShimmer{from{background-position:0% 0}to{background-position:200% 0}}
+.bar.crit .healthFill{animation:sheenMove 2.8s linear infinite,critPulse .45s ease-in-out infinite alternate}
+@keyframes critPulse{from{filter:brightness(1) saturate(1) hue-rotate(0deg)}to{filter:brightness(1.55) saturate(1.6) hue-rotate(-58deg)}}
+.specialBar.readyFlash{box-shadow:0 0 16px rgba(242,193,78,.95);border-color:var(--gold)}
+
+/* SP-ready / danger tags */
+.readyTag,.dangerTag{display:none;margin-top:5px;font-weight:800;text-transform:uppercase}
+.readyTag{font-size:10px;letter-spacing:.3em;color:var(--gold);text-shadow:0 0 10px rgba(242,193,78,.85);animation:tagBlink .8s steps(2,end) infinite}
+.readyTag.on{display:block}
+.dangerTag{font-size:11px;letter-spacing:.3em;color:#ff5d6a;text-shadow:0 0 12px rgba(255,70,90,.9);animation:tagBlink .42s steps(2,end) infinite}
+.dangerTag.on{display:block}
+@keyframes tagBlink{50%{opacity:.3}}
+
 .pips{margin-top:7px;display:flex;gap:6px}
 .p2 .pips{justify-content:flex-end}
 .pips span{width:10px;height:10px;border:1px solid var(--gold);transform:rotate(45deg);background:transparent;transition:all .25s ease}
-.pips span.won{background:var(--gold);box-shadow:0 0 9px rgba(242,193,78,.85)}
+.pips span.won{background:var(--gold);box-shadow:0 0 9px rgba(242,193,78,.85);animation:pipPop .32s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pipPop{from{transform:rotate(45deg) scale(2)}to{transform:rotate(45deg) scale(1)}}
+
+/* Round timer plate */
+#timerBox{
+  flex:0 0 auto;display:flex;flex-direction:column;align-items:center;line-height:1;margin-top:2px;
+  padding:5px 12px 7px;background:rgba(4,10,22,.78);border:1px solid rgba(242,193,78,.5);border-radius:10px;
+  box-shadow:0 0 18px rgba(242,193,78,.25),inset 0 0 12px rgba(0,0,0,.5)
+}
+#timerLabel{font-size:9px;font-weight:800;letter-spacing:.34em;color:var(--gold);text-transform:uppercase}
+#timerVal{
+  font-family:var(--font-display);font-size:clamp(18px,4vw,30px);color:#fff;margin-top:2px;
+  text-shadow:0 0 10px rgba(242,193,78,.9),0 0 26px rgba(242,193,78,.45)
+}
+#timerVal.pop{animation:tPop .3s cubic-bezier(.2,1.7,.4,1)}
+@keyframes tPop{from{transform:scale(1.5)}to{transform:scale(1)}}
+#timerBox.low{border-color:rgba(255,93,106,.75);box-shadow:0 0 20px rgba(255,70,90,.4),inset 0 0 12px rgba(0,0,0,.5)}
+#timerBox.low #timerLabel{color:#ff8f96}
+#timerBox.low #timerVal{
+  color:#ff6b7a;text-shadow:0 0 12px rgba(255,80,100,.95),0 0 30px rgba(255,40,60,.5);
+  animation:timerBlink .5s steps(2,end) infinite
+}
+@keyframes timerBlink{50%{opacity:.45}}
+
 #roundText{
-  position:fixed;top:96px;left:50%;transform:translateX(-50%);z-index:13;font-family:var(--font-display);
+  position:fixed;top:138px;left:50%;transform:translateX(-50%);z-index:13;font-family:var(--font-display);
   font-size:clamp(24px,7vw,54px);text-align:center;width:min(94vw,900px);color:#fff;
   text-shadow:0 3px 0 rgba(0,0,0,.5),0 0 30px rgba(242,193,78,.45);pointer-events:none;padding:0 10px
 }
 #roundText.pop{animation:popIn .5s cubic-bezier(.2,1.4,.3,1) both}
 @keyframes popIn{0%{transform:translateX(-50%) scale(.35);opacity:0}60%{transform:translateX(-50%) scale(1.1);opacity:1}100%{transform:translateX(-50%) scale(1);opacity:1}}
+
+/* ===== Juice / HUD upgrades ===== */
+#hurtFx{position:fixed;inset:0;z-index:13;pointer-events:none;opacity:0;background:radial-gradient(120% 90% at 50% 50%,transparent 46%,rgba(239,62,66,.5) 100%)}
+.combo{position:fixed;top:33%;z-index:14;pointer-events:none;opacity:0;transform:translateY(10px);transition:opacity .22s ease,transform .22s ease}
+.combo.show{opacity:1;transform:none}
+#comboP1{left:calc(16px + 2vw)}
+#comboP2{right:calc(16px + 2vw);text-align:right}
+.combo .cnum{font-family:var(--font-display);font-size:clamp(38px,9vw,84px);line-height:.9;color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.5),0 0 26px rgba(47,143,224,.85)}
+.combo.cpu .cnum{text-shadow:0 4px 0 rgba(0,0,0,.5),0 0 26px rgba(239,62,66,.85)}
+.combo .clab{font-weight:800;letter-spacing:.3em;font-size:clamp(11px,2.4vw,15px);color:var(--gold);text-transform:uppercase;margin-top:3px}
+.combo.cpu .clab{color:#ff8f96}
+.combo .cbest{margin-top:4px;font-weight:800;font-size:11px;letter-spacing:.24em;color:#93a9c4;text-transform:uppercase;opacity:.9}
+.cnum.pop{animation:cPop .18s cubic-bezier(.2,1.6,.4,1)}
+@keyframes cPop{from{transform:scale(1.55)}to{transform:scale(1)}}
+
+/* Combo heat tiers */
+.combo.tier2 .cnum{color:#ffe9a8;text-shadow:0 4px 0 rgba(0,0,0,.5),0 0 32px rgba(250,204,21,.95)}
+.combo.tier2 .clab{color:#ffd76a}
+.combo.tier3 .cnum{
+  color:#ffd2d6;text-shadow:0 4px 0 rgba(0,0,0,.5),0 0 36px rgba(255,60,80,1);
+  animation:hotFlicker .12s steps(2,end) infinite
+}
+.combo.tier3 .clab{color:#ff8f96}
+@keyframes hotFlicker{50%{opacity:.82}}
+
+#dmgLayer{position:fixed;inset:0;z-index:14;pointer-events:none;overflow:hidden}
+.dmgNum{position:absolute;left:0;top:0;font-family:var(--font-display);font-size:30px;color:#fff;display:none;will-change:transform,opacity;text-shadow:0 3px 0 rgba(0,0,0,.6),0 0 14px rgba(255,255,255,.5)}
+.dmgNum.gold{color:var(--gold);font-size:40px;text-shadow:0 3px 0 rgba(0,0,0,.6),0 0 20px rgba(242,193,78,.85)}
+.dmgNum.blk{color:#9ecbff;font-size:20px;letter-spacing:.12em}
+#koText{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:15;pointer-events:none;
+  font-family:var(--font-display);font-size:clamp(60px,18vw,170px);color:var(--gold);opacity:0;
+  text-shadow:0 6px 0 rgba(0,0,0,.55),0 0 60px rgba(242,193,78,.65);-webkit-text-stroke:3px rgba(0,0,0,.35)
+}
+#koText.go{animation:koSlam .5s cubic-bezier(.15,1.6,.3,1) forwards}
+#koText.bye{opacity:0;transition:opacity .35s ease}
+@keyframes koSlam{0%{opacity:0;transform:scale(2.6) rotate(-6deg)}55%{opacity:1;transform:scale(.94) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0deg)}}
+
+/* Center slam banner (FIGHT! / PERFECT!) */
+#fightBanner{
+  position:fixed;top:36%;left:50%;z-index:16;pointer-events:none;opacity:0;
+  transform:translate(-50%,-50%) scale(.4);
+  font-family:var(--font-display);font-size:clamp(46px,13vw,118px);color:#fff;white-space:nowrap;
+  text-shadow:0 5px 0 rgba(0,0,0,.55),0 0 48px rgba(242,193,78,.9),0 0 90px rgba(242,193,78,.4);
+  -webkit-text-stroke:3px rgba(0,0,0,.32);letter-spacing:.05em
+}
+#fightBanner.go{animation:bannerSlam 1s cubic-bezier(.17,1.4,.3,1) forwards}
+@keyframes bannerSlam{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(2.5) rotate(-5deg)}
+  16%{opacity:1;transform:translate(-50%,-50%) scale(.9) rotate(1.5deg)}
+  28%{transform:translate(-50%,-50%) scale(1.05) rotate(0deg)}
+  74%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-58%) scale(1.03)}
+}
+
 .topButtons{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:10px;z-index:25;display:flex;gap:8px}
 .iconBtn{
   appearance:none;cursor:pointer;font-family:var(--font-body);font-weight:800;font-size:13px;letter-spacing:.1em;
@@ -196,6 +327,7 @@ html,body{
 @media(max-height:700px){
   #selectRow{grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:10px}
   .charCard{min-height:128px}
+  #roundText{top:126px}
 }
 @media(max-height:520px){
   .tbtn{width:52px;height:52px;font-size:11px}
@@ -203,6 +335,7 @@ html,body{
   .tbtn.wide{width:64px}
   .actions{max-width:62vw}
   .baseball{display:none}
+  #roundText{top:118px}
 }
 </style>
 </head>
@@ -215,6 +348,7 @@ html,body{
   <p class="subtitle">11 Fighters · Fight All 10</p>
   <button id="startBtn" class="btnPlate">Start Gauntlet</button>
   <button id="sfxMenuBtn" class="btnGhost">SFX: ON</button>
+  <button id="musicMenuBtn" class="btnGhost">♪ MUSIC: ON</button>
   <div class="ticket">
     <span class="key">A</span><span class="key">D</span> MOVE ·
     <span class="key">W</span> JUMP ·
@@ -246,23 +380,47 @@ html,body{
   <div id="gameContainer"></div><div id="vignette"></div>
   <div id="hud">
     <div class="panel p1">
-      <div class="fname" id="p1Name">HYLE</div>
-      <div class="fteam" id="p1Team">DODGER · YOU</div>
-      <div class="bar"><div id="p1Health" class="fill healthFill"></div></div>
+      <div class="nameRow">
+        <span class="gem" id="p1Gem"><i>H</i></span>
+        <div class="nameCol">
+          <div class="fname" id="p1Name">HYLE</div>
+          <div class="fteam" id="p1Team">DODGER · YOU</div>
+        </div>
+      </div>
+      <div class="bar"><div id="p1HealthGhost" class="fill ghostFill"></div><div id="p1Health" class="fill healthFill"></div></div>
       <div class="bar specialBar"><div id="p1Special" class="fill specialFill"></div></div>
+      <div class="readyTag" id="p1Ready">SP Ready</div>
+      <div class="dangerTag" id="p1Danger">⚠ Danger</div>
       <div class="pips" id="p1Pips"><span></span><span></span></div>
     </div>
+    <div id="timerBox">
+      <div id="timerLabel">TIME</div>
+      <div id="timerVal">60</div>
+    </div>
     <div class="panel p2">
-      <div class="fname" id="p2Name">KEVO</div>
-      <div class="fteam" id="p2Team">YANKEE · CPU</div>
-      <div class="bar"><div id="p2Health" class="fill healthFill"></div></div>
+      <div class="nameRow">
+        <span class="gem" id="p2Gem"><i>K</i></span>
+        <div class="nameCol">
+          <div class="fname" id="p2Name">KEVO</div>
+          <div class="fteam" id="p2Team">YANKEE · CPU</div>
+        </div>
+      </div>
+      <div class="bar"><div id="p2HealthGhost" class="fill ghostFill"></div><div id="p2Health" class="fill healthFill"></div></div>
       <div class="bar specialBar"><div id="p2Special" class="fill specialFill"></div></div>
+      <div class="readyTag" id="p2Ready">SP Ready</div>
       <div class="pips" id="p2Pips"><span></span><span></span></div>
     </div>
   </div>
   <div id="roundText"></div>
+  <div id="hurtFx"></div>
+  <div id="comboP1" class="combo"><div class="cnum">2</div><div class="clab">Hit Combo</div><div class="cbest">Best 0</div></div>
+  <div id="comboP2" class="combo cpu"><div class="cnum">2</div><div class="clab">Hit Combo</div><div class="cbest">Best 0</div></div>
+  <div id="dmgLayer"></div>
+  <div id="koText">K.O.!</div>
+  <div id="fightBanner"></div>
   <div class="topButtons">
     <button id="sfxGameBtn" class="iconBtn">🔊 SFX</button>
+    <button id="musicGameBtn" class="iconBtn">♪ ON</button>
     <button id="menuBtn" class="iconBtn">MENU</button>
   </div>
   <div id="touchControls">
@@ -304,6 +462,238 @@ html,body{
 import * as THREE from "three";
 import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
 import * as SkeletonUtils from "three/addons/utils/SkeletonUtils.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+
+/* =====================================================================
+   DIRECTOR CERTIFICATION NOTES (Pass 3 audit):
+   ✔ FBX pipeline untouched: CHARACTERS table, loadModelAsset (incl.
+     Paul/Ted ground-plant offsets), retargetClip, preloadCharacter,
+     SkeletonUtils cloning — all preserved verbatim.
+   ✔ Movement inputs & combat logic untouched: keyMap, touch bindings,
+     Fighter.update physics, processHits damage/block/meter math,
+     updateAI difficulty scaling, gauntlet queue flow.
+   ✔ Boot order verified: initFX() runs BEFORE initThree() so
+     buildAtmosphere()/fireflies always have FX.glowTex available.
+   ✔ All DOM ids referenced in JS exist in markup (incl. timerBox/
+     timerVal); all @keyframes referenced in CSS are defined.
+   ✔ Shared geometries (RING_GEO/SHARD_GEO) flagged sharedGeo:true so
+     cleanup never disposes them twice; sprite materials dispose safely.
+   ✔ AudioContext guarded everywhere (ensureAudio + null masterComp
+     checks); hover ticks suppressed until context is running.
+
+   PASS 1 ADDENDUM (visual overhaul + game feel):
+   ✔ Stage lighting: cool fill directional, moving-head color spots
+     (pink/cyan) with tracked volumetric beams, sky searchlights.
+   ✔ Arena depth: two-band parallax skyline, blimp, scrolling marquee
+     boards, chalk baselines, foul poles, dugouts, mown-grass texture.
+   ✔ Feel: impact dolly (camPush), KO letterbox bars (uBars), danger
+     heartbeat vignette, guard-spark arcs, golden slash arcs, turf
+     scorch decals, victory fireworks, live scoreboard clock.
+   ✔ All additions are cosmetic layers — zero combat/input/FBX changes.
+
+   PASS 2 ADDENDUM (audio + UI refinement):
+   ✔ Audio: convolution reverb bus (generated impulse — zero files),
+     continuous crowd-noise bed riding crowdHype, dynamic drum layer
+     (kick/snare/hat) scaling with hype, music ducking on KO slow-mo
+     and announcements, randomized whoosh pitch, footstep taps.
+   ✔ New synth voices: FIGHT stab, 10s warn sting, combo milestone
+     arpeggios (5/10/15), meter-full shimmer, low-health danger alarm.
+   ✔ UI: team gem badges, SP-READY / DANGER tags, bar hit-flash sweep,
+     timer pop + warn, round-win pip pops, BEST combo trackers,
+     FINAL ROUND labeling, FIGHT!/PERFECT! slam banners.
+   ✔ All additions are cosmetic/audio layers — zero combat/input/FBX
+     changes; every prior feature retained.
+
+   PASS 4 ADDENDUM (dynamic camera shake — light punch hit registration):
+   ✔ Trauma-based shake rig: every clean light punch that registers
+     injects trauma (scaled up slightly by the attacker's live combo
+     count); blocked light punches inject a muted jolt.
+   ✔ Amplitude = trauma², driven by smooth layered-sine noise channels
+     (position X/Y + camera roll) — the noise seed re-rolls on every
+     hit so no two shakes share the same pattern; a directional lean
+     follows the knockback side for readable impact direction.
+   ✔ Subtle FOV punch-in rides the trauma envelope; decay runs on real
+     time so the shake plays through hit-stop frames.
+   ✔ Cosmetic only — zero combat/input/FBX changes.
+
+   PASS 5 ADDENDUM (light punch impact synth — Web Audio API):
+   ✔ Dedicated playLightPunchImpact() voice: five stacked synth layers
+     — transient crack (band-passed noise snap), skin slap (mid-band
+     noise), body thump (square pitch-drop), sub weight (sine drop),
+     crisp metallic ping — all generated live, zero audio files.
+   ✔ ±10% random pitch variance per hit + subtle pitch lift as the
+     live combo count climbs, so rapid strings escalate instead of
+     replaying one identical sample.
+   ✔ Routed through the existing master compressor + stadium reverb
+     bus; haptic tick retained on supporting devices.
+   ✔ Cosmetic/audio only — zero combat/input/FBX changes.
+
+   PASS 6 ADDENDUM (dynamic flash-spark emitter at collision points):
+   ✔ New spawnFlashSparks() layered burst fired at the exact contact
+     point (hx, hy) on every registered collision — clean hits, blocked
+     hits, heavies and KOs: white-hot flash-core pop, colored
+     after-bloom halo, twin screen-aligned star-flare sprites, and a
+     knockback-biased cone of streaking spark jets.
+   ✔ Spark jets are fully dynamic particles: re-oriented + elongated
+     along their live velocity every frame (comet streaks that taper
+     as they slow), cooling white-hot → attack color over lifetime,
+     per-particle opacity flicker with random phase, gravity + drag,
+     and turf-bounce reflection off the ground plane.
+   ✔ spawnImpactLight(): a real PointLight flashed at the contact point
+     (power-scaled intensity, ~130ms decay) so every impact dynamically
+     relights both fighters and the field for a split second; effect
+     teardown now guards material-less objects (lights) safely.
+   ✔ Delayed secondary "crackle" wave on heavy/KO bursts (jets-only,
+     guarded against hidden screens) for a double-crack read.
+   ✔ Shared SPARK_GEO tapered-streak geometry flagged sharedGeo:true.
+   ✔ Cosmetic/FX only — zero combat, input, or FBX pipeline changes.
+
+   PASS 7 ADDENDUM (heavy punch impact synth — Web Audio API):
+   ✔ Dedicated playHeavyPunchImpact() voice replacing the old three-
+     tone heavy blip: seven stacked synth layers — transient crack
+     snap (band-passed noise), tanh-waveshaped distorted body
+     (sawtooth pitch-drop through a sweeping lowpass), sub-bass slam
+     (deep sine drop to 22Hz), mid-range crunch bite (square
+     transient), air-blast noise burst, metallic ring-out partials,
+     and a delayed debris-crash tail — all generated live, zero
+     audio files anywhere.
+   ✔ ±12% random pitch variance per hit + subtle pitch lift as the
+     live combo count climbs, mirroring the light-punch escalation
+     system so special strings escalate instead of replaying one
+     identical sample.
+   ✔ Heavier haptic signature (triple-pulse vibration) on supporting
+     devices; routed through the existing master compressor +
+     stadium reverb bus for glue and space.
+   ✔ Cosmetic/audio only — zero combat/input/FBX changes.
+
+   PASS 8 ADDENDUM (heavy punch camera tilt + screen shake):
+   ✔ Dedicated heavy-impact camera rig fired on every registered heavy
+     (special) punch hit — clean connects, blocked connects, and the
+     KO finishing blow.
+   ✔ Spring-loaded camera TILT: an angular impulse kicks the camera
+     roll off-axis while a second spring dips the pitch INTO the
+     impact; both are underdamped (stiff spring + viscous damping) so
+     they snap back with a whip-like overshoot instead of easing flat.
+   ✔ Directional position JOLT: the whole frame lunges along the
+     knockback side (+ slight lift) and bleeds off exponentially.
+   ✔ Screen SHAKE: large trauma injection drives the existing layered-
+     sine noise channels (amplitude = trauma², seed re-rolled per hit)
+     on top of the legacy random jitter — heavies visibly rattle.
+   ✔ All channels escalate slightly with the live combo count; blocked
+     heavies fire a softened (×0.35) version; integrated on real time
+     so the tilt/shake plays through hit-stop and slow-mo frames.
+   ✔ Cosmetic only — zero combat/input/FBX changes.
+
+   PASS 9 ADDENDUM (heavy hit-stop frame delay):
+   ✔ Dedicated TWO-PHASE hit-stop fired on every registered CLEAN
+     heavy (special) punch connect: ~170ms total — a hard near-full
+     freeze hold (simulation runs at 2% speed) for the first ~62% of
+     the window, then a quadratic ramp back to full speed so the
+     action SNAPS out of the freeze instead of easing flat.
+   ✔ Frozen-world / live-FX contrast: both fighters, physics and
+     knockback hang mid-frame while impact sparks, streaks and the
+     dynamic impact light keep playing on real time — the classic
+     arcade "world stops, energy keeps moving" read.
+   ✔ Entry cue: low synthesized "time-slip" down-sweep layered under
+     the heavy slam + an extra chromatic-aberration spike riding the
+     freeze; hitstun/knockback timers consume scaled dt so the victim
+     genuinely hangs in the hit pose through the stop.
+   ✔ Release cue: as the stop expires, a shockwave ring + jets-only
+     spark puff detonate from the stored contact point, with a crisp
+     synthesized "snap" tick, a small camera nudge and an aberration
+     flick — the impact reads as a held beat that detonates on exit.
+   ✔ triggerHitStop() takes the MAX of overlapping stops so multi-hit
+     strings never stack into mush; blocked heavies get a slightly
+     longer muted flat stop (.07s) while light punches keep their
+     legacy .055/.035 flat freezes completely untouched.
+   ✔ Fully cleared on round reset, gauntlet end and menu exit.
+   ✔ Cosmetic/timing layer only — zero combat math, input or FBX
+     pipeline changes.
+
+   PASS 10 ADDENDUM (blocking sound effect — Web Audio API):
+   ✔ Dedicated playBlockImpact() voice replacing the old four-tone
+     guard blip: six stacked synth layers — transient metallic clank
+     (band-passed noise snap), inharmonic bell-partial stack ringing
+     off the guard, glassy shield-energy shimmer sweeps, absorbed-
+     force body thud (low sine drop), deflection spray (band-passed
+     noise), and a mechanical guard-rattle chatter reserved for
+     stopping HEAVY blows — all generated live, zero audio files.
+   ✔ Heavy-aware dynamics: blocking a special/heavy hit plays a
+     weightier variant (deeper thud, louder clank, longer ring-out,
+     rattle layer) while light-punch guards stay crisp and snappy;
+     ±8% random pitch variance per block so repeated guards never
+     replay one identical sample.
+   ✔ Routed through the existing master compressor + stadium reverb
+     bus; haptic signature (single tick for lights, triple pulse for
+     heavies) on supporting devices.
+   ✔ Cosmetic/audio only — zero combat math, input or FBX pipeline
+     changes.
+
+   PASS 11 ADDENDUM (blocking particle impact flash):
+   ✔ Dedicated spawnBlockFlash() guard-absorb burst fired at the exact
+     contact point the instant any attack is blocked — a clearly
+     readable "energy deflected" flash layered on top of the existing
+     guard sparks:
+       1. White-hot guard core — instant pop + collapse at the
+          fist/shield intersection
+       2. Icy after-bloom halo — cool blue energy bleeding off the
+          guard surface
+       3. Twin guard rings — a screen-aligned shockwave ring expanding
+          out of the contact point plus a DELAYED secondary ripple
+          ring (~90ms) for a double-pulse "shield ripple" read
+       4. Vertical guard flare — cross star-flare stretched tall so
+          the flash reads even behind the fighters' bodies
+       5. Radial shard fan — jagged energy fragments ejected in a
+          flat fan perpendicular to the swing axis, biased away from
+          the attacker, tumbling under gravity + drag
+       6. Rising energy motes — slow cool-blue embers drifting up off
+          the guard and fading like dissipated force
+       7. Dynamic impact light — cool PointLight punch relighting both
+          fighters and the turf for ~120ms (reuses spawnImpactLight)
+   ✔ Shield-mesh pulse on the defender: the guard bubble FLARES
+     white-hot (color lerped toward white), swells ~20% and brightens
+     for a beat via a decaying shieldPulse envelope, then settles
+     back to its idle shimmer — the barrier visibly absorbs the blow.
+   ✔ Heavy-aware scaling: stopping a special/heavy blow fires a larger
+     burst (more shards, brighter light, bigger rings) vs. the crisp
+     light-punch guard flash.
+   ✔ Delayed ripple guarded against hidden screens; all particles run
+     on real time so the flash plays through hit-stop frames.
+   ✔ Cosmetic/FX only — zero combat, input, or FBX pipeline changes.
+
+   PASS 12 ADDENDUM (dynamic stage point lights pulsing to combat):
+   ✔ Dedicated eight-fixture stage lighting rig built into the arena:
+     four corner floor pods flanking the infield (on stanchions), an
+     overhead truss pair hung on rigging cables, and twin center
+     washes front/back — each a REAL PointLight paired with a modeled
+     housing + emissive lens sphere + additive glow flare so every
+     source reads physically on camera, not as invisible illumination.
+   ✔ Combat-reactive envelopes injected straight from the fight sim:
+     every CLEAN hit punches the ATTACKER's side rigs (heavies hit
+     roughly twice as hard), BLOCKS kick the DEFENDER's rigs so the
+     guard reads spatially, special startups fire an anticipation
+     surge across the attacker's rigs, KOs detonate a FULL-RIG surge
+     with a fast strobe shimmer, round wins / double-KOs / time-ups
+     lift the whole house proportionally.
+   ✔ Layered intensity model per fixture: idle breathe (per-light
+     phase/frequency sines) × crowd-hype coupling + quadratic pulse²
+     combat punch + global surge² lift + a 138-BPM beat thump synced
+     to the live AudioContext clock (half-strength when music is
+     muted) so the entire bowl visibly throbs with the stadium band.
+   ✔ Team-color brain: side rigs wear their fighter's team color and
+     BLEED toward the dominant side as a momentum value (built from
+     clean hits, exponentially decaying) swings; center washes
+     crossfade player↔cpu with momentum. Colors auto-retint every
+     gauntlet matchup via refreshStageLightColors().
+   ✔ Orbiting accent lights inherit the rig's surge/pulse energy so
+     the whole dynamic-lighting system breathes as one organism.
+   ✔ Fully reset on round reset + menu exit. Cosmetic/lighting only —
+     zero combat, input, or FBX pipeline changes.
+   ===================================================================== */
 
 /* ===================== CONFIG ===================== */
 
@@ -429,6 +819,7 @@ const ATTACKS = {
 
 const ARENA_BOUNDS = 86;
 const TARGET_H = 36;
+const ROUND_TIME = 60;
 
 /* ===================== DOM ===================== */
 
@@ -451,6 +842,8 @@ const loadingBackBtn = $("loadingBackBtn");
 
 const sfxMenuBtn = $("sfxMenuBtn");
 const sfxGameBtn = $("sfxGameBtn");
+const musicMenuBtn = $("musicMenuBtn");
+const musicGameBtn = $("musicGameBtn");
 
 const loadingStatus = $("loadingStatus");
 const loadingFill = $("loadingFill");
@@ -472,6 +865,26 @@ const p2Special = $("p2Special");
 const p1Pips = $("p1Pips");
 const p2Pips = $("p2Pips");
 
+const p1HealthGhost = $("p1HealthGhost");
+const p2HealthGhost = $("p2HealthGhost");
+const p1Bar = p1Health.parentElement;
+const p2Bar = p2Health.parentElement;
+const comboP1 = $("comboP1");
+const comboP2 = $("comboP2");
+const koText = $("koText");
+const dmgLayer = $("dmgLayer");
+const hurtOverlay = $("hurtFx");
+const timerBox = $("timerBox");
+const timerVal = $("timerVal");
+
+/* Pass-2 HUD nodes */
+const p1Ready = $("p1Ready");
+const p2Ready = $("p2Ready");
+const p1Danger = $("p1Danger");
+const fightBanner = $("fightBanner");
+const p1Gem = $("p1Gem");
+const p2Gem = $("p2Gem");
+
 const selectRow = $("selectRow");
 const specialTouchBtn = document.querySelector('[data-action="special"]');
 
@@ -485,6 +898,61 @@ let audioCtx = null;
 let selectedChar = "dodger";
 let camShake = 0;
 let lastMessage = "";
+
+/* juice state */
+let hitStop = 0;
+/* Pass-9 heavy hit-stop frame-delay state */
+let hitStopTotal = 0;       /* full duration of the active stop          */
+let hitStopHeavy = false;   /* active stop is a two-phase heavy stop     */
+let hitStopWasHeavy = true; /* pending release burst flag                */
+let freezePt = null;        /* contact-point snapshot for release burst  */
+let timeScale = 1;
+let fovKick = 0;
+let aber = 0;
+let flashV = 0;
+let hurtV = 0;
+let crowdHype = .5;
+let ambT = 0;
+let frameNo = 0;
+let ghostP = 100;
+let ghostC = 100;
+let prevReadyP = false;
+let prevReadyC = false;
+let koTimer = null;
+
+/* Directional shake, impact roll, radial blur */
+let camRoll = 0;
+let radialV = 0;
+const shakeBias = { x:0, y:0 };
+
+/* Dynamic trauma shake (light punch hit registration) */
+let trauma = 0;
+let traumaDir = 0;
+let shakeSeed = 0;
+
+/* Pass-8 heavy-impact camera rig: spring-loaded tilt (roll + pitch),
+   directional position jolt — fired on heavy punch hit registration */
+let heavyTilt = 0;
+let heavyTiltV = 0;
+let heavyPitch = 0;
+let heavyPitchV = 0;
+let joltX = 0;
+let joltY = 0;
+
+/* Pass-1 feel extensions: impact dolly + KO letterbox + board clock */
+let camPush = 0;
+let barsV = 0;
+let lastBoardSec = null;
+
+/* Round timer */
+let lastTickSec = null;
+
+/* Pass-2 audio/HUD state */
+let prevMaxP = false;
+let prevMaxC = false;
+let dangerBeepT = 0;
+let prevTvShown = null;
+let lastWarnTv = -1;
 
 const modelCache = new Map();
 const rawAnimCache = new Map();
@@ -502,9 +970,16 @@ const state = {
   messageTimer: 0,
   transitionTimer: 0,
   sfx: true,
+  music: true,
   queue: [],
   opponentIndex: 0,
-  matchesWon: 0
+  matchesWon: 0,
+  timer: ROUND_TIME,
+  combo: { p:0, c:0, tp:0, tc:0 },
+  bestCombo: { p:0, c:0 },
+  introToken: 0,
+  p1Taken: 0,
+  p2Taken: 0
 };
 
 const input = {
@@ -536,72 +1011,862 @@ function updateSfxButtons(){
   sfxGameBtn.textContent = state.sfx ? "🔊 SFX" : "🔇 SFX";
 }
 
+function updateMusicButtons(){
+  if(musicMenuBtn) musicMenuBtn.textContent = `♪ MUSIC: ${state.music ? "ON" : "OFF"}`;
+  if(musicGameBtn) musicGameBtn.textContent = state.music ? "♪ ON" : "♪ OFF";
+}
+
+/* ===================== AUDIO ENGINE (Web Audio synth — zero external files) ===================== */
+
+let noiseBuf = null;
+let musicGain = null;
+let masterComp = null;
+let vibOsc = null;
+let vibGain = null;
+let musicStarted = false;
+
+/* Pass-2 buses */
+let reverbConv = null;
+let reverbGain = null;
+let crowdSrc = null;
+let crowdGain = null;
+let crowdFilter = null;
+let duckCur = 1;
+
 function ensureAudio(){
   try{
     if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if(audioCtx.state === "suspended") audioCtx.resume();
+
+    if(!masterComp && audioCtx){
+      /* Master bus compressor: glues SFX + music, prevents clipping */
+      masterComp = audioCtx.createDynamicsCompressor();
+      masterComp.threshold.value = -14;
+      masterComp.knee.value = 20;
+      masterComp.ratio.value = 5;
+      masterComp.attack.value = .003;
+      masterComp.release.value = .18;
+      masterComp.connect(audioCtx.destination);
+    }
+
+    /* Stadium reverb tail — impulse response synthesized from decaying
+       noise, so big hits/bells ring out into the bowl with zero files */
+    if(!reverbConv && audioCtx && masterComp){
+      try{
+        const len = Math.floor(audioCtx.sampleRate * 1.9);
+        const ir = audioCtx.createBuffer(2, len, audioCtx.sampleRate);
+        for(let ch = 0; ch < 2; ch++){
+          const d = ir.getChannelData(ch);
+          for(let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.7);
+        }
+        reverbConv = audioCtx.createConvolver();
+        reverbConv.buffer = ir;
+        reverbGain = audioCtx.createGain();
+        reverbGain.gain.value = .5;
+        reverbConv.connect(reverbGain);
+        reverbGain.connect(masterComp);
+      }catch(e){}
+    }
+
+    if(!musicStarted && audioCtx){
+      musicStarted = true;
+      musicGain = audioCtx.createGain();
+      musicGain.gain.value = state.music ? .8 : 0;
+      musicGain.connect(masterComp);
+
+      vibOsc = audioCtx.createOscillator();
+      vibOsc.frequency.value = 5.3;
+      vibGain = audioCtx.createGain();
+      vibGain.gain.value = 3.2;
+      vibOsc.connect(vibGain);
+      vibOsc.start();
+
+      MUSIC.nextTime = audioCtx.currentTime + .1;
+      setInterval(musicTick, 90);
+    }
+
+    /* Continuous crowd murmur bed (gain rides crowd hype each frame) */
+    startCrowdBed();
   }catch(e){}
 }
 
-function playSfx(t){
-  if(!state.sfx) return;
-  ensureAudio();
-  if(!audioCtx) return;
+function getNoiseBuffer(){
+  if(!audioCtx) return null;
+  if(!noiseBuf){
+    const len = Math.floor(audioCtx.sampleRate * 1.2);
+    noiseBuf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for(let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  }
+  return noiseBuf;
+}
 
-  const n = audioCtx.currentTime;
+/* Looping filtered-noise crowd bed; level driven per-frame by hype */
+function startCrowdBed(){
+  if(crowdSrc || !audioCtx || !masterComp) return;
+  try{
+    const src = audioCtx.createBufferSource();
+    src.buffer = getNoiseBuffer();
+    src.loop = true;
+
+    const bp = audioCtx.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = 460;
+    bp.Q.value = .5;
+
+    const lp = audioCtx.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 1500;
+
+    crowdFilter = bp;
+    crowdGain = audioCtx.createGain();
+    crowdGain.gain.value = 0;
+
+    src.connect(bp);
+    bp.connect(lp);
+    lp.connect(crowdGain);
+    crowdGain.connect(masterComp);
+
+    if(reverbConv){
+      const rg = audioCtx.createGain();
+      rg.gain.value = .3;
+      crowdGain.connect(rg);
+      rg.connect(reverbConv);
+    }
+
+    src.start();
+    crowdSrc = src;
+  }catch(e){}
+}
+
+function env(g, n, peak, dur){
+  g.gain.setValueAtTime(Math.max(.0001, peak), n);
+  g.gain.exponentialRampToValueAtTime(.0008, n + dur);
+}
+
+/* rev: 0..1 wet send into the stadium reverb bus */
+function tone({ type = "square", f0 = 200, f1 = null, t = 0, dur = .15, vol = .08, rev = 0 } = {}){
   const o = audioCtx.createOscillator();
   const g = audioCtx.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(Math.max(1, f0), t);
+  if(f1) o.frequency.exponentialRampToValueAtTime(Math.max(1, f1), t + dur * .9);
+  env(g, t, vol, dur);
   o.connect(g);
-  g.connect(audioCtx.destination);
+  g.connect(masterComp);
+  if(rev > 0 && reverbConv){
+    const rg = audioCtx.createGain();
+    rg.gain.value = rev;
+    g.connect(rg);
+    rg.connect(reverbConv);
+  }
+  o.start(t);
+  o.stop(t + dur + .03);
+}
+
+function hiss({ t = 0, dur = .15, vol = .1, f0 = 1200, f1 = null, type = "bandpass", q = 1, rev = 0 } = {}){
+  const src = audioCtx.createBufferSource();
+  src.buffer = getNoiseBuffer();
+  const fl = audioCtx.createBiquadFilter();
+  fl.type = type;
+  fl.frequency.setValueAtTime(Math.max(20, f0), t);
+  fl.Q.value = q;
+  if(f1) fl.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur * .9);
+  const g = audioCtx.createGain();
+  env(g, t, vol, dur);
+  src.connect(fl);
+  fl.connect(g);
+  g.connect(masterComp);
+  if(rev > 0 && reverbConv){
+    const rg = audioCtx.createGain();
+    rg.gain.value = rev;
+    g.connect(rg);
+    rg.connect(reverbConv);
+  }
+  src.start(t);
+  src.stop(t + dur + .03);
+}
+
+/*
+ * Synth SFX bus. Every sound is generated live from oscillators +
+ * filtered noise — no audio files anywhere.
+ *
+ * opts.soft: only fire when the AudioContext is fully running
+ *            (used for hover ticks so a suspended context never
+ *            accumulates a burst of queued events).
+ */
+function playSfx(t, arg, opts = {}){
+  if(!state.sfx) return;
+  ensureAudio();
+  if(!audioCtx || !masterComp) return;
+  if(opts.soft && audioCtx.state !== "running") return;
+
+  const n = audioCtx.currentTime;
 
   if(t === "hit"){
-    o.type = "square";
-    o.frequency.setValueAtTime(200, n);
-    o.frequency.exponentialRampToValueAtTime(70, n + .11);
-    g.gain.setValueAtTime(.075, n);
-    g.gain.exponentialRampToValueAtTime(.001, n + .13);
-    o.start(n);
-    o.stop(n + .14);
-    if(navigator.vibrate){ try{ navigator.vibrate(18); }catch(e){} }
+    /* Light punch impact — dedicated layered synth voice.
+       arg = live combo count (incl. this hit) for escalating pitch. */
+    playLightPunchImpact(arg || 0);
+  }
+  else if(t === "heavy"){
+    /* Heavy / special impact — dedicated layered synth voice.
+       arg = live combo count (incl. this hit) for escalating pitch. */
+    playHeavyPunchImpact(arg || 0);
   }
   else if(t === "block"){
-    o.type = "triangle";
-    o.frequency.setValueAtTime(320, n);
-    o.frequency.exponentialRampToValueAtTime(180, n + .07);
-    g.gain.setValueAtTime(.05, n);
-    g.gain.exponentialRampToValueAtTime(.001, n + .09);
-    o.start(n);
-    o.stop(n + .1);
+    /* Block/guard impact — dedicated layered synth voice.
+       arg = 1 when a HEAVY (special) blow was stopped, 0 for lights. */
+    playBlockImpact(arg || 0);
+  }
+  else if(t === "whoosh"){
+    /* Swing air: randomized band sweep so every whiff differs */
+    const rp = .85 + Math.random() * .4;
+    hiss({ t:n, dur:.15, vol:.05, f0:300 * rp, f1:1600 * rp, type:"bandpass", q:1.4 });
+  }
+  else if(t === "jump"){
+    tone({ type:"sine", f0:280, f1:520, t:n, dur:.12, vol:.035 });
+  }
+  else if(t === "land"){
+    tone({ type:"sine", f0:95, f1:46, t:n, dur:.1, vol:.06 });
+    hiss({ t:n, dur:.08, vol:.05, f0:420, f1:120, type:"lowpass" });
+  }
+  else if(t === "step"){
+    /* Soft turf footfall texture while walking */
+    hiss({ t:n, dur:.05, vol:.016, f0:300, f1:120, type:"lowpass" });
+  }
+  else if(t === "bell"){
+    /* Ring bell into the stands */
+    tone({ type:"sine", f0:1046, t:n, dur:.5, vol:.05, rev:.55 });
+    tone({ type:"sine", f0:1568, t:n, dur:.42, vol:.028, rev:.55 });
+  }
+  else if(t === "ko"){
+    tone({ type:"sawtooth", f0:420, f1:56, t:n, dur:.7, vol:.09, rev:.5 });
+    hiss({ t:n, dur:.5, vol:.1, f0:900, f1:70, type:"lowpass", rev:.45 });
+    tone({ type:"sine", f0:52, f1:30, t:n + .05, dur:.5, vol:.12, rev:.3 });
+  }
+  else if(t === "cheer"){
+    /* Crowd roar swell: band-passed noise with slow attack/release */
+    const src = audioCtx.createBufferSource();
+    src.buffer = getNoiseBuffer();
+    const bp = audioCtx.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = 760;
+    bp.Q.value = .7;
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(.0001, n);
+    g.gain.linearRampToValueAtTime(.055, n + .09);
+    g.gain.setValueAtTime(.055, n + .35);
+    g.gain.exponentialRampToValueAtTime(.0008, n + .95);
+    src.connect(bp);
+    bp.connect(g);
+    g.connect(masterComp);
+    if(reverbConv){
+      const rg = audioCtx.createGain();
+      rg.gain.value = .55;
+      g.connect(rg);
+      rg.connect(reverbConv);
+    }
+    src.start(n);
+    src.stop(n + 1);
   }
   else if(t === "win"){
-    o.type = "sawtooth";
-    o.frequency.setValueAtTime(330, n);
-    o.frequency.setValueAtTime(440, n + .09);
-    o.frequency.setValueAtTime(550, n + .18);
-    g.gain.setValueAtTime(.055, n);
-    g.gain.exponentialRampToValueAtTime(.001, n + .34);
-    o.start(n);
-    o.stop(n + .35);
+    /* Round-win jingle */
+    [330, 440, 550, 660].forEach((f, i) => tone({ type:"sawtooth", f0:f, t:n + i * .09, dur:.22, vol:.05, rev:.3 }));
+  }
+  else if(t === "clear"){
+    /* Gauntlet-clear fanfare: rising major run + shimmer top */
+    const seq = [523, 659, 784, 1046, 1318, 1568];
+    seq.forEach((f, i) => {
+      tone({ type:"triangle", f0:f, t:n + i * .11, dur:.24, vol:.05, rev:.3 });
+      tone({ type:"sawtooth", f0:f / 2, t:n + i * .11, dur:.22, vol:.03, rev:.3 });
+    });
+    tone({ type:"sine", f0:2093, t:n + seq.length * .11, dur:.5, vol:.04, rev:.4 });
+  }
+  else if(t === "lose"){
+    /* Defeat sting: falling minor line */
+    [330, 277, 220, 165].forEach((f, i) => tone({ type:"sawtooth", f0:f, t:n + i * .13, dur:.2, vol:.05, rev:.3 }));
   }
   else if(t === "special"){
-    o.type = "sawtooth";
-    o.frequency.setValueAtTime(140, n);
-    o.frequency.exponentialRampToValueAtTime(760, n + .22);
-    g.gain.setValueAtTime(.075, n);
-    g.gain.exponentialRampToValueAtTime(.001, n + .3);
-    o.start(n);
-    o.stop(n + .31);
+    tone({ type:"sawtooth", f0:140, f1:760, t:n, dur:.24, vol:.075, rev:.25 });
+    tone({ type:"sawtooth", f0:80, f1:320, t:n + .04, dur:.3, vol:.05, rev:.25 });
+    hiss({ t:n, dur:.3, vol:.06, f0:500, f1:2400, type:"bandpass", q:2 });
   }
+  else if(t === "combo"){
+    const k = Math.min(arg || 3, 14);
+    tone({ type:"square", f0:480 * Math.pow(1.059, k), t:n, dur:.07, vol:.035 });
+  }
+  else if(t === "milestone"){
+    /* Combo milestone sparkle (5 / 10 / 15 hits) */
+    const base = 660;
+    for(let i = 0; i < 4; i++){
+      tone({ type:"triangle", f0:base * Math.pow(1.19, i), t:n + i * .055, dur:.12, vol:.045 });
+    }
+    tone({ type:"sine", f0:base * 2, t:n + 4 * .055, dur:.2, vol:.04, rev:.3 });
+  }
+  else if(t === "perfect"){
+    [880, 1108, 1318, 1760].forEach((f, i) => tone({ type:"sine", f0:f, t:n + i * .07, dur:.18, vol:.04, rev:.35 }));
+  }
+  else if(t === "meterMax"){
+    /* Special meter fully charged: shimmer run */
+    [784, 988, 1175, 1568].forEach((f, i) => tone({ type:"sine", f0:f, t:n + i * .06, dur:.22, vol:.04 }));
+    tone({ type:"triangle", f0:392, f1:784, t:n, dur:.3, vol:.035 });
+  }
+  else if(t === "ready"){
+    tone({ type:"sine", f0:660, f1:990, t:n, dur:.14, vol:.04 });
+    tone({ type:"sine", f0:990, f1:1320, t:n + .1, dur:.16, vol:.035 });
+  }
+  else if(t === "danger"){
+    /* Low-health alarm pulse pair */
+    tone({ type:"square", f0:196, t:n, dur:.1, vol:.035 });
+    tone({ type:"square", f0:155, t:n + .12, dur:.14, vol:.035 });
+  }
+  else if(t === "tick"){
+    /* Final-10-seconds clock tick */
+    tone({ type:"square", f0:1150, t:n, dur:.04, vol:.028 });
+  }
+  else if(t === "warn"){
+    /* 10-second warning sting */
+    tone({ type:"square", f0:880, t:n, dur:.09, vol:.05 });
+    tone({ type:"square", f0:880, t:n + .14, dur:.14, vol:.05 });
+    tone({ type:"sine", f0:220, f1:110, t:n, dur:.3, vol:.07 });
+  }
+  else if(t === "timeup"){
+    /* Klaxon: alternating two-tone blasts + low thud */
+    [587, 494, 587].forEach((f, i) => tone({ type:"square", f0:f, t:n + i * .18, dur:.16, vol:.06, rev:.35 }));
+    tone({ type:"sine", f0:110, f1:55, t:n, dur:.4, vol:.09, rev:.3 });
+  }
+  else if(t === "timestop"){
+    /* Heavy hit-stop ENTRY: low "time-slip" down-sweep whispered
+       under the slam as the world freezes on the impact frame */
+    tone({ type:"sine", f0:340, f1:46, t:n, dur:.15, vol:.05 });
+    hiss({ t:n, dur:.11, vol:.03, f0:1100, f1:130, type:"lowpass" });
+  }
+  else if(t === "release"){
+    /* Heavy hit-stop RELEASE: crisp snap tick + air pop as time
+       resumes and the release shockwave detonates */
+    tone({ type:"square", f0:1600, f1:720, t:n, dur:.035, vol:.03 });
+    hiss({ t:n, dur:.06, vol:.05, f0:2600, f1:520, type:"bandpass", q:1.2 });
+    tone({ type:"sine", f0:190, f1:72, t:n, dur:.09, vol:.05 });
+  }
+  else if(t === "fight"){
+    /* "FIGHT!" announcer stab: brass stack + crash + sub */
+    [220, 277, 330].forEach(f => tone({ type:"sawtooth", f0:f * 2, f1:f, t:n, dur:.32, vol:.05, rev:.5 }));
+    tone({ type:"square", f0:110, f1:55, t:n, dur:.4, vol:.09, rev:.35 });
+    hiss({ t:n, dur:.3, vol:.12, f0:3200, f1:400, type:"lowpass", rev:.4 });
+    tone({ type:"sine", f0:60, f1:34, t:n + .02, dur:.35, vol:.12 });
+  }
+  else if(t === "select"){
+    /* Character-lock confirm blip */
+    tone({ type:"square", f0:660, f1:990, t:n, dur:.08, vol:.035 });
+    tone({ type:"square", f0:990, f1:1480, t:n + .07, dur:.1, vol:.03 });
+  }
+  else if(t === "hover"){
+    tone({ type:"sine", f0:1500, t:n, dur:.03, vol:.014 });
+  }
+  else if(t === "ui"){
+    tone({ type:"square", f0:720, t:n, dur:.05, vol:.03 });
+  }
+}
+
+/* ===== Light punch impact — layered Web Audio synthesis (zero files) =====
+   Five stacked voices build a crisp arcade impact:
+     1. Transient crack — ultra-short band-passed noise "snap"
+     2. Skin slap       — mid-band noise for fleshy contact texture
+     3. Body thump      — square wave with fast downward pitch drop
+     4. Sub weight      — sine drop adding low-end physicality
+     5. Crisp ping      — high metallic accent sharpening the crack
+   Pitch carries ±10% random variance per hit plus a subtle lift as the
+   live combo climbs, so rapid strings escalate instead of replaying one
+   identical sample. Everything routes through the master compressor and
+   the stadium reverb bus for glue and space. */
+function playLightPunchImpact(comboN = 0){
+  const n = audioCtx.currentTime;
+  const rp = (.9 + Math.random() * .2) * (1 + Math.min(comboN, 12) * .011);
+
+  /* 1 — Transient crack: the instant "snap" of contact */
+  hiss({ t:n, dur:.03, vol:.15, f0:3600 * rp, f1:1100, type:"bandpass", q:.9, rev:.1 });
+
+  /* 2 — Skin slap: fleshy mid-band texture */
+  hiss({ t:n, dur:.06, vol:.1, f0:950 * rp, f1:300, type:"bandpass", q:1.2, rev:.08 });
+
+  /* 3 — Body thump: punchy mid-range core */
+  tone({ type:"square", f0:200 * rp, f1:62, t:n, dur:.1, vol:.085 });
+
+  /* 4 — Sub weight: physical low-end drop */
+  tone({ type:"sine", f0:92 * rp, f1:36, t:n, dur:.16, vol:.12 });
+
+  /* 5 — Crisp ping: bright metallic accent */
+  tone({ type:"square", f0:1100 * rp, f1:260, t:n, dur:.045, vol:.045 });
+  tone({ type:"sine", f0:2300 * rp, t:n, dur:.028, vol:.018 });
+
+  /* Haptic tick on supporting devices */
+  if(navigator.vibrate){ try{ navigator.vibrate(22); }catch(e){} }
+}
+
+/* ===== Heavy punch impact — layered Web Audio synthesis (zero files) =====
+   Seven stacked voices build a bone-rattling arcade slam, clearly
+   weightier than the light-punch voice:
+     1. Transient crack  — sharp band-passed noise snap at contact
+     2. Distorted body   — sawtooth pitch-drop crushed through a tanh
+                           waveshaper + sweeping lowpass (the "meat")
+     3. Sub-bass slam    — deep sine drop to ~22Hz for chest-thump weight
+     4. Mid crunch       — square transient adding aggressive bite
+     5. Air blast        — wide noise burst simulating displaced air
+     6. Metallic ring    — two high partials ringing out into the bowl
+     7. Debris tail      — delayed low-passed noise crash settling down
+   Pitch carries ±12% random variance per hit plus a subtle lift as the
+   live combo climbs (matching the light-punch escalation system), so
+   special strings escalate instead of replaying one identical sample.
+   Everything routes through the master compressor and the stadium
+   reverb bus; supporting devices get a heavier triple-pulse haptic. */
+function playHeavyPunchImpact(comboN = 0){
+  const n = audioCtx.currentTime;
+  const rp = (.88 + Math.random() * .24) * (1 + Math.min(comboN, 12) * .009);
+
+  /* 1 — Transient crack: the instant "snap" of a heavy connection */
+  hiss({ t:n, dur:.045, vol:.2, f0:2800 * rp, f1:700, type:"bandpass", q:.8, rev:.12 });
+
+  /* 2 — Distorted body: sawtooth pitch-drop crushed through a tanh
+         waveshaper, then swept closed by a lowpass for a gritty roar */
+  {
+    const o = audioCtx.createOscillator();
+    o.type = "sawtooth";
+    o.frequency.setValueAtTime(Math.max(20, 195 * rp), n);
+    o.frequency.exponentialRampToValueAtTime(38, n + .28);
+
+    const ws = audioCtx.createWaveShaper();
+    const curve = new Float32Array(256);
+    for(let i = 0; i < 256; i++){
+      const x = (i / 127.5) - 1;
+      curve[i] = Math.tanh(x * 3.2);
+    }
+    ws.curve = curve;
+    ws.oversample = "2x";
+
+    const lp = audioCtx.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.setValueAtTime(2400, n);
+    lp.frequency.exponentialRampToValueAtTime(220, n + .26);
+
+    const g = audioCtx.createGain();
+    env(g, n, .16, .3);
+
+    o.connect(ws);
+    ws.connect(lp);
+    lp.connect(g);
+    g.connect(masterComp);
+    if(reverbConv){
+      const rg = audioCtx.createGain();
+      rg.gain.value = .18;
+      g.connect(rg);
+      rg.connect(reverbConv);
+    }
+
+    o.start(n);
+    o.stop(n + .33);
+  }
+
+  /* 3 — Sub-bass slam: chest-thumping low-end drop */
+  tone({ type:"sine", f0:88 * rp, f1:22, t:n, dur:.42, vol:.19 });
+
+  /* 4 — Mid crunch: aggressive square bite right behind the crack */
+  tone({ type:"square", f0:640 * rp, f1:120, t:n, dur:.07, vol:.06 });
+
+  /* 5 — Air blast: wide displaced-air burst */
+  hiss({ t:n, dur:.14, vol:.14, f0:1800 * rp, f1:260, type:"lowpass", rev:.15 });
+
+  /* 6 — Metallic ring-out: high partials singing into the stands */
+  tone({ type:"triangle", f0:1240 * rp, t:n + .01, dur:.18, vol:.03, rev:.3 });
+  tone({ type:"sine", f0:1860 * rp, t:n + .015, dur:.13, vol:.02, rev:.25 });
+
+  /* 7 — Debris tail: delayed rubble crash settling under the slam */
+  hiss({ t:n + .03, dur:.4, vol:.09, f0:900, f1:110, type:"lowpass", rev:.35 });
+
+  /* Heavier haptic signature: triple-pulse rumble on supporting devices */
+  if(navigator.vibrate){ try{ navigator.vibrate([30, 40, 55]); }catch(e){} }
+}
+
+/* ===== Block / guard impact — layered Web Audio synthesis (zero files) =====
+   Six stacked voices build a satisfying "clang-and-absorb" guard read,
+   clearly distinct from both punch impact voices:
+     1. Transient clank   — sharp band-passed noise snap of metal meeting
+                            fist at the guard
+     2. Bell partials     — inharmonic metallic stack (ratios ~1 / 1.48 /
+                            2.13 / 2.87) ringing off the guard like a
+                            struck plate, staggered micro-delays
+     3. Shield shimmer    — glassy downward sweeps as the energy barrier
+                            absorbs and dissipates the blow
+     4. Body thud         — low sine drop for the force soaking into the
+                            blocker's stance
+     5. Deflection spray  — band-passed noise sweeping down as energy
+                            scatters off the guard
+     6. Guard rattle      — quick mechanical square chatter reserved for
+                            stopping HEAVY (special) blows
+   Heavy-aware dynamics: stopping a special plays a weightier variant —
+   deeper thud, louder clank, longer ring-out and the rattle layer —
+   while light-punch guards stay crisp and snappy. Pitch carries ±8%
+   random variance per block so repeated guards never replay one
+   identical sample. Routes through the master compressor + stadium
+   reverb bus; supporting devices get a haptic tick (triple pulse on
+   heavy stops). */
+function playBlockImpact(heavy = 0){
+  const n = audioCtx.currentTime;
+  const rp = .92 + Math.random() * .16;   /* ±8% random pitch variance */
+
+  /* 1 — Transient clank: the instant metallic contact snap */
+  hiss({ t:n, dur:.04, vol:heavy ? .16 : .11, f0:3200 * rp, f1:1400, type:"bandpass", q:1.1, rev:.12 });
+
+  /* 2 — Bell partials: inharmonic metallic stack ringing off the guard */
+  const parts = [1, 1.48, 2.13, 2.87];
+  parts.forEach((m, i) => {
+    tone({
+      type: i % 2 ? "sine" : "triangle",
+      f0: 1180 * rp * m,
+      f1: 980 * rp * m,
+      t: n + i * .006,
+      dur: Math.max(.05, (heavy ? .16 : .11) - i * .015),
+      vol: (.032 - i * .006) * (heavy ? 1.35 : 1),
+      rev: .3
+    });
+  });
+
+  /* 3 — Shield shimmer: glassy energy sweeps as the barrier absorbs */
+  tone({ type:"triangle", f0:2100 * rp, f1:640 * rp, t:n, dur:.14, vol:.035, rev:.25 });
+  tone({ type:"sine", f0:3150 * rp, f1:1050 * rp, t:n + .01, dur:.11, vol:.02, rev:.2 });
+
+  /* 4 — Body thud: absorbed force landing low (heavier for specials) */
+  tone({
+    type:"sine",
+    f0:(heavy ? 120 : 88) * rp,
+    f1:heavy ? 30 : 40,
+    t:n,
+    dur:heavy ? .22 : .14,
+    vol:heavy ? .13 : .085
+  });
+
+  /* 5 — Deflection spray: energy scattering off the guard */
+  hiss({ t:n + .01, dur:.09, vol:.07, f0:2400 * rp, f1:500, type:"bandpass", q:1.4, rev:.15 });
+
+  /* 6 — Guard rattle: mechanical chatter reserved for heavy stops */
+  if(heavy){
+    tone({ type:"square", f0:340 * rp, f1:180, t:n + .02, dur:.05, vol:.03 });
+    tone({ type:"square", f0:290 * rp, f1:150, t:n + .055, dur:.045, vol:.022 });
+  }
+
+  /* Haptic signature: single tick for lights, triple pulse for heavies */
+  if(navigator.vibrate){ try{ navigator.vibrate(heavy ? [18, 30, 26] : 16); }catch(e){} }
+}
+
+/* --- Stadium organ music (procedural loop + hype-driven drums) --- */
+
+const MF = m => 440 * Math.pow(2, (m - 69) / 12);
+
+const MELODY = [
+  72,0,67,0,64,0,67,0,   69,0,65,0,60,0,65,0,
+  67,0,64,0,60,0,64,0,   72,74,76,0,79,0,76,0
+];
+const BASS = [
+  36,0,43,0,36,0,43,0,   41,0,48,0,41,0,48,0,
+  43,0,50,0,43,0,50,0,   36,0,43,0,48,0,43,0
+];
+const CHORDS = [
+  [60,64,67],
+  [57,60,65],
+  [55,60,64],
+  [60,64,67]
+];
+
+const MUSIC = { bpm:138, step:0, nextTime:0 };
+
+function organ(f, t, dur, vol, type = "square"){
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + .015);
+  g.gain.exponentialRampToValueAtTime(.001, t + dur);
+  g.connect(musicGain);
+  [0, 4].forEach(cents => {
+    const o = audioCtx.createOscillator();
+    o.type = type;
+    o.frequency.value = f;
+    o.detune.value = cents;
+    if(vibGain) vibGain.connect(o.detune);
+    o.connect(g);
+    o.start(t);
+    o.stop(t + dur + .05);
+  });
+}
+
+/* Drum voices routed through musicGain (respect toggle + ducking) */
+function drumKick(t, v){
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = "sine";
+  o.frequency.setValueAtTime(160, t);
+  o.frequency.exponentialRampToValueAtTime(42, t + .11);
+  env(g, t, v, .13);
+  o.connect(g);
+  g.connect(musicGain);
+  o.start(t);
+  o.stop(t + .16);
+}
+
+function drumSnare(t, v){
+  const src = audioCtx.createBufferSource();
+  src.buffer = getNoiseBuffer();
+  const bp = audioCtx.createBiquadFilter();
+  bp.type = "bandpass";
+  bp.frequency.value = 1900;
+  bp.Q.value = .9;
+  const g = audioCtx.createGain();
+  env(g, t, v, .12);
+  src.connect(bp);
+  bp.connect(g);
+  g.connect(musicGain);
+  src.start(t);
+  src.stop(t + .15);
+
+  const o = audioCtx.createOscillator();
+  const g2 = audioCtx.createGain();
+  o.type = "triangle";
+  o.frequency.setValueAtTime(210, t);
+  o.frequency.exponentialRampToValueAtTime(140, t + .08);
+  env(g2, t, v * .7, .09);
+  o.connect(g2);
+  g2.connect(musicGain);
+  o.start(t);
+  o.stop(t + .12);
+}
+
+function drumHat(t, v){
+  const src = audioCtx.createBufferSource();
+  src.buffer = getNoiseBuffer();
+  const hp = audioCtx.createBiquadFilter();
+  hp.type = "highpass";
+  hp.frequency.value = 7000;
+  const g = audioCtx.createGain();
+  env(g, t, v, .045);
+  src.connect(hp);
+  hp.connect(g);
+  g.connect(musicGain);
+  src.start(t);
+  src.stop(t + .07);
+}
+
+function scheduleStep(s, t){
+  const m = MELODY[s % 32];
+  if(m) organ(MF(m), t, .30, .05, "square");
+  const b = BASS[s % 32];
+  if(b) organ(MF(b), t, .32, .055, "triangle");
+  if(s % 2 === 1){
+    const ch = CHORDS[(s >> 3) & 3];
+    ch.forEach(nn => organ(MF(nn), t, .10, .016, "square"));
+  }
+
+  /* Hype-driven drum layer: the band kicks in as the crowd heats up */
+  const hype = Math.min(crowdHype, 1.6) / 1.6;
+  if(s % 4 === 0) drumKick(t, .05 + hype * .05);
+  if(s % 8 === 4) drumSnare(t, .018 + hype * .03);
+  if(s % 2 === 1) drumHat(t, .006 + hype * .016);
+}
+
+function musicTick(){
+  if(!audioCtx || !musicGain) return;
+  if(!state.music || !state.running || gameScreen.classList.contains("hidden")){
+    MUSIC.nextTime = audioCtx.currentTime + .1;
+    return;
+  }
+  if(MUSIC.nextTime < audioCtx.currentTime - .2) MUSIC.nextTime = audioCtx.currentTime + .05;
+  const ahead = audioCtx.currentTime + .3;
+  while(MUSIC.nextTime < ahead){
+    scheduleStep(MUSIC.step, MUSIC.nextTime);
+    MUSIC.step = (MUSIC.step + 1) % 32;
+    MUSIC.nextTime += 60 / MUSIC.bpm / 2;
+  }
+}
+
+function toggleMusic(){
+  state.music = !state.music;
+  ensureAudio();
+  updateMusicButtons();
+  if(state.music) playSfx("ui");
 }
 
 const waitMinLoad = (ms = 350) => new Promise(r => setTimeout(r, ms));
 
+/* ===================== POST-PROCESSING ===================== */
+
+let composer = null;
+let bloomPass = null;
+let finalPass = null;
+
+const FinalShader = {
+  uniforms:{
+    tDiffuse:{ value:null },
+    uAberration:{ value:0 },
+    uVignette:{ value:.45 },
+    uFlash:{ value:0 },
+    uFlashColor:{ value:new THREE.Color(1, 1, 1) },
+    uSaturation:{ value:1.06 },
+    uGrain:{ value:.05 },
+    uTime:{ value:0 },
+    uRadial:{ value:0 },
+    uBars:{ value:0 }
+  },
+  vertexShader:`
+    varying vec2 vUv;
+    void main(){
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader:`
+    uniform sampler2D tDiffuse;
+    varying vec2 vUv;
+    uniform float uAberration;
+    uniform float uVignette;
+    uniform float uFlash;
+    uniform vec3 uFlashColor;
+    uniform float uSaturation;
+    uniform float uGrain;
+    uniform float uTime;
+    uniform float uRadial;
+    uniform float uBars;
+
+    float hash(vec2 p){
+      return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+    }
+
+    void main(){
+      vec2 uv = vUv;
+      vec2 d = uv - vec2(0.5);
+      float r2 = dot(d, d);
+
+      /* Radial impact blur — spikes on heavies / KO */
+      vec3 col;
+      float rb = uRadial * r2;
+      if(rb > 0.0005){
+        col = vec3(0.0);
+        for(int i = 0; i < 6; i++){
+          float f = float(i) / 5.0;
+          col += texture2D(tDiffuse, uv - d * rb * f * 0.09).rgb;
+        }
+        col /= 6.0;
+      }else{
+        col = texture2D(tDiffuse, uv).rgb;
+      }
+
+      /* Chromatic aberration toward edges */
+      vec2 off = d * uAberration * (0.004 + r2 * 0.02);
+      col.r = texture2D(tDiffuse, uv + off).r;
+      col.b = texture2D(tDiffuse, uv - off).b;
+
+      float lum = dot(col, vec3(0.299, 0.587, 0.114));
+      col = mix(vec3(lum), col, uSaturation);
+
+      float vig = 1.0 - smoothstep(0.35, 0.92, r2 * 1.6) * uVignette;
+      col *= vig;
+
+      /* Animated film grain */
+      float gN = hash(uv * vec2(1613.0, 907.0) + fract(uTime * 0.731) * 91.17) - 0.5;
+      col += gN * uGrain;
+
+      col += uFlashColor * uFlash;
+
+      /* Cinematic letterbox bars during KO slow-motion */
+      float bar = uBars * 0.11;
+      float mask = step(bar, uv.y) * step(uv.y, 1.0 - bar);
+      col *= mask;
+
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `
+};
+
+function initComposer(){
+  composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+
+  bloomPass = new UnrealBloomPass(
+    new THREE.Vector2(innerWidth, innerHeight),
+    .55,  // strength
+    .7,   // radius
+    .75   // threshold
+  );
+  composer.addPass(bloomPass);
+  composer.addPass(new OutputPass());
+
+  finalPass = new ShaderPass(FinalShader);
+  composer.addPass(finalPass);
+}
+
+function flashWhite(v){
+  flashV = Math.min(Math.max(flashV, v), 1.15);
+  if(finalPass) finalPass.uniforms.uFlashColor.value.setRGB(1, 1, 1);
+}
+
+function flashRed(){
+  flashV = Math.min(Math.max(flashV, .4), 1.15);
+  if(finalPass) finalPass.uniforms.uFlashColor.value.setRGB(1, .25, .2);
+}
+
 /* ===================== THREE SCENE ===================== */
+
+let towerLights = [];
+let crowdMesh = null;
+let crowdData = [];
+let fireflies = null;
+let fireflyVel = null;
+let pennants = [];
+let sbCtx = null;
+let sbTex = null;
+let lastScoreLine = "";
+const _crowdObj = new THREE.Object3D();
+
+/* Atmosphere handles */
+const TOWER_POS = [[-125,92,-85],[125,92,-85],[-125,92,85],[125,92,85]];
+let skyDome = null;
+let stars = null;
+let skyline = null;
+let ledMat = null;
+const ledSegs = [];
+const hazeSprites = [];
+const lightCones = [];
+const towerGlows = [];
+let accentA = null;
+let accentB = null;
+let poolMesh = null;
+const _ledColor = new THREE.Color();
+const LED_COL_A = new THREE.Color(0xf2c14e);
+const LED_COL_B = new THREE.Color(0x2f8fe0);
+
+/* Pass-1 atmosphere extensions */
+let sweepSpots = [];
+let sweepBeams = [];
+let searchLights = [];
+let blimp = null;
+let skylineFar = null;
+const BEAM_DOWN = new THREE.Vector3(0, -1, 0);
+const _beamDir = new THREE.Vector3();
+
+/* Scrolling marquee board handles */
+let adMesh = null;
+let adCanvas = null;
+let adTex = null;
+const AD_MSG = "★ GAUNTLET NIGHT ★ FANTASY BASEBALL BATTLE ROYALE ★ ";
+
+/* Pass-12 dynamic stage point-light rig handles */
+const stageLights = [];
+let stageSurge = 0;      /* global KO/round-win surge envelope           */
+let stageMomentum = 0;   /* -1..1 color-balance tilt (player ↔ cpu)      */
+let stagePulseAvg = 0;   /* mean pulse across the rig (drives accents)   */
+const _slMix = new THREE.Color();
+const _slLens = new THREE.Color();
+const STAGE_BEAT_BPM = 138;
 
 function initThree(){
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x08101f);
-  scene.fog = new THREE.Fog(0x08101f, 210, 460);
+  scene.fog = new THREE.Fog(0x0b1830, 240, 620);
 
   camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, .1, 1000);
   camera.position.set(0, 62, 145);
@@ -612,6 +1877,8 @@ function initThree(){
   renderer.setSize(innerWidth, innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.1;
   gameContainer.appendChild(renderer.domElement);
 
   scene.add(new THREE.HemisphereLight(0xffffff, 0x223344, 1.15));
@@ -628,9 +1895,14 @@ function initThree(){
   dir.shadow.camera.updateProjectionMatrix();
   scene.add(dir);
 
+  /* Cool fill from the camera side lifts shadows off the fighters */
+  const fill = new THREE.DirectionalLight(0x9db8ff, .5);
+  fill.position.set(-60, 80, 130);
+  scene.add(fill);
+
   const gnd = new THREE.Mesh(
     new THREE.PlaneGeometry(460, 260),
-    new THREE.MeshStandardMaterial({ color:0x15803d, roughness:.95 })
+    new THREE.MeshStandardMaterial({ map:makeGrassTexture(), roughness:.95 })
   );
   gnd.rotation.x = -Math.PI / 2;
   gnd.receiveShadow = true;
@@ -645,6 +1917,16 @@ function initThree(){
   dirt.receiveShadow = true;
   scene.add(dirt);
 
+  /* Warning-track ring framing the infield dirt */
+  const dring = new THREE.Mesh(
+    new THREE.RingGeometry(37.6, 39.6, 64),
+    new THREE.MeshStandardMaterial({ color:0x6b3f16, roughness:1 })
+  );
+  dring.rotation.x = -Math.PI / 2;
+  dring.position.y = .06;
+  dring.receiveShadow = true;
+  scene.add(dring);
+
   const bM = new THREE.MeshStandardMaterial({ color:0xf8fafc, roughness:.6 });
   const bG = new THREE.BoxGeometry(5, .4, 5);
   [[0,.2,32],[32,.2,0],[0,.2,-32],[-32,.2,0]].forEach(p => {
@@ -653,6 +1935,30 @@ function initThree(){
     b.receiveShadow = true;
     scene.add(b);
   });
+
+  /* Chalk baseline diamond + home plate + pitcher rubber (arena flavor) */
+  const chalkM = new THREE.MeshStandardMaterial({ color:0xf1ede0, roughness:.9 });
+  const segLen = 45.25;
+  [[16,16,-Math.PI/4],[-16,-16,-Math.PI/4],[16,-16,Math.PI/4],[-16,16,Math.PI/4]].forEach(([sx,sz,ry]) => {
+    const seg = new THREE.Mesh(new THREE.BoxGeometry(.8,.06,segLen), chalkM);
+    seg.position.set(sx,.04,sz);
+    seg.rotation.y = ry;
+    seg.receiveShadow = true;
+    scene.add(seg);
+  });
+  const plate = new THREE.Mesh(
+    new THREE.PlaneGeometry(3.6,3.6),
+    new THREE.MeshStandardMaterial({ color:0xf8fafc, roughness:.7 })
+  );
+  plate.rotation.x = -Math.PI / 2;
+  plate.rotation.z = Math.PI / 4;
+  plate.position.set(0,.07,44);
+  plate.receiveShadow = true;
+  scene.add(plate);
+  const rubber = new THREE.Mesh(new THREE.BoxGeometry(2.4,.12,1), chalkM);
+  rubber.position.set(0,.06,16);
+  rubber.receiveShadow = true;
+  scene.add(rubber);
 
   const sM = new THREE.MeshStandardMaterial({ color:0x1f2937, roughness:.8 });
 
@@ -670,10 +1976,19 @@ function initThree(){
   rs.position.x = 175;
   scene.add(rs);
 
+  /* Dugout shelters tucked against the side walls */
+  const dgM = new THREE.MeshStandardMaterial({ color:0x0d1626, roughness:.85 });
+  [[-156,42],[-156,-42],[156,42],[156,-42]].forEach(p => {
+    const d = new THREE.Mesh(new THREE.BoxGeometry(9,7,26), dgM);
+    d.position.set(p[0],3.5,p[1]);
+    d.castShadow = d.receiveShadow = true;
+    scene.add(d);
+  });
+
   const pM = new THREE.MeshStandardMaterial({ color:0x334155, roughness:.6, metalness:.35 });
   const lM = new THREE.MeshStandardMaterial({ color:0xffffff, emissive:0xffffff, emissiveIntensity:2.4 });
 
-  [[-125,92,-85],[125,92,-85],[-125,92,85],[125,92,85]].forEach(p => {
+  TOWER_POS.forEach(p => {
     const po = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 2.2, 92, 12), pM);
     po.position.set(p[0], 46, p[2]);
     po.castShadow = true;
@@ -684,8 +1999,102 @@ function initThree(){
     scene.add(la);
   });
 
+  /* Glowing foul poles at the back corners */
+  const poleM = new THREE.MeshStandardMaterial({ color:0xfacc15, roughness:.5, metalness:.2 });
+  [[-168,-97],[168,-97]].forEach(p => {
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(.7,.95,46,10), poleM);
+    pole.position.set(p[0],23,p[1]);
+    pole.castShadow = true;
+    scene.add(pole);
+    const tip = fxSprite(0xfff3b0);
+    tip.position.set(p[0],47,p[1]);
+    tip.scale.setScalar(7);
+    tip.material.opacity = .8;
+    scene.add(tip);
+  });
+
+  /* Dynamic stadium spotlights (match the light towers) */
+  TOWER_POS.forEach(([x, , z]) => {
+    const s = new THREE.SpotLight(0xffeecb, 24000, 0, Math.PI / 6.5, .55, 2);
+    s.position.set(x, 92, z);
+    s.target.position.set(x * .15, 0, z * .15);
+    s.userData.base = 24000;
+    scene.add(s);
+    scene.add(s.target);
+    towerLights.push(s);
+  });
+
+  /* Moving-head stage spots: saturated beams sweeping the infield */
+  [{ x:-74, z:44, c:0xff5fd2 }, { x:74, z:44, c:0x22d3ee }].forEach(cfg => {
+    const s = new THREE.SpotLight(cfg.c, 17000, 0, Math.PI / 7, .62, 2);
+    s.position.set(cfg.x, 86, cfg.z);
+    s.target.position.set(0, 0, 0);
+    scene.add(s);
+    scene.add(s.target);
+    sweepSpots.push({ light:s });
+
+    const beam = makeBeamCone(cfg.c, 130, 24);
+    scene.add(beam);
+    sweepBeams.push({ light:s, mesh:beam });
+  });
+
+  /* Volumetric-style light cones for atmosphere */
+  const coneGeo = new THREE.ConeGeometry(30, 95, 24, 1, true);
+  TOWER_POS.forEach(([x, , z], ci) => {
+    const coneMat = new THREE.MeshBasicMaterial({
+      color:0xfff3d0, transparent:true, opacity:.05,
+      blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide, fog:false
+    });
+    const cone = new THREE.Mesh(coneGeo, coneMat);
+    cone.position.set(x, 44.5, z);
+    scene.add(cone);
+    lightCones.push({ mesh:cone, i:ci });
+  });
+
+  /* Premiere searchlights combing the night sky above the rim */
+  for(let i = 0; i < 3; i++){
+    const grp = new THREE.Group();
+    const beam = makeBeamCone(0xcfe2ff, 180, 15, true);
+    beam.material.opacity = .055;
+    grp.add(beam);
+    const a = (i / 3) * Math.PI * 2;
+    grp.position.set(Math.cos(a) * 215, 76, Math.sin(a) * 215);
+    scene.add(grp);
+    searchLights.push({ grp, beam, ph:i * 2.1 });
+  }
+
+  /* Slow blimp circling far above the bowl */
+  blimp = new THREE.Group();
+  {
+    const body = new THREE.Mesh(
+      new THREE.SphereGeometry(6, 14, 10),
+      new THREE.MeshBasicMaterial({ color:0xdfe7f2, fog:false })
+    );
+    body.scale.set(3.4, .95, .95);
+    blimp.add(body);
+    const gondola = new THREE.Mesh(
+      new THREE.BoxGeometry(7, 1.6, 2),
+      new THREE.MeshBasicMaterial({ color:0x22304a, fog:false })
+    );
+    gondola.position.y = -5.4;
+    blimp.add(gondola);
+    const blink = fxSprite(0xff5555);
+    blink.scale.setScalar(4.5);
+    blink.position.set(-21, 1, 0);
+    blink.material.fog = false;
+    blimp.add(blink);
+    blimp.userData.blink = blink;
+    blimp.position.set(-380, 152, -350);
+    scene.add(blimp);
+  }
+
   buildCrowd();
   buildScoreboard();
+  buildAdBoard();
+  buildFireflies();
+  buildPennants();
+  buildAtmosphere();
+  buildStageLights();
 }
 
 function buildCrowd(){
@@ -714,17 +2123,478 @@ function buildCrowd(){
   const d = new THREE.Object3D();
   const c = new THREE.Color();
 
+  crowdData = [];
+
   sp.forEach((s, i) => {
     d.position.set(...s);
     d.rotation.y = Math.random() * Math.PI;
     d.updateMatrix();
     cr.setMatrixAt(i, d.matrix);
     cr.setColorAt(i, c.setHex(pal[(Math.random() * pal.length) | 0]));
+    crowdData.push({ x:s[0], y:s[1], z:s[2], ry:d.rotation.y, sp:2 + Math.random() * 2.2, ph:Math.random() * 6.28 });
   });
 
   cr.instanceMatrix.needsUpdate = true;
   if(cr.instanceColor) cr.instanceColor.needsUpdate = true;
   scene.add(cr);
+  crowdMesh = cr;
+}
+
+function buildFireflies(){
+  const N = 110;
+  const pos = new Float32Array(N * 3);
+  fireflyVel = new Float32Array(N);
+
+  for(let i = 0; i < N; i++){
+    pos[i * 3]     = (Math.random() - .5) * 380;
+    pos[i * 3 + 1] = 6 + Math.random() * 66;
+    pos[i * 3 + 2] = -130 + Math.random() * 185;
+    fireflyVel[i] = 1.2 + Math.random() * 2.2;
+  }
+
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+
+  fireflies = new THREE.Points(g, new THREE.PointsMaterial({
+    map:FX.glowTex,
+    color:0xffe6a3,
+    size:1.5,
+    transparent:true,
+    opacity:.5,
+    blending:THREE.AdditiveBlending,
+    depthWrite:false,
+    sizeAttenuation:true
+  }));
+  scene.add(fireflies);
+}
+
+function buildPennants(){
+  const tri = new THREE.Shape();
+  tri.moveTo(-1.7, 0);
+  tri.lineTo(1.7, 0);
+  tri.lineTo(0, -4.2);
+  tri.lineTo(-1.7, 0);
+  const geo = new THREE.ShapeGeometry(tri);
+
+  const cols = [0xf2c14e, 0xef3e42, 0x2f8fe0, 0xe2e8f0];
+
+  for(let i = 0; i < 14; i++){
+    const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color:cols[i % 4], side:THREE.DoubleSide }));
+    m.position.set(-63 + i * 9.7, 61, -87.5);
+    scene.add(m);
+    pennants.push({ mesh:m, sp:1 + Math.random(), ph:Math.random() * 6.28 });
+  }
+}
+
+/* ===== Deep-background atmosphere layer ===== */
+
+function makeSkyTexture(){
+  const cv = document.createElement("canvas");
+  cv.width = 16;
+  cv.height = 256;
+  const g = cv.getContext("2d");
+  const gr = g.createLinearGradient(0, 0, 0, 256);
+  gr.addColorStop(0, "#010309");
+  gr.addColorStop(.45, "#050d1d");
+  gr.addColorStop(.70, "#0a1a30");
+  gr.addColorStop(.86, "#123049");
+  gr.addColorStop(1, "#1a4258");
+  g.fillStyle = gr;
+  g.fillRect(0, 0, 16, 256);
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+/* Mown-stripe turf texture for the outfield grass */
+function makeGrassTexture(){
+  const cv = document.createElement("canvas");
+  cv.width = 256;
+  cv.height = 256;
+  const g = cv.getContext("2d");
+  for(let i = 0; i < 8; i++){
+    g.fillStyle = i % 2 ? "#17793d" : "#106a37";
+    g.fillRect(i * 32, 0, 32, 256);
+  }
+  for(let i = 0; i < 1200; i++){
+    const v = (90 + Math.random() * 70) | 0;
+    g.fillStyle = `rgba(${(v * .35) | 0},${v},${(v * .3) | 0},.28)`;
+    g.fillRect(Math.random() * 256, Math.random() * 256, 2, 2);
+  }
+  const t = new THREE.CanvasTexture(cv);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(12, 7);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+
+function buildAtmosphere(){
+
+  /* --- Gradient night-sky dome (background depth) --- */
+  skyDome = new THREE.Mesh(
+    new THREE.SphereGeometry(720, 24, 14),
+    new THREE.MeshBasicMaterial({ map:makeSkyTexture(), side:THREE.BackSide, fog:false, depthWrite:false })
+  );
+  skyDome.renderOrder = -10;
+  scene.add(skyDome);
+
+  /* --- Twinkling stars --- */
+  {
+    const N = 240;
+    const pos = new Float32Array(N * 3);
+    for(let i = 0; i < N; i++){
+      const th = Math.random() * Math.PI * 2;
+      const ph = .12 + Math.random() * Math.PI * .42;
+      const r = 640;
+      pos[i * 3]     = Math.cos(th) * Math.sin(ph) * r;
+      pos[i * 3 + 1] = Math.cos(ph) * r * .9 + 40;
+      pos[i * 3 + 2] = Math.sin(th) * Math.sin(ph) * r;
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    stars = new THREE.Points(g, new THREE.PointsMaterial({
+      map:FX.glowTex, color:0xcfe0ff, size:2.6, sizeAttenuation:false,
+      transparent:true, opacity:.7, blending:THREE.AdditiveBlending, depthWrite:false, fog:false
+    }));
+    scene.add(stars);
+  }
+
+  /* --- Moon glow --- */
+  {
+    const halo = fxSprite(0xe8f0ff);
+    halo.position.set(-250, 195, -430);
+    halo.scale.setScalar(70);
+    halo.material.opacity = .38;
+    halo.material.fog = false;
+    scene.add(halo);
+
+    const core = fxSprite(0xffffff);
+    core.position.copy(halo.position);
+    core.scale.setScalar(22);
+    core.material.opacity = .85;
+    core.material.fog = false;
+    scene.add(core);
+  }
+
+  /* --- Distant city skyline silhouettes (fog-faded parallax depth) --- */
+  {
+    const list = [];
+    for(let i = 0; i < 34; i++){
+      const x = -430 + i * 26 + (Math.random() - .5) * 10;
+      list.push([x, -335 - Math.random() * 40, 16 + Math.random() * 22, 18 + Math.random() * 70]);
+    }
+    for(let i = 0; i < 12; i++){
+      const z = -220 + i * 36 + (Math.random() - .5) * 12;
+      list.push([-338 - Math.random() * 30, z, 16 + Math.random() * 20, 14 + Math.random() * 54]);
+      list.push([ 338 + Math.random() * 30, z, 16 + Math.random() * 20, 14 + Math.random() * 54]);
+    }
+    const im = new THREE.InstancedMesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshBasicMaterial({ color:0x0a1424 }),
+      list.length
+    );
+    const d = new THREE.Object3D();
+    list.forEach((b, i) => {
+      d.position.set(b[0], b[3] / 2, b[1]);
+      d.scale.set(b[2], b[3], b[2]);
+      d.rotation.y = 0;
+      d.updateMatrix();
+      im.setMatrixAt(i, d.matrix);
+    });
+    im.instanceMatrix.needsUpdate = true;
+    scene.add(im);
+    skyline = im;
+  }
+
+  /* --- Second, farther skyline band for parallax depth --- */
+  {
+    const list = [];
+    for(let i = 0; i < 42; i++){
+      const x = -560 + i * 27 + (Math.random() - .5) * 16;
+      list.push([x, -540 - Math.random() * 70, 22 + Math.random() * 30, 26 + Math.random() * 100]);
+    }
+    for(let i = 0; i < 10; i++){
+      const z = -260 + i * 52 + (Math.random() - .5) * 16;
+      list.push([-430 - Math.random() * 40, z, 20 + Math.random() * 24, 20 + Math.random() * 80]);
+      list.push([ 430 + Math.random() * 40, z, 20 + Math.random() * 24, 20 + Math.random() * 80]);
+    }
+    const im = new THREE.InstancedMesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshBasicMaterial({ color:0x0d1a30 }),
+      list.length
+    );
+    const d = new THREE.Object3D();
+    list.forEach((b, i) => {
+      d.position.set(b[0], b[3] / 2, b[1]);
+      d.scale.set(b[2], b[3], b[2]);
+      d.rotation.y = 0;
+      d.updateMatrix();
+      im.setMatrixAt(i, d.matrix);
+    });
+    im.instanceMatrix.needsUpdate = true;
+    scene.add(im);
+    skylineFar = im;
+  }
+
+  /* --- Pulsing LED perimeter ring + wall strips (shared animated material) --- */
+  ledMat = new THREE.MeshBasicMaterial({ color:0xf2c14e });
+  {
+    const segGeo = new THREE.BoxGeometry(3.6, .5, .5);
+    const NSEG = 56;
+    for(let i = 0; i < NSEG; i++){
+      const a = (i / NSEG) * Math.PI * 2;
+      const m = new THREE.Mesh(segGeo, ledMat);
+      m.position.set(Math.cos(a) * 41, .4, Math.sin(a) * 41);
+      m.rotation.y = -a;
+      scene.add(m);
+      ledSegs.push(m);
+    }
+    const stripBack = new THREE.Mesh(new THREE.BoxGeometry(372, .7, .7), ledMat);
+    stripBack.position.set(0, .5, -87.4);
+    scene.add(stripBack);
+    const stripL = new THREE.Mesh(new THREE.BoxGeometry(.7, .7, 232), ledMat);
+    stripL.position.set(-174.4, .5, 0);
+    scene.add(stripL);
+    const stripR = stripL.clone();
+    stripR.position.x = 174.4;
+    scene.add(stripR);
+  }
+
+  /* --- Soft key-light pool on the field (fake volumetric bounce) --- */
+  {
+    const pc = document.createElement("canvas");
+    pc.width = pc.height = 256;
+    const pg = pc.getContext("2d");
+    const pgr = pg.createRadialGradient(128, 128, 10, 128, 128, 128);
+    pgr.addColorStop(0, "rgba(255,238,200,.85)");
+    pgr.addColorStop(.55, "rgba(255,225,170,.28)");
+    pgr.addColorStop(1, "rgba(255,220,160,0)");
+    pg.fillStyle = pgr;
+    pg.fillRect(0, 0, 256, 256);
+    const poolTex = new THREE.CanvasTexture(pc);
+    poolMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(170, 130),
+      new THREE.MeshBasicMaterial({ map:poolTex, transparent:true, opacity:.12, blending:THREE.AdditiveBlending, depthWrite:false })
+    );
+    poolMesh.rotation.x = -Math.PI / 2;
+    poolMesh.position.y = .12;
+    scene.add(poolMesh);
+  }
+
+  /* --- Drifting haze sprites (stadium air moisture) --- */
+  for(let i = 0; i < 6; i++){
+    const h = fxSprite(0xaac4e2);
+    h.material.opacity = .04;
+    h.material.fog = false;
+    h.position.set((Math.random() - .5) * 300, 16 + Math.random() * 22, -70 + Math.random() * 90);
+    h.scale.setScalar(80 + Math.random() * 70);
+    h.userData.baseY = h.position.y;
+    scene.add(h);
+    hazeSprites.push(h);
+  }
+
+  /* --- Orbiting team-color accent lights (dynamic point lighting) --- */
+  accentA = new THREE.PointLight(0xffc94d, 800, 180, 2);
+  accentA.position.set(-60, 26, 30);
+  scene.add(accentA);
+  accentB = new THREE.PointLight(0x3fa0ff, 800, 180, 2);
+  accentB.position.set(60, 26, 30);
+  scene.add(accentB);
+
+  /* --- Additive glow halos on the tower lamps (synced flicker) --- */
+  TOWER_POS.forEach(p => {
+    const gsp = fxSprite(0xfff1cf);
+    gsp.position.set(p[0], p[1], p[2]);
+    gsp.scale.setScalar(34);
+    gsp.material.opacity = .3;
+    gsp.material.fog = false;
+    scene.add(gsp);
+    towerGlows.push(gsp);
+  });
+}
+
+/* =====================================================================
+   PASS 12 — DYNAMIC STAGE POINT-LIGHT RIG (pulses to combat)
+
+   Eight real PointLight fixtures modeled into the arena:
+     • 4 corner floor pods on stanchions flanking the infield
+       (two per fighter side) — the primary "who's hitting" readers
+     • 2 overhead truss pods hung on rigging cables above each corner
+     • 2 center washes (front + back) that crossfade between team colors
+
+   Every fixture = PointLight + dark housing + emissive lens sphere +
+   additive glow flare, so pulses read as visible light events.
+
+   Combat hooks (see processHits / startAttack / checkRoundEnd):
+     clean hit  → pulseStage(attackerSide, heavy ? 1.2 : .55)
+     block      → pulseStage(defenderSide, .5)
+     special GO → pulseStage(attackerSide, .85)  (anticipation)
+     KO         → stageSurge += 1.5 + full-rig pulse (strobed)
+     round win  → proportional house lift
+   ===================================================================== */
+
+function buildStageLights(){
+  const housGeo = new THREE.CylinderGeometry(1.5, 2.1, 2.6, 10);
+  const lensGeo = new THREE.SphereGeometry(1.35, 12, 10);
+  const poleGeo = new THREE.CylinderGeometry(.45, .6, 13, 8);
+  const cableGeo = new THREE.CylinderGeometry(.09, .09, 1, 6);
+  const trussGeo = new THREE.BoxGeometry(56, .7, .7);
+  const housMat = new THREE.MeshStandardMaterial({ color:0x131c2e, roughness:.65, metalness:.45 });
+
+  const defs = [
+    /* corner floor pods — player side (x<0) / cpu side (x>0) */
+    { x:-54, y:13, z: 26, side:-1, base:850, gs:11, pk:1,   sp:.85,  ph:0.0 },
+    { x:-54, y:13, z:-26, side:-1, base:850, gs:11, pk:1,   sp:1.05, ph:2.2 },
+    { x: 54, y:13, z: 26, side: 1, base:850, gs:11, pk:1,   sp:.95,  ph:1.4 },
+    { x: 54, y:13, z:-26, side: 1, base:850, gs:11, pk:1,   sp:1.15, ph:3.7 },
+    /* overhead truss pair */
+    { x:-27, y:48, z:  8, side:-1, base:680, gs:13, pk:.9,  sp:.7,   ph:4.3 },
+    { x: 27, y:48, z:  8, side: 1, base:680, gs:13, pk:.9,  sp:.75,  ph:5.6 },
+    /* center washes (crossfade with momentum) */
+    { x:  0, y:37, z: 36, side: 0, base:950, gs:12, pk:.8,  sp:.8,   ph:2.9 },
+    { x:  0, y:35, z:-42, side: 0, base:900, gs:12, pk:.8,  sp:1.0,  ph:0.8 }
+  ];
+
+  /* Truss bar tying the overhead pair together */
+  const truss = new THREE.Mesh(trussGeo, housMat);
+  truss.position.set(0, 49.6, 8);
+  scene.add(truss);
+
+  defs.forEach(d => {
+    const L = new THREE.PointLight(0xffffff, 0, 155, 2);
+    L.position.set(d.x, d.y, d.z);
+    scene.add(L);
+
+    const down = d.y >= 30;               /* overhead rigs aim down   */
+    const lensY = down ? -1.7 : 1.7;      /* floor rigs aim up        */
+
+    const housing = new THREE.Mesh(housGeo, housMat);
+    housing.position.set(d.x, d.y, d.z);
+    scene.add(housing);
+
+    const lens = new THREE.Mesh(lensGeo, new THREE.MeshBasicMaterial({ color:0xffffff }));
+    lens.position.set(d.x, d.y + lensY, d.z);
+    scene.add(lens);
+
+    const glow = fxSprite(0xffffff);
+    glow.position.copy(lens.position);
+    glow.scale.setScalar(d.gs);
+    glow.material.opacity = .12;
+    scene.add(glow);
+
+    if(!down){
+      /* Floor pod stanchion up to the housing */
+      const pole = new THREE.Mesh(poleGeo, housMat);
+      pole.position.set(d.x, d.y - 1.3 - 6.5, d.z);
+      scene.add(pole);
+    }else{
+      /* Rigging cables rising out of sight above the truss pods */
+      [-1, 1].forEach(sx => {
+        const cable = new THREE.Mesh(cableGeo, housMat);
+        const len = 74;
+        cable.scale.y = len;
+        cable.position.set(d.x + sx * 2.2, d.y + 1.3 + len / 2, d.z);
+        scene.add(cable);
+      });
+    }
+
+    stageLights.push({
+      light:L, lens, glow,
+      base:d.base, gs:d.gs, pk:d.pk, sp:d.sp, ph:d.ph, side:d.side,
+      pulse:0,
+      colP:new THREE.Color(0x2f8fe0),
+      colC:new THREE.Color(0x8fa6bd)
+    });
+  });
+
+  refreshStageLightColors();
+}
+
+/* Retint every rig to the current matchup's team colors */
+function refreshStageLightColors(){
+  _slMix.set(CHARACTERS[state.playerChar]?.cssColor || "#2f8fe0");
+  _slLens.set(CHARACTERS[state.cpuChar]?.cssColor || "#8fa6bd");
+  for(const s of stageLights){
+    s.colP.copy(_slMix);
+    s.colC.copy(_slLens);
+  }
+}
+
+/* Inject pulse energy into the rig.
+   side: -1 = player rigs, 1 = cpu rigs, 0 = the whole house.
+   Center washes catch side-targeted pulses at reduced gain. */
+function pulseStage(side, power){
+  for(const s of stageLights){
+    if(side === 0 || s.side === 0 || s.side === side){
+      const k = (side !== 0 && s.side === 0) ? .55 : 1;
+      s.pulse = Math.min(1.7, s.pulse + power * k);
+    }
+  }
+}
+
+/* Per-frame rig driver: exponential envelope decay, team-color blending
+   with momentum, breathe × hype base, quadratic pulse/surge punches,
+   138-BPM beat thump locked to the live AudioContext clock, and a fast
+   strobe shimmer while a KO-scale surge is burning. */
+function updateStageLights(dt){
+  if(!stageLights.length) return;
+
+  const hype = Math.min(crowdHype, 1.8);
+  stageSurge *= Math.exp(-dt * 1.9);
+  stageMomentum *= Math.exp(-dt * .45);
+
+  const mix = THREE.MathUtils.clamp(.5 + stageMomentum * .5, 0, 1);
+
+  /* Beat thump: sharp exponential attack on every beat of the band's
+     tempo, read straight off the audio clock so lights + music lock */
+  const bt = ((audioCtx ? audioCtx.currentTime : ambT) * (STAGE_BEAT_BPM / 60)) % 1;
+  const thump = Math.exp(-bt * 7) * Math.min(hype, 1.4) * .32 * (state.music ? 1 : .45);
+
+  let sum = 0;
+
+  for(let i = 0; i < stageLights.length; i++){
+    const s = stageLights[i];
+    s.pulse *= Math.exp(-dt * 4.6);
+    sum += s.pulse;
+
+    /* Team-color blend: side rigs wear their fighter's color and bleed
+       toward the dominant side as momentum builds; center washes
+       crossfade player ↔ cpu directly with momentum */
+    let c;
+    if(s.side === 0){
+      c = _slMix.copy(s.colP).lerp(s.colC, mix);
+    }else{
+      const own = s.side < 0 ? s.colP : s.colC;
+      const foe = s.side < 0 ? s.colC : s.colP;
+      const bleed = Math.abs(stageMomentum) * ((stageMomentum * s.side) > 0 ? .8 : .15);
+      c = _slMix.copy(own).lerp(foe, bleed);
+    }
+    s.light.color.copy(c);
+
+    /* Layered intensity: idle breathe × hype + pulse² + surge² */
+    const breathe = .5 + .5 * Math.sin(ambT * s.sp + s.ph);
+    let inten = s.base * (.62 + hype * .3) * (.5 + breathe * .38);
+    inten += s.pulse * s.pulse * 5200 * s.pk;
+    inten += stageSurge * stageSurge * s.base * 2.4;
+    inten *= 1 + thump;
+
+    /* Fast strobe shimmer while a KO-scale surge burns */
+    if(stageSurge > .5 && Math.sin(ambT * 46 + s.ph * 3.1) > .35) inten *= 1.85;
+
+    s.light.intensity = inten;
+
+    /* Visible flare tracks the same envelope */
+    s.glow.material.color.copy(c);
+    s.glow.material.opacity = Math.min(.92, .1 + breathe * .07 + s.pulse * .5 + stageSurge * .3);
+    s.glow.scale.setScalar(s.gs * (1 + s.pulse * 1.5 + stageSurge * .8));
+
+    /* Emissive lens brightens with the punch so sources read hot */
+    _slLens.copy(c).multiplyScalar(Math.min(2.4, .55 + s.pulse * 1.7 + stageSurge * 1.1));
+    s.lens.material.color.copy(_slLens);
+  }
+
+  stagePulseAvg = sum / stageLights.length;
 }
 
 function buildScoreboard(){
@@ -733,6 +2603,35 @@ function buildScoreboard(){
   cv.height = 256;
 
   const g = cv.getContext("2d");
+  sbCtx = g;
+
+  const t = new THREE.CanvasTexture(cv);
+  t.anisotropy = 4;
+  sbTex = t;
+
+  const b = new THREE.Mesh(
+    new THREE.PlaneGeometry(96, 24),
+    new THREE.MeshBasicMaterial({ map:t })
+  );
+  b.position.set(0, 30, -87.6);
+  scene.add(b);
+
+  drawScoreboard("WELCOME TO THE GAUNTLET");
+
+  /* Redraw once webfonts arrive so Bungee renders on the board */
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(() => {
+      drawScoreboard(lastScoreLine);
+      drawAdBoard();
+    }).catch(() => {});
+  }
+}
+
+function drawScoreboard(line){
+  lastScoreLine = line || "";
+  if(!sbCtx) return;
+  const g = sbCtx;
+
   g.fillStyle = "#0a1428";
   g.fillRect(0, 0, 1024, 256);
 
@@ -742,22 +2641,58 @@ function buildScoreboard(){
 
   g.textAlign = "center";
   g.fillStyle = "#f2c14e";
-  g.font = "bold 72px Bungee,Arial Black,sans-serif";
-  g.fillText("FANTASY BASEBALL", 512, 110);
+  g.font = "bold 64px Bungee,Arial Black,sans-serif";
+  g.fillText("FANTASY BASEBALL", 512, 96);
 
   g.fillStyle = "#e8eef7";
-  g.font = "bold 62px Barlow Condensed,Arial Narrow,sans-serif";
-  g.fillText("BATTLE ROYALE · 11 FIGHTERS", 512, 200);
+  g.font = "bold 46px Barlow Condensed,Arial Narrow,sans-serif";
+  g.fillText("BATTLE ROYALE", 512, 146);
 
-  const t = new THREE.CanvasTexture(cv);
-  t.anisotropy = 4;
+  g.fillStyle = "#ffffff";
+  g.font = "bold 54px Barlow Condensed,Arial Narrow,sans-serif";
+  g.fillText(lastScoreLine, 512, 212);
 
-  const b = new THREE.Mesh(
-    new THREE.PlaneGeometry(96, 24),
-    new THREE.MeshBasicMaterial({ map:t })
+  if(sbTex) sbTex.needsUpdate = true;
+}
+
+/* ===== Scrolling marquee ad board along the back wall ===== */
+
+function buildAdBoard(){
+  adCanvas = document.createElement("canvas");
+  drawAdBoard();
+
+  adTex = new THREE.CanvasTexture(adCanvas);
+  adTex.wrapS = THREE.RepeatWrapping;
+  adTex.minFilter = THREE.LinearFilter;
+  adTex.generateMipmaps = false;
+
+  adMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(372, 7),
+    new THREE.MeshBasicMaterial({ map:adTex })
   );
-  b.position.set(0, 30, -87.6);
-  scene.add(b);
+  adMesh.position.set(0, 7.4, -87.7);
+  scene.add(adMesh);
+}
+
+function drawAdBoard(){
+  if(!adCanvas) return;
+  let g = adCanvas.getContext("2d");
+  g.font = 'bold 54px "Barlow Condensed","Arial Narrow",sans-serif';
+  const w = Math.max(64, Math.ceil(g.measureText(AD_MSG).width));
+
+  adCanvas.width = w;
+  adCanvas.height = 88;
+
+  /* Resizing resets context state — refetch and restyle */
+  g = adCanvas.getContext("2d");
+  g.fillStyle = "#040a14";
+  g.fillRect(0, 0, w, 88);
+  g.font = 'bold 54px "Barlow Condensed","Arial Narrow",sans-serif';
+  g.textBaseline = "middle";
+  g.fillStyle = "#f2c14e";
+  g.fillText(AD_MSG, 0, 46);
+
+  if(adTex) adTex.needsUpdate = true;
 }
 
 function onResize(){
@@ -766,6 +2701,572 @@ function onResize(){
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
+  if(composer) composer.setSize(w, h);
+}
+
+/* ===================== FX PARTICLES ===================== */
+
+const FX = { glowTex:null };
+let RING_GEO = null;
+let SHARD_GEO = null;
+let SPARK_GEO = null;
+
+function initFX(){
+  const cv = document.createElement("canvas");
+  cv.width = 64;
+  cv.height = 64;
+  const g = cv.getContext("2d");
+  const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grad.addColorStop(0, "rgba(255,255,255,1)");
+  grad.addColorStop(.35, "rgba(255,255,255,.85)");
+  grad.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 64, 64);
+  FX.glowTex = new THREE.CanvasTexture(cv);
+
+  RING_GEO = new THREE.RingGeometry(1, 1.28, 48);
+  SHARD_GEO = new THREE.BoxGeometry(.5, .5, 2.6);
+
+  /* Tapered streak for flash-spark jets: narrow head at +Z, wider tail
+     at the origin, so orienting +Z along velocity leaves a comet trail */
+  SPARK_GEO = new THREE.CylinderGeometry(.05, .17, 1, 5, 1);
+  SPARK_GEO.rotateX(Math.PI / 2);
+  SPARK_GEO.translate(0, 0, .5);
+}
+
+function fxSprite(color, blend = THREE.AdditiveBlending){
+  return new THREE.Sprite(new THREE.SpriteMaterial({
+    map:FX.glowTex, color, transparent:true, opacity:1, blending:blend, depthWrite:false
+  }));
+}
+
+/* Volumetric beam cone: apex at origin, extends down (-Y) or up (+Y) */
+function makeBeamCone(color, len = 120, rad = 24, up = false){
+  const g = new THREE.ConeGeometry(rad, len, 20, 1, true);
+  g.translate(0, up ? len / 2 : -len / 2, 0);
+  return new THREE.Mesh(g, new THREE.MeshBasicMaterial({
+    color, transparent:true, opacity:.05, blending:THREE.AdditiveBlending,
+    depthWrite:false, side:THREE.DoubleSide, fog:false
+  }));
+}
+
+/* Flat shockwave ring that expands across the ground plane */
+function spawnGroundRing(x, z, color, power = 1){
+  const r = new THREE.Mesh(RING_GEO, new THREE.MeshBasicMaterial({
+    color, transparent:true, opacity:.85, side:THREE.DoubleSide,
+    depthWrite:false, blending:THREE.AdditiveBlending
+  }));
+  r.rotation.x = -Math.PI / 2;
+  r.position.set(x, .3, z);
+  effects.push({ mesh:r, life:.5, max:.5, s0:3, grow:26 * power, fadePow:1.5, op0:.85, sharedGeo:true });
+}
+
+/* dirX biases the spark spray along the attacker's facing for readable knockback */
+function spawnImpactFX(x, y, z, color, power = 1, kind = "hit", dirX = 0){
+  const block = kind === "block";
+
+  /* core flash */
+  const f = fxSprite(0xffffff);
+  f.position.set(x, y, z);
+  f.scale.setScalar(6 * power);
+  effects.push({ mesh:f, life:.12, max:.12, s0:6 * power, shrink:.4, fadePow:.6, op0:.95 });
+
+  /* colored glow */
+  const gl = fxSprite(color);
+  gl.position.set(x, y, z);
+  gl.scale.setScalar(9 * power);
+  effects.push({ mesh:gl, life:.2, max:.2, s0:9 * power, shrink:.5, fadePow:1, op0:.8 });
+
+  /* shockwave ring */
+  const r = new THREE.Mesh(RING_GEO, new THREE.MeshBasicMaterial({
+    color, transparent:true, opacity:.9, side:THREE.DoubleSide, depthWrite:false, blending:THREE.AdditiveBlending
+  }));
+  r.position.set(x, y, z);
+  effects.push({ mesh:r, life:.34, max:.34, billboard:true, s0:2, grow:16 * power, fadePow:1.6, op0:.9, sharedGeo:true });
+
+  /* glow sparks — directionally biased */
+  const n = Math.round((block ? 6 : 10) + 7 * power);
+  for(let i = 0; i < n; i++){
+    const s = fxSprite(i % 3 ? color : 0xffffff);
+    s.position.set(x, y, z);
+    const a = Math.random() * Math.PI * 2;
+    const b = (Math.random() - .5) * Math.PI;
+    const sp = (34 + Math.random() * 60) * Math.sqrt(power);
+    effects.push({
+      mesh:s, life:.3 + Math.random() * .25, max:.55,
+      s0:1.6 + Math.random() * 1.6, shrink:1, fadePow:1.2, op0:.95,
+      vel:new THREE.Vector3(
+        Math.cos(a) * Math.cos(b) * sp + dirX * sp * .55,
+        Math.sin(b) * sp + 18,
+        Math.sin(a) * Math.cos(b) * sp * .6
+      ),
+      grav:170, drag:1.6
+    });
+  }
+
+  /* Guard-spark arcs: jagged energy fragments snapping off a blocked hit */
+  if(block){
+    for(let i = 0; i < 3; i++){
+      const m = new THREE.Mesh(SHARD_GEO, new THREE.MeshBasicMaterial({
+        color:i % 2 ? 0x9ecbff : 0xffffff, transparent:true, opacity:.95,
+        blending:THREE.AdditiveBlending, depthWrite:false
+      }));
+      m.position.set(x + (Math.random() - .5) * 9, y + (Math.random() - .5) * 12, z);
+      m.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+      effects.push({ mesh:m, life:.13 + Math.random() * .09, max:.22, s0:1.5, shrink:1, fadePow:1, op0:.95, sharedGeo:true });
+    }
+  }
+
+  /* tumbling shards */
+  if(!block){
+    const ns = Math.round(5 * power);
+    for(let i = 0; i < ns; i++){
+      const m = new THREE.Mesh(SHARD_GEO, new THREE.MeshBasicMaterial({
+        color:i % 2 ? color : 0xffffff, transparent:true, opacity:.9, blending:THREE.AdditiveBlending, depthWrite:false
+      }));
+      m.position.set(x, y, z);
+      const a = Math.random() * Math.PI * 2;
+      const sp = (26 + Math.random() * 46) * Math.sqrt(power);
+      effects.push({
+        mesh:m, life:.45 + Math.random() * .3, max:.75,
+        s0:.9 + Math.random() * .9, shrink:.7, fadePow:1, op0:.9, sharedGeo:true,
+        vel:new THREE.Vector3(Math.cos(a) * sp + dirX * sp * .4, 20 + Math.random() * 50, (Math.random() - .5) * sp * .5),
+        grav:230, drag:.8,
+        spin:new THREE.Vector3((Math.random() - .5) * 20, (Math.random() - .5) * 20, (Math.random() - .5) * 20)
+      });
+    }
+  }
+
+  /* Heavies + KOs slam a shockwave into the turf */
+  if(!block && power >= 1.8) spawnGroundRing(x, z, color, Math.min(power, 2.4));
+
+  if(y < 30 && !block) spawnDust(x, z, Math.round(4 * power));
+}
+
+/* ===== Dynamic flash-spark emitter (collision impact points) =====
+   Layered AAA impact burst fired exactly at the contact point:
+     1. White-hot flash core that pops and collapses (the "flash")
+     2. Colored after-bloom halo
+     3. Cross star-flare — two screen-aligned elongated sprites
+     4. Streaking spark jets — velocity-stretched tapered shards that
+        cool from white-hot to the attack color, flicker per-particle,
+        streak under gravity + drag, and skip off the turf
+     5. Dynamic impact light — a real PointLight punching the scene
+        lighting at the contact point, decaying in ~130ms
+   Count, speed and reach all scale with impact power; the jet cone
+   biases along the knockback direction for readable hits. Heavies and
+   KOs fire a delayed jets-only "crackle" wave for a double-crack read. */
+
+const _sparkDir = new THREE.Vector3();
+const _zAxis = new THREE.Vector3(0, 0, 1);
+const _hotCol = new THREE.Color(0xffffff);
+
+function spawnFlashSparks(x, y, z, color, power = 1, dirX = 0, jetsOnly = false){
+  const base = new THREE.Color(color);
+
+  if(!jetsOnly){
+    /* 1 — white-hot flash core (pop + collapse) */
+    const core = fxSprite(0xffffff);
+    core.position.set(x, y, z);
+    effects.push({ mesh:core, life:.09, max:.09, s0:3 * power, grow:20 * power, fadePow:.75, op0:1 });
+
+    /* 2 — colored after-bloom halo */
+    const bloom = fxSprite(color);
+    bloom.position.set(x, y, z);
+    effects.push({ mesh:bloom, life:.2, max:.2, s0:5 * power, grow:16 * power, fadePow:1.15, op0:.85 });
+
+    /* 3 — cross star-flare (two screen-aligned elongated sprites) */
+    for(let i = 0; i < 2; i++){
+      const fl = fxSprite(i ? color : 0xffffff);
+      fl.position.set(x, y, z);
+      fl.material.rotation = i * Math.PI / 2 + (Math.random() - .5) * .35;
+      effects.push({ mesh:fl, life:.13, max:.13, s0:1.6, grow:13 * power, sy:.14, fadePow:1, op0:.95 });
+    }
+  }
+
+  /* 4 — streaking spark jets (velocity-stretched comet particles) */
+  const n = Math.round((jetsOnly ? 4 : 9) + (jetsOnly ? 7 : 11) * power);
+  for(let i = 0; i < n; i++){
+    const m = new THREE.Mesh(SPARK_GEO, new THREE.MeshBasicMaterial({
+      color:0xffffff, transparent:true, opacity:1,
+      blending:THREE.AdditiveBlending, depthWrite:false
+    }));
+    m.position.set(x, y, z);
+
+    const a = Math.random() * Math.PI * 2;
+    const b = (Math.random() - .5) * Math.PI * .85;
+    const sp = (55 + Math.random() * 125) * Math.sqrt(power);
+
+    effects.push({
+      mesh:m, life:.22 + Math.random() * .3, max:.52,
+      s0:.5 + Math.random() * .55,
+      stretch:true, hot:base,
+      flicker:34 + Math.random() * 46, flickPh:Math.random() * 6.28,
+      fadePow:1.05, op0:1, sharedGeo:true, bounce:true,
+      vel:new THREE.Vector3(
+        Math.cos(a) * Math.cos(b) * sp + dirX * sp * .55,
+        Math.sin(b) * sp + 16,
+        Math.sin(a) * Math.cos(b) * sp * .6
+      ),
+      grav:300, drag:2.1
+    });
+  }
+
+  if(!jetsOnly){
+    /* 5 — dynamic impact light punch at the contact point */
+    spawnImpactLight(x, y, z, color, power);
+
+    /* Delayed secondary crackle wave on heavy / KO bursts */
+    if(power >= 2){
+      setTimeout(() => {
+        if(gameScreen.classList.contains("hidden")) return;
+        spawnFlashSparks(x, y, z, color, power * .42, dirX, true);
+      }, 70 + Math.random() * 40);
+    }
+  }
+}
+
+/* Real point light flashed at the contact point — relights both
+   fighters and the turf for a split second, then decays out. */
+function spawnImpactLight(x, y, z, color, power = 1){
+  const L = new THREE.PointLight(color, 0, 110, 2);
+  L.position.set(x, y, z);
+  scene.add(L);
+  effects.push({ mesh:L, life:.13, max:.13, i0:950 * power, lightDecay:true });
+}
+
+/* ===== Blocking particle impact flash (guard absorb burst) =====
+   Dedicated AAA guard-read burst fired at the exact contact point the
+   instant an attack is absorbed by a block — a clearly readable
+   "energy deflected" flash layered on top of the legacy guard sparks:
+     1. White-hot guard core — instant pop + collapse at the
+        fist/shield intersection
+     2. Icy after-bloom halo — cool blue energy bleeding off the guard
+     3. Twin guard rings — a screen-aligned shockwave ring expanding
+        out of the contact point plus a DELAYED secondary ripple ring
+        (~90ms later) for a double-pulse "shield ripple" read
+     4. Vertical guard flare — cross star-flare stretched tall so the
+        flash reads even behind the fighters' bodies
+     5. Radial shard fan — jagged energy fragments ejected in a flat
+        fan perpendicular to the swing axis, biased away from the
+        attacker, tumbling under gravity + drag
+     6. Rising energy motes — slow cool-blue embers drifting up off
+        the guard and fading like dissipated force
+     7. Dynamic impact light — cool PointLight punch relighting both
+        fighters and the turf for ~120ms (reuses spawnImpactLight)
+   Count, size and reach all scale with impact power; stopping a
+   special/heavy blow fires a noticeably larger burst. The companion
+   shieldPulse envelope on the defender flares the guard bubble
+   white-hot and swells it for a beat (see Fighter.update).
+   All particles run on real time so the flash plays through hit-stop
+   frames; the delayed ripple is guarded against hidden screens.
+   Cosmetic/FX only — zero combat, input, or FBX pipeline changes. */
+function spawnBlockFlash(x, y, z, dirX = 0, power = 1){
+  const col = 0x9ecbff;
+
+  /* 1 — white-hot guard core: instant pop + collapse */
+  const core = fxSprite(0xffffff);
+  core.position.set(x, y, z);
+  effects.push({ mesh:core, life:.09, max:.09, s0:3 * power, grow:26 * power, fadePow:.7, op0:1 });
+
+  /* 2 — icy after-bloom halo bleeding off the guard */
+  const bloom = fxSprite(col);
+  bloom.position.set(x, y, z);
+  effects.push({ mesh:bloom, life:.24, max:.24, s0:5.5 * power, grow:15 * power, fadePow:1.15, op0:.85 });
+
+  /* 3a — primary guard ring: screen-aligned shockwave */
+  const r1 = new THREE.Mesh(RING_GEO, new THREE.MeshBasicMaterial({
+    color:col, transparent:true, opacity:.95, side:THREE.DoubleSide,
+    depthWrite:false, blending:THREE.AdditiveBlending
+  }));
+  r1.position.set(x, y, z);
+  effects.push({ mesh:r1, life:.3, max:.3, billboard:true, s0:1.8, grow:20 * power, fadePow:1.5, op0:.95, sharedGeo:true });
+
+  /* 3b — delayed secondary ripple ring (double-pulse shield read) */
+  setTimeout(() => {
+    if(gameScreen.classList.contains("hidden")) return;
+    const r2 = new THREE.Mesh(RING_GEO, new THREE.MeshBasicMaterial({
+      color:0xdbeafe, transparent:true, opacity:.7, side:THREE.DoubleSide,
+      depthWrite:false, blending:THREE.AdditiveBlending
+    }));
+    r2.position.set(x, y, z);
+    effects.push({ mesh:r2, life:.34, max:.34, billboard:true, s0:2.4, grow:15 * power, fadePow:1.6, op0:.7, sharedGeo:true });
+  }, 90);
+
+  /* 4 — vertical guard flare: tall cross star-flare pair */
+  for(let i = 0; i < 2; i++){
+    const fl = fxSprite(i ? col : 0xffffff);
+    fl.position.set(x, y, z);
+    fl.material.rotation = i ? Math.PI / 2 : 0;
+    effects.push({
+      mesh:fl, life:.14, max:.14,
+      s0:i ? 1.2 : 2.2, grow:(i ? 10 : 13) * power,
+      sy:i ? .16 : .12, fadePow:1, op0:.95
+    });
+  }
+
+  /* 5 — radial shard fan: fragments ejected perpendicular to the swing,
+     biased away from the attacker, tumbling as they fly */
+  const nShards = Math.round(5 + 4 * power);
+  for(let i = 0; i < nShards; i++){
+    const m = new THREE.Mesh(SHARD_GEO, new THREE.MeshBasicMaterial({
+      color:i % 3 === 0 ? 0xffffff : col, transparent:true, opacity:.95,
+      blending:THREE.AdditiveBlending, depthWrite:false
+    }));
+    m.position.set(x + (Math.random() - .5) * 4, y + (Math.random() - .5) * 8, z);
+    m.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+    const side = Math.random() < .5 ? 1 : -1;
+    const sp = (30 + Math.random() * 46) * Math.sqrt(power);
+    effects.push({
+      mesh:m, life:.2 + Math.random() * .16, max:.36,
+      s0:1.1 + Math.random() * .9, shrink:1, fadePow:1, op0:.95, sharedGeo:true,
+      vel:new THREE.Vector3(
+        dirX * sp * .35 + (Math.random() - .5) * sp * .3,
+        side * sp * (.55 + Math.random() * .45),
+        (Math.random() - .5) * sp * .35
+      ),
+      grav:150, drag:2.4,
+      spin:new THREE.Vector3((Math.random() - .5) * 26, (Math.random() - .5) * 26, (Math.random() - .5) * 26)
+    });
+  }
+
+  /* 6 — rising energy motes: dissipated force drifting up off the guard */
+  const nMotes = Math.round(6 + 5 * power);
+  for(let i = 0; i < nMotes; i++){
+    const s = fxSprite(i % 3 ? col : 0xffffff);
+    s.position.set(
+      x + (Math.random() - .5) * 10,
+      y + (Math.random() - .5) * 14,
+      z + (Math.random() - .5) * 6
+    );
+    effects.push({
+      mesh:s, life:.4 + Math.random() * .35, max:.75,
+      s0:1 + Math.random() * 1.2, shrink:.85, fadePow:1.25, op0:.8,
+      vel:new THREE.Vector3((Math.random() - .5) * 12, 16 + Math.random() * 22, (Math.random() - .5) * 8),
+      grav:-30, drag:1.5
+    });
+  }
+
+  /* 7 — dynamic impact light: cool punch at the contact point */
+  spawnImpactLight(x, y, z, col, power * .85);
+}
+
+function spawnDust(x, z, n = 6){
+  for(let i = 0; i < n; i++){
+    const s = fxSprite(0xd8c9a8, THREE.NormalBlending);
+    s.position.set(x + (Math.random() - .5) * 7, 1.6, z + (Math.random() - .5) * 5);
+    effects.push({
+      mesh:s, life:.5 + Math.random() * .3, max:.8,
+      s0:2.4 + Math.random() * 2, grow:3, fadePow:1.6, op0:.5,
+      vel:new THREE.Vector3((Math.random() - .5) * 14, 6 + Math.random() * 10, (Math.random() - .5) * 8),
+      grav:-14, drag:2.2
+    });
+  }
+}
+
+/* Dark turf scorch left behind by heavy impacts, slowly fading */
+function spawnScorch(x, z){
+  const s = fxSprite(0x0a0a0a, THREE.NormalBlending);
+  s.position.set(x, .24, z);
+  s.scale.setScalar(9);
+  effects.push({ mesh:s, life:1.5, max:1.5, s0:9, grow:5, fadePow:1.3, op0:.42 });
+}
+
+/* Sky-burst fireworks over the stands on round wins */
+function spawnFirework(x){
+  if(gameScreen.classList.contains("hidden")) return;
+  const cols = [0xf2c14e, 0xef3e42, 0x2f8fe0, 0xff5fd2, 0x86efac];
+  const col = cols[(Math.random() * cols.length) | 0];
+  const cx = x + (Math.random() - .5) * 90;
+  const cy = 108 + Math.random() * 44;
+  const cz = -150 - Math.random() * 90;
+
+  const f = fxSprite(0xffffff);
+  f.position.set(cx, cy, cz);
+  f.scale.setScalar(30);
+  effects.push({ mesh:f, life:.26, max:.26, s0:30, shrink:.5, fadePow:.7, op0:.9 });
+
+  const n = 40;
+  for(let i = 0; i < n; i++){
+    const s = fxSprite(i % 4 ? col : 0xffffff);
+    s.position.set(cx, cy, cz);
+    const a = Math.random() * Math.PI * 2;
+    const b = (Math.random() - .5) * Math.PI;
+    const sp = 24 + Math.random() * 56;
+    effects.push({
+      mesh:s, life:1 + Math.random() * .7, max:1.7,
+      s0:1.8 + Math.random() * 2, shrink:.85, fadePow:1.1, op0:.95,
+      vel:new THREE.Vector3(Math.cos(a) * Math.cos(b) * sp, Math.sin(b) * sp, Math.sin(a) * Math.cos(b) * sp * .6),
+      grav:24, drag:1.15
+    });
+  }
+}
+
+function spawnConfetti(x){
+  const pal = [0xf2c14e, 0xef3e42, 0x2f8fe0, 0x22c55e, 0xffffff, 0xff5fd2];
+  for(let i = 0; i < 26; i++){
+    const m = new THREE.Mesh(SHARD_GEO, new THREE.MeshBasicMaterial({
+      color:pal[(Math.random() * pal.length) | 0], transparent:true, opacity:1, depthWrite:false
+    }));
+    m.position.set(x + (Math.random() - .5) * 34, 50 + Math.random() * 16, (Math.random() - .5) * 24);
+    effects.push({
+      mesh:m, life:2 + Math.random() * .8, max:2.8,
+      s0:1.1, shrink:.25, fadePow:.8, op0:1, sharedGeo:true,
+      vel:new THREE.Vector3((Math.random() - .5) * 16, (Math.random() - .5) * 10, (Math.random() - .5) * 10),
+      grav:42, drag:1.1,
+      spin:new THREE.Vector3((Math.random() - .5) * 12, (Math.random() - .5) * 12, (Math.random() - .5) * 12)
+    });
+  }
+}
+
+function updateEffects(dt){
+  for(let i = effects.length - 1; i >= 0; i--){
+    const e = effects[i];
+    e.life -= dt;
+
+    const k = 1 - Math.max(0, e.life) / e.max;
+
+    if(e.vel){
+      e.vel.y -= e.grav * dt;
+      if(e.drag) e.vel.multiplyScalar(Math.max(0, 1 - e.drag * dt));
+      e.mesh.position.addScaledVector(e.vel, dt);
+
+      /* Flash-spark jets skip off the turf and keep flying */
+      if(e.bounce && e.mesh.position.y < .35 && e.vel.y < 0){
+        e.mesh.position.y = .35;
+        e.vel.y *= -.42;
+        e.vel.x *= .72;
+        e.vel.z *= .72;
+      }
+    }
+
+    if(e.spin){
+      e.mesh.rotation.x += e.spin.x * dt;
+      e.mesh.rotation.y += e.spin.y * dt;
+      e.mesh.rotation.z += e.spin.z * dt;
+    }
+
+    if(e.billboard) e.mesh.quaternion.copy(camera.quaternion);
+
+    let curve;
+    if(e.stretch && e.vel){
+      /* Velocity-stretched spark streak: head leads, tail trails,
+         length follows live speed, thickness tapers over lifetime */
+      const sp = e.vel.length();
+      if(sp > .01){
+        _sparkDir.copy(e.vel).multiplyScalar(1 / sp);
+        e.mesh.quaternion.setFromUnitVectors(_zAxis, _sparkDir);
+      }
+      const th = Math.max(.06, e.s0 * (1 - k * .75));
+      const len = Math.min(5, .6 + sp * .024) * (e.s0 * 1.6 + .4);
+      e.mesh.scale.set(th, th, len);
+      curve = Math.pow(Math.max(0, e.life / e.max), e.fadePow ?? 1);
+    }else if(e.grow !== undefined){
+      const s = e.s0 + e.grow * k;
+      /* Optional vertical stretch (sy) for slash-arc rings */
+      if(e.sy !== undefined) e.mesh.scale.set(s, e.sy * s, 1);
+      else e.mesh.scale.setScalar(s);
+      curve = Math.pow(1 - k, e.fadePow ?? 1.4);
+    }else if(e.shrink !== undefined){
+      e.mesh.scale.setScalar(Math.max(.001, e.s0 * (1 - e.shrink * k)));
+      curve = Math.pow(Math.max(0, e.life / e.max), e.fadePow ?? 1);
+    }else{
+      curve = Math.max(0, e.life / e.max);
+    }
+
+    /* White-hot → attack color cooling (flash-spark jets) */
+    if(e.hot) e.mesh.material.color.copy(_hotCol).lerp(e.hot, Math.min(1, k * 1.7));
+
+    /* Per-particle flicker with random phase (flash-spark jets) */
+    if(e.flicker) curve *= .6 + .4 * Math.sin(e.life * e.flicker + e.flickPh);
+
+    /* Dynamic impact light: power-scaled punch, fast decay */
+    if(e.lightDecay) e.mesh.intensity = e.i0 * Math.pow(Math.max(0, e.life / e.max), 1.5);
+
+    /* Lights have no material — guard so impact flashes clean up safely */
+    if(e.mesh.material) e.mesh.material.opacity = (e.op0 ?? 1) * curve;
+
+    if(e.life <= 0){
+      scene.remove(e.mesh);
+      if(!e.mesh.isSprite && e.mesh.geometry && !e.sharedGeo) e.mesh.geometry.dispose();
+      if(e.mesh.material) e.mesh.material.dispose();
+      effects.splice(i, 1);
+    }
+  }
+}
+
+function clearEffects(){
+  for(const e of effects){
+    scene.remove(e.mesh);
+    if(!e.mesh.isSprite && e.mesh.geometry && !e.sharedGeo) e.mesh.geometry.dispose();
+    if(e.mesh.material) e.mesh.material.dispose();
+  }
+  effects = [];
+}
+
+/* Legacy hit marker — routes into the full impact FX for compatibility */
+function spawnHit(x, y, t){
+  const heavy = t === "special";
+  spawnImpactFX(x, y + 2, 2, ATTACKS[t]?.color || 0xffffff, heavy ? 2 : 1, "hit");
+  spawnFlashSparks(x, y + 2, 2, heavy ? 0xfacc15 : 0xffd9a0, heavy ? 2 : 1.15, 0);
+}
+
+/* ===================== DAMAGE NUMBERS ===================== */
+
+const dmgPool = [];
+const dmgActive = [];
+const _v = new THREE.Vector3();
+
+function initDmg(){
+  for(let i = 0; i < 14; i++){
+    const el = document.createElement("div");
+    el.className = "dmgNum";
+    dmgLayer.appendChild(el);
+    dmgPool.push(el);
+  }
+}
+
+function spawnDmgNumber(x, y, text, cls = ""){
+  const el = dmgPool.pop();
+  if(!el) return;
+  el.className = "dmgNum" + (cls ? " " + cls : "");
+  el.textContent = text;
+  el.style.display = "block";
+  el.style.opacity = "1";
+  dmgActive.push({ el, x, y, z:4, life:.8, max:.8 });
+}
+
+function updateDmgNumbers(dt){
+  for(let i = dmgActive.length - 1; i >= 0; i--){
+    const d = dmgActive[i];
+    d.life -= dt;
+
+    if(d.life <= 0){
+      d.el.style.display = "none";
+      dmgPool.push(d.el);
+      dmgActive.splice(i, 1);
+      continue;
+    }
+
+    d.y += dt * 26;
+    _v.set(d.x, d.y, d.z).project(camera);
+
+    const sx = (_v.x * .5 + .5) * innerWidth;
+    const sy = (-_v.y * .5 + .5) * innerHeight;
+    const age = d.max - d.life;
+    const sc = age < .12 ? .5 + (age / .12) * .7 : Math.max(1, 1.2 - (age - .12) * .05);
+
+    d.el.style.opacity = String(Math.min(1, (d.life / d.max) * 2.2));
+    d.el.style.transform = `translate(${sx.toFixed(1)}px,${sy.toFixed(1)}px) translate(-50%,-50%) scale(${sc.toFixed(3)})`;
+  }
+}
+
+function clearDmgNumbers(){
+  for(const d of dmgActive){
+    d.el.style.display = "none";
+    dmgPool.push(d.el);
+  }
+  dmgActive.length = 0;
 }
 
 /* ===================== FBX + MIXAMO RETARGETING ===================== */
@@ -928,7 +3429,7 @@ function retargetClip(clip, info, template){
     }
 
     const nn = tr.name.slice(0, d);
-    const rest = tr.name.slice(d);
+    const rest = tr.name.slice(d + 1);
     const prop = rest.slice(1);
 
     let tgt = actual.has(nn) ? nn : (norm.get(normalizeBoneName(nn)) || null);
@@ -1030,6 +3531,7 @@ class Fighter{
     this.aiTimer = 0;
     this.aiState = {};
     this.animTime = 0;
+    this.stepT = 0;
 
     this.mixer = null;
     this.clipsByState = {};
@@ -1070,12 +3572,18 @@ class Fighter{
         color: 0x60a5fa,
         transparent: true,
         opacity: .18,
-        depthWrite: false
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
       })
     );
     this.shield.position.y = 18;
     this.shield.visible = false;
     this.group.add(this.shield);
+
+    /* Pass-11: block-flash flare envelope — driven to 1 when this
+       fighter absorbs a blow, decays in update() to flare the guard
+       bubble white-hot and swell it for a beat */
+    this.shieldPulse = 0;
 
     this.specialRing = new THREE.Mesh(
       new THREE.RingGeometry(8.6, 10.8, 36),
@@ -1084,7 +3592,8 @@ class Fighter{
         transparent: true,
         opacity: .62,
         side: THREE.DoubleSide,
-        depthWrite: false
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
       })
     );
     this.specialRing.rotation.x = -Math.PI / 2;
@@ -1098,11 +3607,18 @@ class Fighter{
         color: 0xffffff,
         transparent: true,
         opacity: .75,
-        depthWrite: false
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
       })
     );
     this.effect.visible = false;
     this.group.add(this.effect);
+
+    /* Team-colored rim light that follows this fighter */
+    this.rim = new THREE.PointLight(new THREE.Color(this.char.cssColor), 300, 80, 2);
+    this.rim.position.set(0, 26, -15);
+    this.rim.userData = { base: 300 };
+    this.group.add(this.rim);
 
     this.loadModel();
   }
@@ -1214,9 +3730,18 @@ class Fighter{
 
     this.attack = { type:t, ...d, timer:0, hasHit:false };
 
+    if(t === "punch") playSfx("whoosh");
+
     if(t === "special"){
       this.special = 0;
       playSfx("special");
+      /* Telegraph juice: anticipation shake + chromatic tick + turf ring */
+      camShake = Math.min(camShake + 1.2, 5.5);
+      aber = Math.min(aber + .6, 2);
+      spawnGroundRing(this.x, 0, 0xfacc15, 1.3);
+      /* Pass-12: anticipation surge rolls across the attacker's stage
+         rigs the instant the special winds up */
+      pulseStage(this.isCPU ? 1 : -1, .85);
     }
   }
 
@@ -1241,6 +3766,7 @@ class Fighter{
           if(this.onGround){
             this.vy = 74;
             this.onGround = false;
+            playSfx("jump");
           }
         }else{
           this.startAttack(a);
@@ -1250,6 +3776,9 @@ class Fighter{
       this.vx *= this.onGround ? .8 : .98;
     }
 
+    const wasGround = this.onGround;
+    const fallV = this.vy;
+
     this.vy -= 190 * dt;
     this.x += this.vx * dt;
     this.y += this.vy * dt;
@@ -1258,6 +3787,11 @@ class Fighter{
       this.y = 0;
       this.vy = 0;
       this.onGround = true;
+      if(!wasGround && fallV < -40){
+        playSfx("land");
+        spawnDust(this.x, 0, 7);
+        if(fallV < -66) spawnGroundRing(this.x, 0, 0xcbb894, .8);
+      }
     }else{
       this.onGround = false;
     }
@@ -1290,7 +3824,14 @@ class Fighter{
 
     if(Math.abs(this.vx) > 5 && this.onGround && !this.attack && this.hitstun <= 0){
       this.modelVisual.position.y = Math.sin(this.animTime * 12) * .7;
+      /* Soft footfall taps synced to the walk cycle (cosmetic texture) */
+      this.stepT += dt;
+      if(this.stepT >= .24){
+        this.stepT = 0;
+        playSfx("step");
+      }
     }else{
+      this.stepT = .12;
       this.modelVisual.position.y *= .8;
     }
 
@@ -1306,8 +3847,23 @@ class Fighter{
 
     if(this.mixer) this.mixer.update(dt);
 
-    this.shield.visible = this.blocking;
+    /* Guard bubble: visible while blocking AND briefly after, so the
+       Pass-11 block-flash pulse can finish its flare-and-settle read */
+    this.shield.visible = this.blocking || this.shieldPulse > .01;
     if(this.blocking) this.shield.material.opacity = .16 + Math.sin(this.animTime * 8) * .05;
+
+    /* Pass-11 block-flash shield pulse: the guard bubble flares
+       white-hot (color lerped toward white), swells ~20% and brightens
+       for a beat as the blow is absorbed, then settles back to its
+       idle shimmer — the barrier visibly drinks the impact */
+    if(this.shieldPulse > 0){
+      this.shieldPulse = Math.max(0, this.shieldPulse - dt * 3.4);
+      this.shield.material.opacity += this.shieldPulse * .55;
+      this.shield.material.color.setHex(0x60a5fa).lerp(_hotCol, this.shieldPulse * .75);
+      this.shield.scale.setScalar(1 + this.shieldPulse * .2);
+    }else{
+      this.shield.scale.setScalar(1);
+    }
 
     this.specialRing.visible = this.special >= 60;
     if(this.specialRing.visible) this.specialRing.scale.setScalar(1 + Math.sin(this.animTime * 6) * .05);
@@ -1319,6 +3875,32 @@ class Fighter{
       this.effect.position.set(0, a.y, a.effectD / 2 + 6);
       this.effect.material.color.set(a.color);
       this.effect.material.opacity = this.attack.type === "special" ? .48 : .75;
+
+      /* Cosmetic-only: golden ember trail streaming off the special swing */
+      if(this.attack.type === "special" && frameNo % 2 === 0){
+        const ex = this.x + this.face * 12;
+        const em = fxSprite(Math.random() < .5 ? 0xfacc15 : 0xffffff);
+        em.position.set(ex + (Math.random() - .5) * 7, this.y + 12 + Math.random() * 16, 2 + (Math.random() - .5) * 7);
+        effects.push({
+          mesh:em, life:.32 + Math.random() * .2, max:.52,
+          s0:1.3 + Math.random() * 1.3, shrink:1, fadePow:1.1, op0:.8,
+          vel:new THREE.Vector3((Math.random() - .5) * 10, 24 + Math.random() * 30, (Math.random() - .5) * 8),
+          grav:-26, drag:1.2
+        });
+      }
+
+      /* Golden slash arcs carving forward through the special swing */
+      if(this.attack.type === "special" && frameNo % 3 === 0){
+        const prog = THREE.MathUtils.clamp(
+          (this.attack.timer - this.attack.activeStart) /
+          Math.max(.001, this.attack.activeEnd - this.attack.activeStart), 0, 1);
+        const arc = new THREE.Mesh(RING_GEO, new THREE.MeshBasicMaterial({
+          color:0xfacc15, transparent:true, opacity:.75, side:THREE.DoubleSide,
+          depthWrite:false, blending:THREE.AdditiveBlending
+        }));
+        arc.position.set(this.x + this.face * (8 + prog * 30), this.y + 19, 2);
+        effects.push({ mesh:arc, life:.2, max:.2, billboard:true, s0:2.4, grow:2.4, sy:2.6, fadePow:1.2, op0:.75, sharedGeo:true });
+      }
     }else{
       this.effect.visible = false;
     }
@@ -1342,15 +3924,6 @@ class Fighter{
 
 /* ===================== MATCH ===================== */
 
-function clearEffects(){
-  for(const e of effects){
-    scene.remove(e.mesh);
-    e.mesh.geometry.dispose();
-    e.mesh.material.dispose();
-  }
-  effects = [];
-}
-
 function removeFighters(){
   if(player){
     player.dispose();
@@ -1365,6 +3938,65 @@ function removeFighters(){
 function resetRound(){
   removeFighters();
   clearEffects();
+  clearDmgNumbers();
+
+  hitStop = 0;
+  hitStopTotal = 0;
+  hitStopHeavy = false;
+  hitStopWasHeavy = false;
+  freezePt = null;
+  timeScale = 1;
+  aber = 0;
+  flashV = 0;
+  hurtV = 0;
+  fovKick = 0;
+  crowdHype = .5;
+  camRoll = 0;
+  radialV = 0;
+  camPush = 0;
+  barsV = 0;
+  trauma = 0;
+  traumaDir = 0;
+  shakeBias.x = 0;
+  shakeBias.y = 0;
+  heavyTilt = 0; heavyTiltV = 0;
+  heavyPitch = 0; heavyPitchV = 0;
+  joltX = 0; joltY = 0;
+  lastBoardSec = null;
+
+  /* Fresh round timer */
+  state.timer = ROUND_TIME;
+  lastTickSec = null;
+
+  state.combo.p = state.combo.c = 0;
+  state.combo.tp = state.combo.tc = 0;
+  comboP1.classList.remove("show", "tier2", "tier3");
+  comboP2.classList.remove("show", "tier2", "tier3");
+
+  koText.className = "";
+  clearTimeout(koTimer);
+
+  state.p1Taken = 0;
+  state.p2Taken = 0;
+  prevReadyP = prevReadyC = false;
+
+  /* Pass-2 HUD/audio resets */
+  state.bestCombo.p = state.bestCombo.c = 0;
+  comboP1.querySelector(".cbest").textContent = "BEST 0";
+  comboP2.querySelector(".cbest").textContent = "BEST 0";
+  prevMaxP = prevMaxC = false;
+  dangerBeepT = 0;
+  prevTvShown = null;
+  lastWarnTv = -1;
+  setGem(p1Gem, CHARACTERS[state.playerChar]);
+  setGem(p2Gem, CHARACTERS[state.cpuChar]);
+
+  /* Pass-12: retint the stage rigs to this matchup's team colors and
+     clear all combat envelopes for a fresh round */
+  refreshStageLightColors();
+  for(const s of stageLights) s.pulse = 0;
+  stageSurge = 0;
+  stageMomentum = 0;
 
   player = new Fighter(state.playerChar, -32, false);
   cpu = new Fighter(state.cpuChar, 32, true);
@@ -1385,10 +4017,25 @@ function resetRound(){
     const c = CHARACTERS[state.cpuChar];
     state.message = `OPP ${state.opponentIndex + 1}/${total} · ${c.fighterName} (${c.team})`;
   }else{
-    state.message = `ROUND ${state.round}`;
+    state.message = state.round >= 3 ? "FINAL ROUND" : `ROUND ${state.round}`;
   }
 
   state.messageTimer = 1.45;
+
+  playSfx("bell");
+  drawScoreboard(`${CHARACTERS[state.playerChar].fighterName} ${state.pWins} — ${state.cWins} ${CHARACTERS[state.cpuChar].fighterName} · RD ${state.round}`);
+
+  /* Intro sequence: bell rings now, "FIGHT!" stab lands shortly after */
+  state.introToken++;
+  {
+    const tok = state.introToken;
+    setTimeout(() => {
+      if(tok !== state.introToken || gameScreen.classList.contains("hidden") || state.over) return;
+      showFightBanner("FIGHT!");
+      playSfx("fight");
+    }, 1150);
+  }
+
   updateHUD();
 }
 
@@ -1507,6 +4154,19 @@ function handleMatchEnd(){
 function endGauntlet(victory){
   state.running = false;
   touchControls.style.display = "none";
+  timeScale = 1;
+  hitStop = 0;
+  hitStopTotal = 0;
+  hitStopHeavy = false;
+  hitStopWasHeavy = false;
+  freezePt = null;
+  camPush = 0;
+  barsV = 0;
+  trauma = 0;
+  traumaDir = 0;
+  heavyTilt = 0; heavyTiltV = 0;
+  heavyPitch = 0; heavyPitchV = 0;
+  joltX = 0; joltY = 0;
 
   const pc = CHARACTERS[state.playerChar];
 
@@ -1515,32 +4175,22 @@ function endGauntlet(victory){
     winnerText.textContent = `${pc.fighterName} BEATS ALL ${state.queue.length}!`;
     winnerText.style.textShadow = `0 3px 0 rgba(0,0,0,.5),0 0 34px ${pc.cssColor}`;
     finalScore.textContent = `GAUNTLET CLEAR · ${state.matchesWon} WINS`;
+    drawScoreboard("GAUNTLET CLEAR!");
+    playSfx("clear");
   }else{
     const cc = CHARACTERS[state.cpuChar];
     if(gameOverEyebrow) gameOverEyebrow.textContent = "Run ended";
     winnerText.textContent = `${cc.fighterName} ENDS RUN`;
     winnerText.style.textShadow = `0 3px 0 rgba(0,0,0,.5),0 0 34px ${cc.cssColor}`;
     finalScore.textContent = `DEFEATED ${state.matchesWon} OF ${state.queue.length}`;
+    drawScoreboard(`${cc.fighterName} WINS THE SET`);
+    playSfx("lose");
   }
 
   removeFighters();
   clearEffects();
+  clearDmgNumbers();
   showScreen("gameOverScreen");
-}
-
-function spawnHit(x, y, t){
-  const m = new THREE.Mesh(
-    new THREE.SphereGeometry(2.2, 14, 14),
-    new THREE.MeshBasicMaterial({
-      color: ATTACKS[t]?.color || 0xffffff,
-      transparent: true,
-      opacity: .95,
-      depthWrite: false
-    })
-  );
-  m.position.set(x, y + 18, 0);
-  scene.add(m);
-  effects.push({ mesh:m, life:.22, max:.22 });
 }
 
 function processHits(a, d){
@@ -1557,6 +4207,10 @@ function processHits(a, d){
 
   a.attack.hasHit = true;
 
+  const hx = d.x - a.face * 4;
+  const hy = d.y + 20;
+  const heavy = at.type === "special";
+
   let dmg = at.damage;
   const bl = d.blocking;
 
@@ -1564,22 +4218,140 @@ function processHits(a, d){
     dmg = Math.max(1, Math.round(dmg * .25));
     d.hitstun = .08;
     d.vx = a.face * at.knock * .35;
-    playSfx("block");
-    camShake = Math.min(camShake + .7, 4);
+    /* Blocked hits get the dedicated guard-impact voice — the heavier
+       variant fires when a special/heavy blow was stopped */
+    playSfx("block", heavy ? 1 : 0);
+    camShake = Math.min(camShake + .9, 5.5);
+    /* Blocked hits: short muted freeze — blocked heavies hold a touch
+       longer but skip the two-phase treatment so guards stay snappy */
+    hitStop = Math.max(hitStop, heavy ? .07 : .035);
+    spawnImpactFX(hx, hy, 2, 0x9ecbff, 1, "block", a.face);
+    /* Flash-spark emitter: icy guard sparks bursting at the contact point */
+    spawnFlashSparks(hx, hy, 2, 0x9ecbff, heavy ? 1.35 : .85, a.face);
+    /* Pass-11 blocking particle impact flash: dedicated guard-absorb
+       burst — white-hot core, twin ripple rings, vertical flare, radial
+       shard fan, rising energy motes + cool impact light at the exact
+       contact point; heavier blows fire a larger burst */
+    spawnBlockFlash(hx, hy, 2, a.face, heavy ? 1.3 : 1);
+    /* Companion shield-mesh pulse: the defender's guard bubble flares
+       white-hot and swells for a beat as it absorbs the blow */
+    d.shieldPulse = 1;
+    /* Pass-12: guard hold kicks the DEFENDER's side rigs so the block
+       reads spatially on the stage lighting */
+    pulseStage(d === player ? -1 : 1, .5);
+    spawnDmgNumber(d.x, d.y + 34, "BLOCK", "blk");
+    /* Blocked hits still register — muted camera response:
+       light punches get a small trauma jolt, blocked heavies get a
+       softened tilt + shake so guards feel weighty but safe */
+    if(!heavy) addTrauma(.16, a.face);
+    else addHeavyImpact(a.face, .35);
+    /* Blocked hits do NOT build or break combos */
   }else{
-    d.hitstun = at.type === "special" ? .42 : .22;
+    d.hitstun = heavy ? .42 : .22;
     d.vx = a.face * at.knock;
-    if(at.type === "special") d.vy = 38;
-    playSfx("hit");
-    camShake = Math.min(camShake + (at.type === "special" ? 2.6 : 1.4), 4);
+    if(heavy) d.vy = 38;
+    /* Distinct synth voices: crisp light hit vs. layered heavy slam.
+       Both pass the live combo count (incl. this hit) so their layered
+       impact voices escalate in pitch mid-string. */
+    playSfx(heavy ? "heavy" : "hit", (a === player ? state.combo.p : state.combo.c) + 1);
+    camShake = Math.min(camShake + (heavy ? 3 : 1.6), 5.5);
+    if(heavy){
+      /* HEAVY HIT-STOP FRAME DELAY: two-phase stop — hard freeze hold,
+         then a quadratic snap back to full speed, ending in a release
+         shockwave detonating from the stored contact point */
+      triggerHitStop(.17, true, hx, hy, 2, 0xfacc15);
+      playSfx("timestop");
+      aber = Math.min(aber + .55, 2);
+    }else{
+      hitStop = Math.max(hitStop, .055);
+    }
+    fovKick = Math.max(fovKick, heavy ? -8 : -2.5);
+    aber = Math.min(aber + (heavy ? 1.5 : .7), 2);
+    spawnImpactFX(hx, hy, 2, heavy ? 0xfacc15 : 0xffffff, heavy ? 2.2 : 1, "hit", a.face);
+    /* Flash-spark emitter: white-hot streaking burst + impact light at
+       the exact collision point; heavies crackle with a delayed wave */
+    spawnFlashSparks(hx, hy, 2, heavy ? 0xfacc15 : 0xffd9a0, heavy ? 2.3 : 1.15, a.face);
+    spawnDmgNumber(d.x, d.y + 34, String(dmg), heavy ? "gold" : "");
+
+    /* Directional camera kick + impact roll + radial blur punch */
+    shakeBias.x = a.face * (heavy ? 2.4 : .9);
+    shakeBias.y = heavy ? 1.3 : .45;
+    if(heavy){
+      radialV = Math.min(radialV + .9, 1.6);
+      camRoll = THREE.MathUtils.clamp(camRoll + a.face * .05, -.1, .1);
+      /* Impact dolly: camera lunges in + turf scorch left behind */
+      camPush = Math.min(camPush + 5.5, 9);
+      spawnScorch(hx, 2);
+    }else{
+      camPush = Math.min(camPush + 1.6, 9);
+    }
+
+    if(d === player){
+      /* Player got hit: red sting */
+      hurtV = Math.min(1, hurtV + (heavy ? .8 : .45));
+      flashRed();
+    }else if(a === player && heavy){
+      /* Player landed the heavy: satisfying white pop */
+      flashWhite(.28);
+    }
+
+    crowdHype = Math.min(1.6, crowdHype + (heavy ? .7 : .3));
+
+    /* Pass-12: stage rigs punch with the attacker's side — heavies hit
+       roughly twice as hard; momentum tilts the whole rig's color
+       balance toward whoever is stacking damage */
+    pulseStage(a === player ? -1 : 1, heavy ? 1.2 : .55);
+    stageMomentum = THREE.MathUtils.clamp(stageMomentum + (a === player ? -.3 : .3), -1, 1);
+
+    /* Combo tracking (clean hits only) */
+    if(a === player){
+      state.combo.p++;
+      state.combo.tp = 1.6;
+      state.combo.c = 0;
+      if(state.combo.p >= 2) bumpCombo(comboP1, state.combo.p);
+    }else{
+      state.combo.c++;
+      state.combo.tc = 1.6;
+      state.combo.p = 0;
+      if(state.combo.c >= 2) bumpCombo(comboP2, state.combo.c);
+    }
+    if(state.combo.p >= 3 || state.combo.c >= 3){
+      playSfx("combo", Math.max(state.combo.p, state.combo.c));
+    }
+
+    /* Milestone arpeggios at 5 / 10 / 15 hits */
+    const cn = a === player ? state.combo.p : state.combo.c;
+    if(cn === 5 || cn === 10 || cn === 15) playSfx("milestone", cn);
+
+    /* Crowd roars for heavies and 3+ strings */
+    if(heavy || state.combo.p >= 3 || state.combo.c >= 3){
+      playSfx("cheer");
+    }
+
+    /* Dynamic camera response on hit registration.
+       Light punches: trauma-scaled noise shake (seed re-rolls per hit).
+       Heavy punches: the full dedicated rig — spring-loaded camera
+       tilt (roll + pitch nod), directional position jolt and a big
+       trauma shake, all escalating slightly with the live combo. */
+    {
+      const cns = a === player ? state.combo.p : state.combo.c;
+      if(!heavy){
+        addTrauma(.44 + Math.min(cns, 10) * .014, a.face);
+      }else{
+        addHeavyImpact(a.face, 1 + Math.min(cns, 10) * .03);
+      }
+    }
   }
 
   d.health = Math.max(0, d.health - dmg);
+  if(d === player) state.p1Taken += dmg;
+  else state.p2Taken += dmg;
+
+  /* White sweep across the victim's health bar on any damage */
+  flashBarHit(d === player ? p1Bar : p2Bar);
 
   a.special = Math.min(100, a.special + at.meter);
   d.special = Math.min(100, d.special + at.meter * (bl ? .35 : .7));
-
-  spawnHit(d.x, d.y + 18, at.type);
 }
 
 function updateAI(c, p, dt){
@@ -1641,23 +4413,209 @@ function checkRoundEnd(){
   state.over = true;
   state.transitionTimer = 1.85;
 
-  if(player.health <= 0 && cpu.health <= 0){
+  const pDown = player.health <= 0;
+  const cDown = cpu.health <= 0;
+  const loser = (pDown && cDown) ? null : (pDown ? player : cpu);
+
+  /* Cinematic KO moment: slow-mo, zoom punch, white flash, crowd eruption */
+  if(loser){
+    spawnImpactFX(loser.x, loser.y + 20, 2, 0xffffff, 2.6, "ko");
+    /* Flash-spark emitter: massive golden burst + impact light on the
+       KO contact point, biased along the winner's knockback direction */
+    spawnFlashSparks(
+      loser.x, loser.y + 20, 2, 0xffd76a, 2.8,
+      (loser === player ? cpu : player)?.face || 0
+    );
+    flashWhite(1);
+    aber = Math.min(aber + 1.6, 2);
+    fovKick = -10;
+    timeScale = .18;
+    crowdHype = 1.8;
+    radialV = 1.5;
+    camPush = 11;
+    camRoll = THREE.MathUtils.clamp(camRoll + (loser === player ? -.08 : .08), -.12, .12);
+    shakeBias.x = (Math.random() < .5 ? -1 : 1) * 2.6;
+    shakeBias.y = 1.6;
+    playSfx("cheer");
+    /* Heavy-impact camera rig fires on the KO blow too — extra tilt
+       and shake weight for the finishing hit */
+    addHeavyImpact((loser === player ? cpu : player)?.face || 0, 1.25);
+    /* Pass-12: full-rig surge + strobe detonates on the finishing blow */
+    stageSurge = Math.min(2, stageSurge + 1.5);
+    pulseStage(0, 1.1);
+    /* Longer real-time window because the sim runs in slow motion */
+    state.transitionTimer = 2.4;
+  }
+
+  if(pDown && cDown){
     state.pWins++;
     state.cWins++;
     state.message = "DOUBLE KO";
-  }else if(cpu.health <= 0){
+    koShow("DOUBLE K.O.!");
+    /* Pass-12: double-KO rocks the whole house */
+    stageSurge = Math.max(stageSurge, .9);
+  }else if(cDown){
     state.pWins++;
     state.message = `${CHARACTERS[state.playerChar].fighterName} WINS ROUND ${state.round}`;
+    koShow("K.O.!");
+    /* Pass-12: round-win house lift */
+    stageSurge = Math.max(stageSurge, .8);
+    setTimeout(() => playSfx("win"), 380);
+    if(state.p1Taken <= 0){
+      state.message += " · PERFECT";
+      playSfx("perfect");
+      player.special = Math.min(100, player.special + 25);
+      /* Slam the PERFECT banner (token-guarded against round resets) */
+      {
+        const tok = state.introToken;
+        setTimeout(() => {
+          if(tok !== state.introToken || gameScreen.classList.contains("hidden")) return;
+          showFightBanner("PERFECT!");
+        }, 620);
+      }
+    }
+    if(state.pWins >= 2 && (state.opponentIndex + 1) >= state.queue.length){
+      spawnConfetti(player.x);
+      crowdHype = 2;
+      setTimeout(() => { if(cpu) spawnConfetti(cpu.x); }, 400);
+      /* Gauntlet-clear finale: rolling firework barrage */
+      [200, 500, 800, 1100].forEach(dd => setTimeout(() => {
+        if(!gameScreen.classList.contains("hidden") && player) spawnFirework(player.x);
+      }, dd));
+    }
   }else{
     state.cWins++;
     state.message = `${CHARACTERS[state.cpuChar].fighterName} WINS ROUND ${state.round}`;
+    koShow("K.O.!");
+    /* Pass-12: cpu round-win lift (smaller — the away crowd) */
+    stageSurge = Math.max(stageSurge, .55);
+    setTimeout(() => playSfx("lose"), 380);
+  }
+
+  /* Victory fireworks popping over the stands */
+  const fwX = (pDown && cDown) ? 0 : (pDown ? cpu.x : player.x);
+  [0, 240, 480].forEach((dd, i) => setTimeout(() => {
+    if(!gameScreen.classList.contains("hidden")) spawnFirework(fwX + (i - 1) * 30);
+  }, dd));
+
+  state.messageTimer = 1.85;
+  playSfx("ko");
+}
+
+/* Time-out decision — highest remaining health takes the round */
+function handleTimeUp(){
+  if(state.over) return;
+
+  state.over = true;
+  state.transitionTimer = 1.85;
+
+  koShow("TIME UP!");
+  /* Pass-12: klaxon lifts the house lights */
+  stageSurge = Math.max(stageSurge, .6);
+  playSfx("timeup");
+  crowdHype = Math.min(1.6, crowdHype + .4);
+
+  const ph = player.health;
+  const ch = cpu.health;
+
+  if(ph === ch){
+    state.pWins++;
+    state.cWins++;
+    state.message = "DRAW";
+  }else if(ph > ch){
+    state.pWins++;
+    state.message = `${CHARACTERS[state.playerChar].fighterName} WINS ROUND ${state.round}`;
+    setTimeout(() => playSfx("win"), 420);
+  }else{
+    state.cWins++;
+    state.message = `${CHARACTERS[state.cpuChar].fighterName} WINS ROUND ${state.round}`;
+    setTimeout(() => playSfx("lose"), 420);
   }
 
   state.messageTimer = 1.85;
-  playSfx("win");
 }
 
-function updateHUD(){
+function bumpCombo(el, n){
+  const num = el.querySelector(".cnum");
+  num.textContent = n;
+
+  /* Heat tiers: 2–4 cool blue, 5–8 gold, 9+ burning red */
+  el.classList.remove("tier2", "tier3");
+  if(n >= 9) el.classList.add("tier3");
+  else if(n >= 5) el.classList.add("tier2");
+
+  /* Track the round's best string per side */
+  if(el === comboP1){
+    if(n > state.bestCombo.p){
+      state.bestCombo.p = n;
+      el.querySelector(".cbest").textContent = `BEST ${n}`;
+    }
+  }else{
+    if(n > state.bestCombo.c){
+      state.bestCombo.c = n;
+      el.querySelector(".cbest").textContent = `BEST ${n}`;
+    }
+  }
+
+  el.classList.add("show");
+  num.classList.remove("pop");
+  void num.offsetWidth;
+  num.classList.add("pop");
+}
+
+function koShow(txt){
+  if(!koText) return;
+  clearTimeout(koTimer);
+  koText.textContent = txt;
+  koText.className = "";
+  void koText.offsetWidth;
+  koText.classList.add("go");
+  koTimer = setTimeout(() => {
+    koText.classList.remove("go");
+    koText.classList.add("bye");
+  }, 1150);
+}
+
+function flashBar(el){
+  if(!el) return;
+  el.classList.add("readyFlash");
+  setTimeout(() => el.classList.remove("readyFlash"), 620);
+}
+
+/* White damage sweep across a health bar */
+function flashBarHit(el){
+  if(!el) return;
+  el.classList.remove("hitFlash");
+  void el.offsetWidth;
+  el.classList.add("hitFlash");
+  setTimeout(() => el.classList.remove("hitFlash"), 240);
+}
+
+/* Team-gem badge: color + initial from the character table */
+function setGem(el, c){
+  if(!el) return;
+  el.style.background = c.cssColor;
+  el.style.boxShadow = `0 0 12px ${c.cssColor}b3, inset 0 0 4px rgba(255,255,255,.45)`;
+  const i = el.querySelector("i");
+  if(i) i.textContent = c.fighterName.charAt(0);
+}
+
+/* Center slam banner (FIGHT! / PERFECT!) */
+function showFightBanner(txt){
+  if(!fightBanner) return;
+  fightBanner.textContent = txt;
+  fightBanner.classList.remove("go");
+  void fightBanner.offsetWidth;
+  fightBanner.classList.add("go");
+}
+
+function easeGhost(cur, target, dt){
+  if(target >= cur) return target;
+  const nv = cur + (target - cur) * Math.min(1, dt * 2.6);
+  return Math.abs(nv - target) < .4 ? target : nv;
+}
+
+function updateHUD(rdt = .016){
   if(!player || !cpu) return;
 
   const c1 = CHARACTERS[state.playerChar];
@@ -1672,11 +4630,74 @@ function updateHUD(){
   p1Health.style.width = `${player.health}%`;
   p2Health.style.width = `${cpu.health}%`;
 
+  /* Delayed damage ghost bars */
+  ghostP = easeGhost(ghostP, player.health, rdt);
+  ghostC = easeGhost(ghostC, cpu.health, rdt);
+  p1HealthGhost.style.width = `${ghostP}%`;
+  p2HealthGhost.style.width = `${ghostC}%`;
+
+  /* Critical health pulse */
+  p1Bar.classList.toggle("crit", player.health <= 25 && player.health > 0);
+  p2Bar.classList.toggle("crit", cpu.health <= 25 && cpu.health > 0);
+
   p1Special.style.width = `${player.special}%`;
   p2Special.style.width = `${cpu.special}%`;
 
+  /* Special-ready chime + bar flash */
+  const pr = player.special >= 60;
+  if(pr && !prevReadyP){
+    playSfx("ready");
+    flashBar(p1Special.parentElement);
+  }
+  prevReadyP = pr;
+
+  const cr = cpu.special >= 60;
+  if(cr && !prevReadyC) flashBar(p2Special.parentElement);
+  prevReadyC = cr;
+
+  /* Meter-full shimmer when the gauge tops out */
+  const pmx = player.special >= 100;
+  if(pmx && !prevMaxP) playSfx("meterMax");
+  prevMaxP = pmx;
+
+  const cmx = cpu.special >= 100;
+  if(cmx && !prevMaxC) playSfx("meterMax");
+  prevMaxC = cmx;
+
+  /* SP-ready / danger tags */
+  if(p1Ready) p1Ready.classList.toggle("on", pr);
+  if(p2Ready) p2Ready.classList.toggle("on", cr);
+  if(p1Danger) p1Danger.classList.toggle("on", player.health <= 25 && player.health > 0 && !state.over);
+
   [...p1Pips.children].forEach((p, i) => p.classList.toggle("won", i < state.pWins));
   [...p2Pips.children].forEach((p, i) => p.classList.toggle("won", i < state.cWins));
+
+  /* Round timer readout (guarded against missing nodes) */
+  if(timerBox && timerVal){
+    const tv = Math.max(0, Math.ceil(state.timer));
+    if(timerVal.textContent !== String(tv)) timerVal.textContent = String(tv);
+    timerBox.classList.toggle("low", !state.over && state.timer <= 10 && state.timer > 0);
+
+    /* Final-10 pop on each tick + one-time warning sting at 10 */
+    if(tv !== prevTvShown){
+      prevTvShown = tv;
+      if(tv <= 10 && tv > 0){
+        timerVal.classList.remove("pop");
+        void timerVal.offsetWidth;
+        timerVal.classList.add("pop");
+        if(tv === 10 && lastWarnTv !== 10){
+          lastWarnTv = 10;
+          playSfx("warn");
+        }
+      }
+    }
+
+    /* Live matchup clock mirrored onto the stadium scoreboard */
+    if(tv !== lastBoardSec && !state.over){
+      lastBoardSec = tv;
+      drawScoreboard(`${c1.fighterName} ${state.pWins}-${state.cWins} ${c2.fighterName} · RD${state.round} · ${tv}s`);
+    }
+  }
 
   const msg = state.messageTimer > 0 ? state.message : "";
   roundText.textContent = msg;
@@ -1690,9 +4711,124 @@ function updateHUD(){
   lastMessage = msg;
 
   if(specialTouchBtn) specialTouchBtn.classList.toggle("disabled", player.special < 60);
+
+  if(state.combo.p < 2) comboP1.classList.remove("show", "tier2", "tier3");
+  if(state.combo.c < 2) comboP2.classList.remove("show", "tier2", "tier3");
 }
 
-function updateCamera(){
+/* ===== Heavy hit-stop frame delay (two-phase freeze on heavy impacts) =====
+
+   triggerHitStop(dur, heavy, cx, cy, cz, color):
+     • Opens a gameplay freeze lasting `dur` REAL seconds. Overlapping
+       triggers take the MAX so multi-hit strings never stack into mush.
+     • Heavy stops are two-phase: a hard near-full freeze hold (sim at
+       2% speed) for the first ~62% of the window, then a quadratic
+       ramp back to full speed so the action SNAPS out of the freeze.
+     • The contact point + attack color are snapshotted so the release
+       can detonate a shockwave exactly where the blow landed.
+
+   releaseBurst():
+     • Fired once when a heavy stop expires — shockwave ring + jets-only
+       spark puff at the stored contact point, a crisp synthesized
+       "snap" tick, a small camera nudge and an aberration flick.
+       The impact reads as a held beat that detonates on release. */
+function triggerHitStop(dur, heavy, cx, cy, cz, color){
+  if(dur > hitStop){
+    hitStop = dur;
+    hitStopTotal = dur;
+    hitStopHeavy = !!heavy;
+  }
+  if(heavy){
+    freezePt = { x:cx, y:cy, z:cz, color };
+    hitStopWasHeavy = true;
+  }
+}
+
+function releaseBurst(){
+  if(!hitStopWasHeavy || !freezePt) return;
+  hitStopWasHeavy = false;
+  const p = freezePt;
+  freezePt = null;
+
+  if(gameScreen.classList.contains("hidden")) return;
+
+  /* Shockwave ring detonating outward as time resumes */
+  const r = new THREE.Mesh(RING_GEO, new THREE.MeshBasicMaterial({
+    color:p.color, transparent:true, opacity:.85, side:THREE.DoubleSide,
+    depthWrite:false, blending:THREE.AdditiveBlending
+  }));
+  r.position.set(p.x, p.y, p.z);
+  effects.push({ mesh:r, life:.28, max:.28, billboard:true, s0:2.2, grow:24, fadePow:1.35, op0:.85, sharedGeo:true });
+
+  /* Jets-only spark puff (no second impact light) */
+  spawnFlashSparks(p.x, p.y, p.z, p.color, .6, 0, true);
+
+  /* Small camera nudge + chromatic tick so the snap reads physically */
+  camShake = Math.min(camShake + .55, 5.5);
+  aber = Math.min(aber + .35, 2);
+
+  playSfx("release");
+}
+
+/* ===== Dynamic trauma shake (light punch hit registration) ===== */
+
+/* Layered sines = cheap smooth pseudo-noise; each channel gets a
+   different seed/frequency so X, Y and roll never sync up. */
+function shakeNoise(t, seed){
+  return Math.sin(t + seed) * .55
+       + Math.sin(t * 2.17 + seed * 1.7) * .30
+       + Math.sin(t * 4.31 + seed * 2.9) * .15;
+}
+
+/* Inject shake energy (0..1). dir: knockback side for the directional
+   lean. Re-seeding per hit gives every impact a unique shake pattern. */
+function addTrauma(v, dir = 0){
+  trauma = Math.min(1, trauma + v);
+  traumaDir = dir;
+  shakeSeed = Math.random() * 1000;
+}
+
+/* ===== Heavy punch hit registration: camera tilt + screen shake =====
+
+   Fires the dedicated heavy-impact camera rig:
+     • Spring-loaded roll tilt — an angular impulse kicks the camera
+       off-axis and an underdamped spring whips it back with overshoot
+     • Spring-loaded pitch nod — the camera dips INTO the impact then
+       recoils, selling the weight of the blow
+     • Directional position jolt — the whole frame lunges along the
+       knockback side before easing out exponentially
+     • Big trauma injection — drives the layered-sine position/roll
+       noise shake (amplitude = trauma²), re-seeded per hit
+   Scale multiplies every channel; the caller nudges it up with the
+   live combo count so strings escalate. Integrated on real time in
+   updateCamera() so the tilt/shake plays through hit-stop frames. */
+function addHeavyImpact(dirX, scale = 1){
+  heavyTiltV  += dirX * 6.0 * scale;
+  heavyPitchV -= 3.0 * scale;
+  joltX += dirX * 2.4 * scale;
+  joltY += 1.5 * scale;
+  addTrauma(Math.min(1, .74 * scale + .05), dirX);
+}
+
+function updateCamera(dt){
+  ambT += dt;
+
+  /* Trauma decays on real time so the shake plays through hit-stop */
+  trauma = Math.max(0, trauma - dt * 1.9);
+
+  /* Heavy-impact spring rig: underdamped roll/pitch springs snap the
+     camera back with a whip overshoot; jolts bleed off exponentially.
+     Integrated on real time so the tilt plays through hit-stop. */
+  {
+    const kS = 120, dS = 10.5;
+    heavyTiltV += (-kS * heavyTilt - dS * heavyTiltV) * dt;
+    heavyTilt  += heavyTiltV * dt;
+    heavyPitchV += (-kS * heavyPitch - dS * heavyPitchV) * dt;
+    heavyPitch  += heavyPitchV * dt;
+    joltX *= Math.exp(-dt * 7);
+    joltY *= Math.exp(-dt * 7);
+  }
+
   let tx = 0;
   if(player && cpu) tx = ((player.x + cpu.x) / 2) * .35;
 
@@ -1701,223 +4837,5 @@ function updateCamera(){
   const sy = camShake > 0 ? (Math.random() - .5) * camShake : 0;
   const sx = camShake > 0 ? (Math.random() - .5) * camShake : 0;
 
-  camera.position.y = 62 + sy;
-  camera.lookAt(tx + sx * 2, 26, 0);
-}
-
-function update(dt){
-  if(!player || !cpu) return;
-
-  if(state.messageTimer > 0) state.messageTimer -= dt;
-
-  camShake = Math.max(0, camShake - dt * 9);
-
-  for(let i = effects.length - 1; i >= 0; i--){
-    const e = effects[i];
-    e.life -= dt;
-
-    const t = 1 - e.life / e.max;
-    e.mesh.scale.setScalar(1 + t * 3.5);
-    e.mesh.material.opacity = Math.max(0, e.life / e.max);
-
-    if(e.life <= 0){
-      scene.remove(e.mesh);
-      e.mesh.geometry.dispose();
-      e.mesh.material.dispose();
-      effects.splice(i, 1);
-    }
-  }
-
-  const idle = { left:false, right:false, block:false, actionQueue:[] };
-
-  if(!state.over){
-    const q = input.queue.splice(0, input.queue.length);
-
-    player.update(dt, cpu, {
-      left: input.left,
-      right: input.right,
-      block: input.block,
-      actionQueue: q
-    });
-
-    cpu.update(dt, player, updateAI(cpu, player, dt));
-
-    processHits(player, cpu);
-    processHits(cpu, player);
-
-    checkRoundEnd();
-  }else{
-    player.update(dt, cpu, idle);
-    cpu.update(dt, player, idle);
-
-    if(state.transitionTimer > 0){
-      state.transitionTimer -= dt;
-      if(state.transitionTimer <= 0){
-        handleMatchEnd();
-      }
-    }
-  }
-
-  updateHUD();
-}
-
-function animate(){
-  const dt = Math.min(clock.getDelta(), .033);
-
-  if(!gameScreen.classList.contains("hidden")){
-    if(state.running) update(dt);
-    updateCamera();
-    renderer.render(scene, camera);
-  }
-}
-
-/* ===================== INPUT ===================== */
-
-const keyMap = {
-  KeyA: "left",
-  ArrowLeft: "left",
-  KeyD: "right",
-  ArrowRight: "right",
-  KeyW: "jump",
-  ArrowUp: "jump",
-  KeyS: "block",
-  ArrowDown: "block",
-  KeyF: "punch",
-  KeyK: "punch",
-  Space: "special"
-};
-
-addEventListener("keydown", e => {
-  if(!state.running) return;
-
-  const a = keyMap[e.code];
-  if(!a) return;
-
-  e.preventDefault();
-
-  if(["jump", "punch", "special"].includes(a)){
-    if(!e.repeat) input.queue.push(a);
-  }else{
-    input[a] = true;
-  }
-});
-
-addEventListener("keyup", e => {
-  const a = keyMap[e.code];
-  if(a && ["left", "right", "block"].includes(a)) input[a] = false;
-});
-
-addEventListener("blur", () => {
-  input.left = input.right = input.block = false;
-  input.queue.length = 0;
-});
-
-document.querySelectorAll("#touchControls .tbtn").forEach(b => {
-  const a = b.dataset.action;
-
-  const dn = e => {
-    e.preventDefault();
-    try{ b.setPointerCapture(e.pointerId); }catch(x){}
-    b.classList.add("active");
-
-    if(["left", "right", "block"].includes(a)) input[a] = true;
-    else input.queue.push(a);
-  };
-
-  const up = e => {
-    e.preventDefault();
-    b.classList.remove("active");
-
-    if(["left", "right", "block"].includes(a)) input[a] = false;
-  };
-
-  b.addEventListener("pointerdown", dn);
-  b.addEventListener("pointerup", up);
-  b.addEventListener("pointercancel", up);
-  b.addEventListener("pointerleave", up);
-  b.addEventListener("contextmenu", e => e.preventDefault());
-});
-
-/* ===================== UI ===================== */
-
-function buildCharacterSelect(){
-  selectRow.innerHTML = "";
-
-  const keys = Object.keys(CHARACTERS);
-
-  keys.forEach((key, i) => {
-    const c = CHARACTERS[key];
-
-    const card = document.createElement("div");
-    card.className = "charCard" + (i === 0 ? " selected" : "");
-    card.dataset.char = key;
-    card.style.background = c.cardBg;
-
-    card.innerHTML = `
-      <span class="badge">AT BAT</span>
-      <div class="cardShade"></div>
-      <div class="cname">${c.fighterName}</div>
-      <div class="cteam">${c.team} · You</div>
-    `;
-
-    card.addEventListener("click", () => {
-      selectedChar = key;
-      selectRow.querySelectorAll(".charCard").forEach(x => x.classList.remove("selected"));
-      card.classList.add("selected");
-      ensureAudio();
-    });
-
-    selectRow.appendChild(card);
-  });
-
-  selectedChar = keys[0];
-}
-
-startBtn.addEventListener("click", () => {
-  ensureAudio();
-  showScreen("selectScreen");
-});
-
-playBtn.addEventListener("click", () => beginGauntlet());
-
-backBtn.addEventListener("click", () => showScreen("menuScreen"));
-loadingBackBtn.addEventListener("click", () => showScreen("menuScreen"));
-mainMenuBtn.addEventListener("click", () => showScreen("menuScreen"));
-
-rematchBtn.addEventListener("click", () => beginGauntlet());
-
-menuBtn.addEventListener("click", () => {
-  state.running = false;
-  touchControls.style.display = "none";
-  removeFighters();
-  clearEffects();
-  showScreen("menuScreen");
-});
-
-function toggleSfx(){
-  state.sfx = !state.sfx;
-  updateSfxButtons();
-  if(state.sfx) playSfx("hit");
-}
-
-sfxMenuBtn.addEventListener("click", toggleSfx);
-sfxGameBtn.addEventListener("click", toggleSfx);
-
-addEventListener("resize", onResize);
-addEventListener("dblclick", e => e.preventDefault(), { passive:false });
-addEventListener("gesturestart", e => e.preventDefault());
-addEventListener("gesturechange", e => e.preventDefault());
-addEventListener("gestureend", e => e.preventDefault());
-addEventListener("wheel", e => { if(e.ctrlKey) e.preventDefault(); }, { passive:false });
-document.addEventListener("contextmenu", e => e.preventDefault());
-
-/* ===================== BOOT ===================== */
-
-initThree();
-buildCharacterSelect();
-updateSfxButtons();
-clock = new THREE.Clock();
-renderer.setAnimationLoop(animate);
-</script>
-</body>
-</html>
+  /* Impact dolly: camera lunges in on big hits, then eases back */
+  camPush += (0 - camPush) * Math.min(1,
