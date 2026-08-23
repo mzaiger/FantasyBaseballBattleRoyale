@@ -145,37 +145,16 @@ html,body{
 .panel{flex:1;max-width:44%;background:rgba(4,10,22,.78);border:1px solid var(--line);padding:8px 14px 10px}
 .panel.p1{clip-path:polygon(0 0,100% 0,calc(100% - 18px) 100%,0 100%)}
 .panel.p2{clip-path:polygon(18px 0,100% 0,100% 100%,0 100%);text-align:right}
-.panelHead{display:flex;align-items:center;gap:10px}
-.p2 .panelHead{flex-direction:row-reverse}
-.portrait{
-  width:50px;height:50px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-  border:2px solid rgba(255,255,255,.35);overflow:hidden;position:relative;
-  box-shadow:0 4px 14px rgba(0,0,0,.5),inset 0 0 20px rgba(0,0,0,.28)
-}
-.portrait span{
-  font-family:var(--font-display);font-size:26px;line-height:1;color:#fff;position:relative;z-index:1;
-  text-shadow:0 2px 0 rgba(0,0,0,.55),0 3px 8px rgba(0,0,0,.5)
-}
-.portrait::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.22),transparent 45%,rgba(0,0,0,.3))}
-.hpPct{
-  position:absolute;top:50%;transform:translateY(-50%);right:7px;z-index:4;
-  font-weight:800;font-size:11px;letter-spacing:.05em;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.95)
-}
-.p2 .hpPct{right:auto;left:7px}
 .fname{font-weight:800;font-size:18px;letter-spacing:.08em;text-transform:uppercase;text-shadow:0 2px 6px rgba(0,0,0,.6)}
 .fteam{font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;margin-top:1px}
 .p1 .fteam{color:var(--dodger-bright)}
 .p2 .fteam{color:var(--yankee-steel)}
-.bar{position:relative;height:16px;margin-top:6px;border-radius:4px;overflow:hidden;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);box-shadow:0 0 12px rgba(47,143,224,.28),inset 0 0 10px rgba(0,0,0,.65)}
-.bar::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 9%,rgba(0,0,0,.28) 9% 10%);pointer-events:none;z-index:3}
-.fill{position:absolute;top:0;left:0;height:100%;transition:width .09s linear}
-.ghostFill{position:absolute;top:0;left:0;height:100%;transition:none;background:linear-gradient(90deg,#fee2e2,#f87171);opacity:.9;box-shadow:0 0 10px rgba(239,68,68,.8)}
-.healthFill.hp-hi{background:linear-gradient(90deg,#16a34a,#a3e635);box-shadow:0 0 9px rgba(34,197,94,.75)}
-.healthFill.hp-mid{background:linear-gradient(90deg,#d97706,#fde047);box-shadow:0 0 10px rgba(245,158,11,.8)}
-.healthFill.hp-low{background:linear-gradient(90deg,#b91c1c,#f97316);box-shadow:0 0 14px rgba(239,68,68,.95);animation:hpPulse .5s ease-in-out infinite alternate}
-@keyframes hpPulse{from{filter:brightness(.8)}to{filter:brightness(1.3)}}
+.bar{position:relative;height:16px;margin-top:6px;border-radius:4px;overflow:hidden;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2)}
+.bar::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 9%,rgba(0,0,0,.28) 9% 10%);pointer-events:none}
+.fill{height:100%;width:100%;transition:width .09s linear}
+.healthFill{background:linear-gradient(90deg,#f97316,#22c55e)}
 .specialBar{height:8px;margin-top:5px}
-.specialFill{background:linear-gradient(90deg,var(--gold),#fb7185);width:0%;box-shadow:0 0 8px rgba(242,193,78,.75)}
+.specialFill{background:linear-gradient(90deg,var(--gold),#fb7185);width:0%}
 .pips{margin-top:7px;display:flex;gap:6px}
 .p2 .pips{justify-content:flex-end}
 .pips span{width:10px;height:10px;border:1px solid var(--gold);transform:rotate(45deg);background:transparent;transition:all .25s ease}
@@ -187,92 +166,6 @@ html,body{
 }
 #roundText.pop{animation:popIn .5s cubic-bezier(.2,1.4,.3,1) both}
 @keyframes popIn{0%{transform:translateX(-50%) scale(.35);opacity:0}60%{transform:translateX(-50%) scale(1.1);opacity:1}100%{transform:translateX(-50%) scale(1);opacity:1}}
-#roundTimer{
-  position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:13;
-  font-family:var(--font-display);font-size:clamp(24px,5vw,42px);line-height:1;color:#fff;pointer-events:none;
-  background:rgba(4,10,22,.68);border:1px solid var(--line);border-radius:12px;padding:6px 18px 9px;
-  text-shadow:0 3px 0 rgba(0,0,0,.55),0 0 22px rgba(242,193,78,.6)
-}
-#roundTimer.warn{
-  color:#fecaca;
-  text-shadow:0 3px 0 rgba(0,0,0,.55),0 0 24px rgba(239,68,68,.9);
-  animation:timerWarn .5s steps(2,end) infinite
-}
-@keyframes timerWarn{50%{opacity:.5}}
-#bannerOverlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:16;pointer-events:none;padding:0 10px}
-#bannerText{
-  font-family:var(--font-display);font-size:clamp(42px,11vw,104px);line-height:1;color:#fff;text-align:center;
-  text-shadow:0 4px 0 rgba(0,0,0,.55),0 0 42px rgba(242,193,78,.6),0 0 100px rgba(47,143,224,.35);
-  opacity:0
-}
-#bannerText.gold{color:var(--gold)}
-#bannerText.show{animation:bannerLife .95s cubic-bezier(.2,1.2,.3,1) both}
-@keyframes bannerLife{
-  0%{transform:scale(2.8) rotate(-3deg);opacity:0}
-  14%{transform:scale(.94) rotate(1deg);opacity:1}
-  24%{transform:scale(1) rotate(0)}
-  72%{transform:scale(1);opacity:1}
-  100%{transform:scale(1.45);opacity:0}
-}
-.comboPop{
-  position:fixed;top:36%;z-index:15;font-family:var(--font-display);pointer-events:none;text-align:center;
-  color:#fff;opacity:0;line-height:1;
-  text-shadow:0 3px 0 rgba(0,0,0,.6),0 0 28px rgba(242,193,78,.85)
-}
-#comboL{left:3vw}
-#comboR{right:3vw}
-.comboPop .n{display:block;font-size:clamp(38px,9vw,82px);color:var(--gold)}
-.comboPop .lbl{font-weight:800;font-size:clamp(12px,2.4vw,18px);letter-spacing:.32em}
-.comboPop.pop{animation:comboHit .42s cubic-bezier(.16,1.3,.3,1) both}
-@keyframes comboHit{
-  0%{transform:scale(1.75) rotate(-5deg);opacity:0}
-  30%{transform:scale(.92) rotate(2deg);opacity:1}
-  100%{transform:scale(1) rotate(0);opacity:1}
-}
-.comboPop.fade{animation:comboFade .35s ease-out both}
-@keyframes comboFade{to{opacity:0;transform:translateY(-14px)}}
-#koBanner{
-  position:fixed;inset:0;z-index:17;display:flex;align-items:center;justify-content:center;
-  pointer-events:none;opacity:0;overflow:hidden
-}
-#koBanner.show{animation:koFlash 1.5s cubic-bezier(.2,.9,.3,1) both}
-@keyframes koFlash{
-  0%{opacity:0;transform:scale(2.2)}
-  8%{opacity:1;transform:scale(1)}
-  13%{opacity:.2}
-  19%{opacity:1}
-  72%{opacity:1;transform:scale(1.04)}
-  100%{opacity:0;transform:scale(1.18)}
-}
-#koBanner::before{
-  content:"";position:absolute;inset:-25%;
-  background:linear-gradient(115deg,transparent 43%,rgba(255,255,255,.9) 50%,transparent 57%);
-  transform:translateX(-120%)
-}
-#koBanner.show::before{animation:koSweep 1.5s ease-out both}
-@keyframes koSweep{0%{transform:translateX(-120%)}32%,100%{transform:translateX(120%)}}
-#koText{
-  font-family:var(--font-display);font-size:clamp(60px,19vw,180px);line-height:1;color:var(--gold);
-  text-shadow:0 6px 0 rgba(0,0,0,.6),0 0 60px rgba(239,68,68,.95),0 0 150px rgba(239,68,68,.55)
-}
-#flashOverlay{position:fixed;inset:0;z-index:18;background:#fff;opacity:0;pointer-events:none}
-#counterText{
-  position:fixed;top:21%;left:50%;transform:translateX(-50%);z-index:16;pointer-events:none;opacity:0;
-  font-family:var(--font-display);font-size:clamp(26px,6vw,52px);color:#fff;line-height:1;letter-spacing:.06em;
-  text-shadow:0 3px 0 rgba(0,0,0,.5),0 0 36px rgba(242,193,78,.95)
-}
-#counterText.pop{animation:counterPop .58s cubic-bezier(.2,1.4,.3,1) both}
-@keyframes counterPop{
-  0%{transform:translateX(-50%) scale(2.1);opacity:0}
-  24%{transform:translateX(-50%) scale(.94);opacity:1}
-  70%{transform:translateX(-50%) scale(1.02);opacity:1}
-  100%{transform:translateX(-50%) scale(1.12);opacity:0}
-}
-#pauseMenu{
-  position:fixed;inset:0;z-index:26;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:14px;background:rgba(3,8,18,.84);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)
-}
-#pauseMenu .title{font-size:clamp(30px,8vw,62px)}
 .topButtons{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:10px;z-index:25;display:flex;gap:8px}
 .iconBtn{
   appearance:none;cursor:pointer;font-family:var(--font-body);font-weight:800;font-size:13px;letter-spacing:.1em;
@@ -353,40 +246,22 @@ html,body{
   <div id="gameContainer"></div><div id="vignette"></div>
   <div id="hud">
     <div class="panel p1">
-      <div class="panelHead">
-        <div class="portrait" id="p1Portrait"><span id="p1PortraitInit">H</span></div>
-        <div>
-          <div class="fname" id="p1Name">HYLE</div>
-          <div class="fteam" id="p1Team">DODGER · YOU</div>
-        </div>
-      </div>
-      <div class="bar"><div id="p1HealthGhost" class="ghostFill"></div><div id="p1Health" class="fill healthFill hp-hi"></div><span class="hpPct" id="p1HpPct">100%</span></div>
+      <div class="fname" id="p1Name">HYLE</div>
+      <div class="fteam" id="p1Team">DODGER · YOU</div>
+      <div class="bar"><div id="p1Health" class="fill healthFill"></div></div>
       <div class="bar specialBar"><div id="p1Special" class="fill specialFill"></div></div>
       <div class="pips" id="p1Pips"><span></span><span></span></div>
     </div>
     <div class="panel p2">
-      <div class="panelHead">
-        <div class="portrait" id="p2Portrait"><span id="p2PortraitInit">K</span></div>
-        <div>
-          <div class="fname" id="p2Name">KEVO</div>
-          <div class="fteam" id="p2Team">YANKEE · CPU</div>
-        </div>
-      </div>
-      <div class="bar"><div id="p2HealthGhost" class="ghostFill"></div><div id="p2Health" class="fill healthFill hp-hi"></div><span class="hpPct" id="p2HpPct">100%</span></div>
+      <div class="fname" id="p2Name">KEVO</div>
+      <div class="fteam" id="p2Team">YANKEE · CPU</div>
+      <div class="bar"><div id="p2Health" class="fill healthFill"></div></div>
       <div class="bar specialBar"><div id="p2Special" class="fill specialFill"></div></div>
       <div class="pips" id="p2Pips"><span></span><span></span></div>
     </div>
   </div>
   <div id="roundText"></div>
-  <div id="roundTimer">99</div>
-  <div id="bannerOverlay"><div id="bannerText"></div></div>
-  <div class="comboPop" id="comboL"><span class="n">2</span><span class="lbl">HITS</span></div>
-  <div class="comboPop" id="comboR"><span class="n">2</span><span class="lbl">HITS</span></div>
-  <div id="koBanner"><div id="koText">K.O.</div></div>
-  <div id="flashOverlay"></div>
-  <div id="counterText">COUNTER!</div>
   <div class="topButtons">
-    <button id="pauseBtn" class="iconBtn">❚❚</button>
     <button id="sfxGameBtn" class="iconBtn">🔊 SFX</button>
     <button id="menuBtn" class="iconBtn">MENU</button>
   </div>
@@ -404,14 +279,6 @@ html,body{
       </div>
     </div>
   </div>
-</div>
-
-<div id="pauseMenu" class="hidden">
-  <p class="eyebrow">Timeout</p>
-  <h2 class="title">PAUSED</h2>
-  <button id="resumeBtn" class="btnPlate">Resume</button>
-  <button id="pauseSfxBtn" class="btnGhost">SFX: ON</button>
-  <button id="quitBtn" class="btnGhost">Quit To Menu</button>
 </div>
 
 <div id="gameOverScreen" class="screen hidden">
@@ -572,7 +439,6 @@ const selectScreen = $("selectScreen");
 const loadingScreen = $("loadingScreen");
 const gameScreen = $("gameScreen");
 const gameOverScreen = $("gameOverScreen");
-const pauseMenu = $("pauseMenu");
 const gameContainer = $("gameContainer");
 
 const startBtn = $("startBtn");
@@ -583,11 +449,6 @@ const mainMenuBtn = $("mainMenuBtn");
 const menuBtn = $("menuBtn");
 const loadingBackBtn = $("loadingBackBtn");
 
-const pauseBtn = $("pauseBtn");
-const resumeBtn = $("resumeBtn");
-const pauseSfxBtn = $("pauseSfxBtn");
-const quitBtn = $("quitBtn");
-
 const sfxMenuBtn = $("sfxMenuBtn");
 const sfxGameBtn = $("sfxGameBtn");
 
@@ -596,14 +457,6 @@ const loadingFill = $("loadingFill");
 
 const touchControls = $("touchControls");
 const roundText = $("roundText");
-const roundTimerEl = $("roundTimer");
-const bannerText = $("bannerText");
-const comboL = $("comboL");
-const comboR = $("comboR");
-const koBanner = $("koBanner");
-const koTextEl = $("koText");
-const flashOverlay = $("flashOverlay");
-const counterText = $("counterText");
 const winnerText = $("winnerText");
 const finalScore = $("finalScore");
 const gameOverEyebrow = $("gameOverEyebrow");
@@ -614,14 +467,6 @@ const p1Team = $("p1Team");
 const p2Team = $("p2Team");
 const p1Health = $("p1Health");
 const p2Health = $("p2Health");
-const p1HealthGhost = $("p1HealthGhost");
-const p2HealthGhost = $("p2HealthGhost");
-const p1HpPct = $("p1HpPct");
-const p2HpPct = $("p2HpPct");
-const p1Portrait = $("p1Portrait");
-const p2Portrait = $("p2Portrait");
-const p1PortraitInit = $("p1PortraitInit");
-const p2PortraitInit = $("p2PortraitInit");
 const p1Special = $("p1Special");
 const p2Special = $("p2Special");
 const p1Pips = $("p1Pips");
@@ -652,7 +497,6 @@ const state = {
   pWins: 0,
   cWins: 0,
   running: false,
-  paused: false,
   over: false,
   message: "",
   messageTimer: 0,
@@ -660,102 +504,8 @@ const state = {
   sfx: true,
   queue: [],
   opponentIndex: 0,
-  matchesWon: 0,
-  roundTime: 99,
-  lastTickSec: 100,
-  introTimer: 0,
-  koCam: 0,
-  koFocusX: 0
+  matchesWon: 0
 };
-
-/* Round intro: inputs lock until FIGHT! (banner-driven, pause-safe) */
-let introFightShown = false;
-
-function showBanner(text, gold){
-  bannerText.textContent = text;
-  bannerText.classList.toggle("gold", !!gold);
-  bannerText.classList.remove("show");
-  void bannerText.offsetWidth;   // restart the slam animation
-  bannerText.classList.add("show");
-}
-
-/* ---- combo counters: one streak per fighter, 1.3s link window ---- */
-
-const combos = {
-  1:{ count:0, timer:0 },
-  2:{ count:0, timer:0 }
-};
-
-function comboEl(side){
-  return side === 1 ? comboL : comboR;
-}
-
-function registerCombo(side){
-  const c = combos[side];
-  c.count++;
-  c.timer = 1.3;
-
-  const el = comboEl(side);
-  el.querySelector(".n").textContent = c.count;
-  el.querySelector(".lbl").textContent = c.count > 1 ? "HITS" : "HIT";
-  el.classList.remove("pop", "fade");
-  void el.offsetWidth;
-  el.classList.add("pop");
-
-  playSfx("combo", c.count);
-}
-
-function breakCombo(side){
-  const c = combos[side];
-  if(c.count > 0 || c.timer > 0){
-    c.count = 0;
-    c.timer = 0;
-    const el = comboEl(side);
-    el.classList.remove("pop");
-    el.classList.add("fade");
-  }
-}
-
-function resetCombos(){
-  for(const side of [1, 2]){
-    combos[side].count = 0;
-    combos[side].timer = 0;
-    comboEl(side).classList.remove("pop", "fade");
-  }
-}
-
-function updateCombos(dt){
-  for(const side of [1, 2]){
-    const c = combos[side];
-    if(c.timer > 0){
-      c.timer -= dt;
-      if(c.timer <= 0) breakCombo(side);
-    }
-  }
-}
-
-/* ---- KO banner: strobe + diagonal sweep, self-hiding via animation fill ---- */
-
-function showKoBanner(text){
-  koTextEl.textContent = text;
-  koBanner.classList.remove("show");
-  void koBanner.offsetWidth;
-  koBanner.classList.add("show");
-}
-
-/* ---- counter-hit whiteout ---- */
-
-let flashLevel = 0;
-
-function screenFlash(s){
-  flashLevel = Math.min(.9, Math.max(flashLevel, s));
-}
-
-function showCounterPop(){
-  counterText.classList.remove("pop");
-  void counterText.offsetWidth;
-  counterText.classList.add("pop");
-}
 
 const input = {
   left: false,
@@ -763,9 +513,6 @@ const input = {
   block: false,
   queue: []
 };
-
-/* Cinematic camera state */
-let slowmoTimer = 0;   // real-time seconds of slow motion remaining
 
 /* ===================== UTILS ===================== */
 
@@ -787,7 +534,6 @@ function showScreen(id){
 function updateSfxButtons(){
   sfxMenuBtn.textContent = `SFX: ${state.sfx ? "ON" : "OFF"}`;
   sfxGameBtn.textContent = state.sfx ? "🔊 SFX" : "🔇 SFX";
-  if(pauseSfxBtn) pauseSfxBtn.textContent = `SFX: ${state.sfx ? "ON" : "OFF"}`;
 }
 
 function ensureAudio(){
@@ -797,7 +543,7 @@ function ensureAudio(){
   }catch(e){}
 }
 
-function playSfx(t, v = 0){
+function playSfx(t){
   if(!state.sfx) return;
   ensureAudio();
   if(!audioCtx) return;
@@ -807,73 +553,6 @@ function playSfx(t, v = 0){
   const g = audioCtx.createGain();
   o.connect(g);
   g.connect(audioCtx.destination);
-
-  if(t === "combo"){
-    /* chromatic rise with the streak, caps at +12 */
-    const f = 480 * Math.pow(1.059, Math.min(v || 1, 12));
-    o.type = "square";
-    o.frequency.setValueAtTime(f, n);
-    o.frequency.setValueAtTime(f * 1.26, n + .045);
-    g.gain.setValueAtTime(.055, n);
-    g.gain.exponentialRampToValueAtTime(.001, n + .1);
-    o.start(n);
-    o.stop(n + .11);
-    return;
-  }
-
-  if(t === "counter"){
-    o.type = "triangle";
-    o.frequency.setValueAtTime(1250, n);
-    o.frequency.exponentialRampToValueAtTime(880, n + .12);
-    g.gain.setValueAtTime(.09, n);
-    g.gain.exponentialRampToValueAtTime(.001, n + .14);
-    o.start(n);
-    o.stop(n + .15);
-
-    /* metallic overtone partial */
-    const o2 = audioCtx.createOscillator();
-    const g2 = audioCtx.createGain();
-    o2.type = "triangle";
-    o2.frequency.value = 1873;
-    g2.gain.setValueAtTime(.05, n);
-    g2.gain.exponentialRampToValueAtTime(.001, n + .09);
-    o2.connect(g2);
-    g2.connect(audioCtx.destination);
-    o2.start(n);
-    o2.stop(n + .1);
-    return;
-  }
-
-  if(t === "tick" || t === "tickHi"){
-    /* woodblock-ish timer tick (#19 hook) */
-    o.type = "square";
-    o.frequency.setValueAtTime(t === "tickHi" ? 1245 : 890, n);
-    g.gain.setValueAtTime(t === "tickHi" ? .06 : .045, n);
-    g.gain.exponentialRampToValueAtTime(.001, n + .05);
-    o.start(n);
-    o.stop(n + .06);
-    return;
-  }
-
-  if(t === "nav" || t === "select"){
-    /* menu chimes (#22 hook) */
-    o.type = "sine";
-    if(t === "nav"){
-      o.frequency.setValueAtTime(660, n);
-      g.gain.setValueAtTime(.04, n);
-      g.gain.exponentialRampToValueAtTime(.001, n + .07);
-      o.start(n);
-      o.stop(n + .08);
-    }else{
-      o.frequency.setValueAtTime(880, n);
-      o.frequency.exponentialRampToValueAtTime(1320, n + .07);
-      g.gain.setValueAtTime(.05, n);
-      g.gain.exponentialRampToValueAtTime(.001, n + .1);
-      o.start(n);
-      o.stop(n + .11);
-    }
-    return;
-  }
 
   if(t === "hit"){
     o.type = "square";
@@ -915,297 +594,14 @@ function playSfx(t, v = 0){
   }
 }
 
-/* Synthesized announcer: raspy dual-saw "voice" through formant-ish
-   bandpass layers. No samples — pure Web Audio. */
-function playAnnouncer(kind){
-  if(!state.sfx) return;
-  ensureAudio();
-  if(!audioCtx) return;
-
-  const n = audioCtx.currentTime;
-  const out = audioCtx.createGain();
-  out.gain.value = 1;
-  out.connect(audioCtx.destination);
-
-  const shout = (t0, f0, f1, dur, formant, vol = 1) => {
-    const g = audioCtx.createGain();
-    const bp = audioCtx.createBiquadFilter();
-    bp.type = "bandpass";
-    bp.frequency.setValueAtTime(formant, t0);
-    bp.Q.value = 1.1;
-
-    g.gain.setValueAtTime(0, t0);
-    g.gain.linearRampToValueAtTime(.16 * vol, t0 + .03);
-    g.gain.setValueAtTime(.16 * vol, t0 + dur * .6);
-    g.gain.exponentialRampToValueAtTime(.001, t0 + dur);
-
-    for(const det of [-7, 7]){
-      const o = audioCtx.createOscillator();
-      o.type = "sawtooth";
-      o.detune.value = det;
-      o.frequency.setValueAtTime(f0, t0);
-      o.frequency.exponentialRampToValueAtTime(Math.max(30, f1), t0 + dur);
-      o.connect(bp);
-      o.start(t0);
-      o.stop(t0 + dur + .02);
-    }
-
-    bp.connect(g);
-    g.connect(out);
-  };
-
-  if(kind === "round"){
-    shout(n + .02, 200, 150, .28, 640);                 // short bark
-  }
-  else if(kind === "fight"){
-    shout(n + .02, 240, 120, .34, 720, 1.15);           // hard hit
-    shout(n + .02, 118, 112, .3, 180, .8);              // chest layer
-  }
-  else if(kind === "ko"){
-    const boomG = audioCtx.createGain();                // deep boom under the shout
-    boomG.gain.setValueAtTime(.3, n);
-    boomG.gain.exponentialRampToValueAtTime(.001, n + .55);
-
-    const bo = audioCtx.createOscillator();
-    bo.type = "sine";
-    bo.frequency.setValueAtTime(82, n);
-    bo.frequency.exponentialRampToValueAtTime(36, n + .5);
-    bo.connect(boomG);
-    boomG.connect(out);
-    bo.start(n);
-    bo.stop(n + .56);
-
-    shout(n + .06, 300, 90, .5, 800, 1.2);              // descending "KO!"
-    shout(n + .06, 150, 72, .45, 200, .9);
-  }
-}
-
-/* Victory / defeat sequences: layered saw+triangle notes on the audio clock */
-function playFanfare(victory){
-  if(!state.sfx) return;
-  ensureAudio();
-  if(!audioCtx) return;
-
-  const n = audioCtx.currentTime;
-  const out = audioCtx.createGain();
-  out.gain.value = 1;
-  out.connect(audioCtx.destination);
-
-  const note = (t0, f, dur, vol) => {
-    for(const [type, det, v] of [["sawtooth", -4, .7], ["triangle", 4, 1]]){
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-
-      o.type = type;
-      o.detune.value = det;
-      o.frequency.setValueAtTime(f, t0);
-
-      g.gain.setValueAtTime(0, t0);
-      g.gain.linearRampToValueAtTime(.075 * vol * v, t0 + .02);
-      g.gain.exponentialRampToValueAtTime(.001, t0 + dur);
-
-      o.connect(g);
-      g.connect(out);
-      o.start(t0);
-      o.stop(t0 + dur + .02);
-    }
-  };
-
-  if(victory){
-    /* rising major fanfare + closing chord */
-    [[0, 523.25], [.13, 659.25], [.26, 783.99], [.42, 1046.5]].forEach(([t, f]) => note(n + t, f, .24, 1));
-    [523.25, 659.25, 783.99].forEach(f => note(n + .6, f, .95, .55));
-    note(n + .6, 1046.5, .95, .7);
-  }else{
-    /* falling minor dirge */
-    [[0, 220], [.3, 174.61], [.6, 146.83]].forEach(([t, f]) => note(n + t, f, .36, .9));
-    note(n + .96, 110, .5, 1);
-    note(n + .96, 55, 1.3, 1.1);
-  }
-}
-
-/* Ambient stadium bed: bass synth drone + crowd chatter noise.
-   Lives for the whole gauntlet run; started/stopped with match screens. */
-let ambienceNodes = null;
-
-function startAmbience(){
-  if(ambienceNodes || !state.sfx) return;
-  ensureAudio();
-  if(!audioCtx) return;
-
-  const droneGain = audioCtx.createGain();
-  droneGain.gain.value = 0;
-
-  const lp = audioCtx.createBiquadFilter();
-  lp.type = "lowpass";
-  lp.frequency.value = 210;
-
-  const oscs = [];
-  for(const [f, det] of [[55, -5], [55, 6], [82.41, -8]]){
-    const o = audioCtx.createOscillator();
-    o.type = "sawtooth";
-    o.frequency.value = f;
-    o.detune.value = det;
-    o.connect(lp);
-    o.start();
-    oscs.push(o);
-  }
-  lp.connect(droneGain);
-  droneGain.connect(audioCtx.destination);
-
-  /* crowd chatter: looped white noise through a slowly wandering bandpass */
-  const len = audioCtx.sampleRate * 2;
-  const buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
-  const ch = buf.getChannelData(0);
-  for(let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
-
-  const noise = audioCtx.createBufferSource();
-  noise.buffer = buf;
-  noise.loop = true;
-
-  const bp = audioCtx.createBiquadFilter();
-  bp.type = "bandpass";
-  bp.frequency.value = 700;
-  bp.Q.value = .8;
-
-  const crowdGain = audioCtx.createGain();
-  crowdGain.gain.value = 0;
-
-  noise.connect(bp);
-  bp.connect(crowdGain);
-  crowdGain.connect(audioCtx.destination);
-  noise.start();
-
-  ambienceNodes = { oscs, noise, droneGain, crowdGain, bp };
-}
-
-function stopAmbience(){
-  if(!ambienceNodes) return;
-
-  const a = ambienceNodes;
-  ambienceNodes = null;
-
-  try{
-    const t = audioCtx.currentTime;
-    a.droneGain.gain.cancelScheduledValues(t);
-    a.crowdGain.gain.cancelScheduledValues(t);
-    a.droneGain.gain.value = 0;
-    a.crowdGain.gain.value = 0;
-    a.oscs.forEach(o => o.stop());
-    a.noise.stop();
-  }catch(e){}
-}
-
-function updateAmbienceLevels(){
-  if(!ambienceNodes || !audioCtx) return;
-
-  const t = audioCtx.currentTime;
-  const exc = Math.min(1.4, crowdExcitement);
-  /* pause ducks the stadium to a distant murmur instead of killing it */
-  const duck = state.paused ? .22 : 1;
-
-  /* chatter swells + brightens with hype, breathes on its own */
-  const chatter = duck * Math.max(.004, .012 + exc * .05 + Math.sin(ambTime * .7) * .004);
-  ambienceNodes.crowdGain.gain.setTargetAtTime(chatter, t, .18);
-  ambienceNodes.bp.frequency.setTargetAtTime((600 + exc * 900 + Math.sin(ambTime * 1.3 + 1) * 140) * duck, t, .25);
-
-  ambienceNodes.droneGain.gain.setTargetAtTime(.03 * duck, t, .5);
-}
-
 const waitMinLoad = (ms = 350) => new Promise(r => setTimeout(r, ms));
 
 /* ===================== THREE SCENE ===================== */
 
-/* ---- procedural field shaders ----
-   Fragment-only noise injection (no vertex displacement — fighters assume a
-   flat ground plane). World-space FBM gives the grass mow stripes and patchy
-   two-tone growth, and the dirt circle layered grain, a trodden-worn center,
-   sand speckle and a chalk rim. */
-
-const FIELD_GLSL = `
-varying vec3 vWpos;
-float brHash(vec2 p){
-  p = fract(p * vec2(234.34, 435.345));
-  p += dot(p, p + 34.23);
-  return fract(p.x * p.y);
-}
-float brNoise(vec2 p){
-  vec2 i = floor(p), f = fract(p);
-  f = f * f * (3.0 - 2.0 * f);
-  float a = brHash(i);
-  float b = brHash(i + vec2(1.0, 0.0));
-  float c = brHash(i + vec2(0.0, 1.0));
-  float d = brHash(i + vec2(1.0, 1.0));
-  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-}
-float brFbm(vec2 p){
-  float v = 0.0, amp = 0.5;
-  for(int k = 0; k < 4; k++){
-    v += amp * brNoise(p);
-    p = p * 2.03 + vec2(17.3, 9.1);
-    amp *= 0.5;
-  }
-  return v;
-}`;
-
-function makeGrassMaterial(){
-  const m = new THREE.MeshStandardMaterial({ color:0x15803d, roughness:.95 });
-  m.customProgramCacheKey = () => "field-grass";
-  m.onBeforeCompile = shader => {
-    shader.vertexShader = shader.vertexShader
-      .replace("#include <common>", "#include <common>\nvarying vec3 vWpos;")
-      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvWpos = (modelMatrix * vec4(transformed, 1.0)).xyz;");
-    shader.fragmentShader = shader.fragmentShader
-      .replace("#include <common>", "#include <common>\n" + FIELD_GLSL)
-      .replace("#include <map_fragment>", `#include <map_fragment>
-        float grPatch  = brFbm(vWpos.xz * 0.13);
-        float grBlade  = brFbm(vWpos.xz * 1.9 + 41.7);
-        float grStripe = smoothstep(0.44, 0.56, sin(vWpos.x * 0.115) * 0.5 + 0.5);
-        vec3 grCol = mix(vec3(0.016, 0.185, 0.048), vec3(0.052, 0.310, 0.088), grPatch);
-        grCol = mix(grCol, grCol * 1.28, grStripe * 0.45);
-        grCol *= 0.90 + grBlade * 0.22;
-        diffuseColor.rgb = grCol;
-        float grVar = grBlade;`)
-      .replace("#include <roughnessmap_fragment>", `#include <roughnessmap_fragment>
-        roughnessFactor = clamp(roughnessFactor * (1.04 - grVar * 0.18), 0.0, 1.0);`);
-  };
-  return m;
-}
-
-function makeDirtMaterial(){
-  const m = new THREE.MeshStandardMaterial({ color:0x92400e, roughness:1 });
-  m.customProgramCacheKey = () => "field-dirt";
-  m.onBeforeCompile = shader => {
-    shader.vertexShader = shader.vertexShader
-      .replace("#include <common>", "#include <common>\nvarying vec3 vWpos;")
-      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvWpos = (modelMatrix * vec4(transformed, 1.0)).xyz;");
-    shader.fragmentShader = shader.fragmentShader
-      .replace("#include <common>", "#include <common>\n" + FIELD_GLSL)
-      .replace("#include <map_fragment>", `#include <map_fragment>
-        float drPatch = brFbm(vWpos.xz * 0.32);
-        float drGrain = brFbm(vWpos.xz * 2.6 + 7.7);
-        float drSpeck = step(0.965, brHash(floor(vWpos.xz * 7.0) + 0.7));
-        float drR     = length(vWpos.xz);
-        float drWear  = smoothstep(24.0, 6.0, drR);
-        float drChalk = 1.0 - smoothstep(0.15, 0.55, abs(drR - 35.6));
-        vec3 drCol = mix(vec3(0.148, 0.062, 0.018), vec3(0.297, 0.137, 0.041), drPatch);
-        drCol = mix(drCol, vec3(0.420, 0.295, 0.150), drGrain * 0.35);
-        drCol = mix(drCol, drCol * 0.62, drWear * 0.7);
-        drCol = mix(drCol, vec3(0.72, 0.65, 0.52), drSpeck * 0.5);
-        drCol = mix(drCol, vec3(0.82, 0.80, 0.74), drChalk * 0.88);
-        diffuseColor.rgb = drCol;
-        float drShine = drWear;`)
-      .replace("#include <roughnessmap_fragment>", `#include <roughnessmap_fragment>
-        roughnessFactor = clamp(roughnessFactor - drShine * 0.25, 0.0, 1.0);`);
-  };
-  return m;
-}
-
 function initThree(){
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x08101f);
-  /* Atmospheric depth: denser than before so the mist sheets read as volume */
-  scene.fog = new THREE.Fog(0x08101f, 150, 430);
+  scene.fog = new THREE.Fog(0x08101f, 210, 460);
 
   camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, .1, 1000);
   camera.position.set(0, 62, 145);
@@ -1230,14 +626,11 @@ function initThree(){
   dir.shadow.camera.bottom = -170;
   dir.shadow.camera.far = 400;
   dir.shadow.camera.updateProjectionMatrix();
-  /* Bias tuning: thin tread slabs + skinned fighter meshes are acne-prone */
-  dir.shadow.bias = -.0004;
-  dir.shadow.normalBias = .6;
   scene.add(dir);
 
   const gnd = new THREE.Mesh(
     new THREE.PlaneGeometry(460, 260),
-    makeGrassMaterial()
+    new THREE.MeshStandardMaterial({ color:0x15803d, roughness:.95 })
   );
   gnd.rotation.x = -Math.PI / 2;
   gnd.receiveShadow = true;
@@ -1245,7 +638,7 @@ function initThree(){
 
   const dirt = new THREE.Mesh(
     new THREE.CircleGeometry(38, 48),
-    makeDirtMaterial()
+    new THREE.MeshStandardMaterial({ color:0x92400e, roughness:1 })
   );
   dirt.rotation.x = -Math.PI / 2;
   dirt.position.y = .05;
@@ -1261,6 +654,22 @@ function initThree(){
     scene.add(b);
   });
 
+  const sM = new THREE.MeshStandardMaterial({ color:0x1f2937, roughness:.8 });
+
+  const bs = new THREE.Mesh(new THREE.BoxGeometry(380, 52, 28), sM);
+  bs.position.set(0, 26, -102);
+  bs.receiveShadow = true;
+  scene.add(bs);
+
+  const ls = new THREE.Mesh(new THREE.BoxGeometry(28, 44, 235), sM);
+  ls.position.set(-175, 22, 0);
+  ls.receiveShadow = true;
+  scene.add(ls);
+
+  const rs = ls.clone();
+  rs.position.x = 175;
+  scene.add(rs);
+
   const pM = new THREE.MeshStandardMaterial({ color:0x334155, roughness:.6, metalness:.35 });
   const lM = new THREE.MeshStandardMaterial({ color:0xffffff, emissive:0xffffff, emissiveIntensity:2.4 });
 
@@ -1268,7 +677,6 @@ function initThree(){
     const po = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 2.2, 92, 12), pM);
     po.position.set(p[0], 46, p[2]);
     po.castShadow = true;
-    po.receiveShadow = true;
     scene.add(po);
 
     const la = new THREE.Mesh(new THREE.SphereGeometry(4.2, 18, 18), lM);
@@ -1276,574 +684,80 @@ function initThree(){
     scene.add(la);
   });
 
-  buildStands();   // must run first: fills seatAnchors for the crowd
   buildCrowd();
-  buildJumbotron();
-  buildMist();
-  buildLightFX();
-  initParticles();
+  buildScoreboard();
 }
-
-/* ===================== STADIUM STRUCTURES ===================== */
-
-const STAND_ROWS = 6;      // seat rows per tier
-const STAND_TIERS = 3;     // bleacher tiers
-const STAND_RISE = 2.1;    // row height step
-const STAND_TREAD = 4.2;   // row depth
-const STAND_WALK = 3.2;    // walkway gap between tiers
-
-const seatAnchors = [];    // filled by buildStands(), consumed by buildCrowd()
-
-function tierBaseY(t){
-  return t * (STAND_ROWS * STAND_RISE + 2.2);
-}
-
-function tierStartRun(t){
-  return t * (STAND_ROWS * STAND_TREAD + STAND_WALK);
-}
-
-/* Multi-tier bleachers on three sides of the field. Each stand is a solid
-   triangular-prism grandstand mass with stepped tread slabs on top, gold
-   fascia trim per tier, and rows of seat anchors for the crowd. */
-function buildStands(){
-  const massMat = new THREE.MeshStandardMaterial({ color:0x131c2e, roughness:.95 });
-  const stepMatA = new THREE.MeshStandardMaterial({ color:0x232e42, roughness:.88 });
-  const stepMatB = new THREE.MeshStandardMaterial({ color:0x1b2536, roughness:.88 });
-  const trimMat = new THREE.MeshStandardMaterial({ color:0xf2c14e, roughness:.5, emissive:0xf2c14e, emissiveIntensity:.5 });
-
-  /* awayX/awayZ point from field center out through the stand opening */
-  const configs = [
-    [  0, -1, 380, 88,  Math.PI / 2],  // back stand (behind the scoreboard)
-    [ -1,  0, 250, 150, Math.PI],      // left stand
-    [  1,  0, 250, 150, 0]             // right stand
-  ];
-
-  const RUN = tierStartRun(STAND_TIERS - 1) + STAND_ROWS * STAND_TREAD;
-  const HGT = tierBaseY(STAND_TIERS - 1) + STAND_ROWS * STAND_RISE;
-
-  const yAxis = new THREE.Vector3(0, 1, 0);
-  const unitGeo = new THREE.BoxGeometry(1, 1, 1);
-
-  for(const [ax, az, len, d0, rotY] of configs){
-    const g = new THREE.Group();
-    g.rotation.y = rotY;
-    scene.add(g);
-
-    /* Grandstand mass: cross-section in local XY (X = run away from field,
-       Y = up), extruded along local Z (the stand length). Group rotation
-       maps local +X onto the away direction. */
-    const shape = new THREE.Shape();
-    shape.moveTo(0, 0);
-    shape.lineTo(RUN, 0);
-    shape.lineTo(RUN, HGT);
-
-    const geo = new THREE.ExtrudeGeometry(shape, { depth:len, bevelEnabled:false });
-    geo.translate(0, 0, -len / 2);
-
-    const mass = new THREE.Mesh(geo, massMat);
-    mass.position.x = d0;
-    mass.receiveShadow = true;
-    g.add(mass);
-
-    for(let t = 0; t < STAND_TIERS; t++){
-      for(let r = 0; r < STAND_ROWS; r++){
-        const topY = tierBaseY(t) + (r + 1) * STAND_RISE;
-        const runC = tierStartRun(t) + r * STAND_TREAD + STAND_TREAD / 2;
-
-        const slab = new THREE.Mesh(unitGeo, (r % 2) ? stepMatB : stepMatA);
-        slab.scale.set(len, .34, STAND_TREAD + .5);
-        slab.position.set(d0 + runC, topY - .17, 0);
-        slab.receiveShadow = true;
-        g.add(slab);
-
-        if(r === 0){
-          const trim = new THREE.Mesh(unitGeo, trimMat);
-          trim.scale.set(len, .45, .7);
-          trim.position.set(d0 + tierStartRun(t) - .5, tierBaseY(t) + STAND_ROWS * STAND_RISE + .55, 0);
-          g.add(trim);
-        }
-      }
-    }
-
-    /* Seat anchors in world space so buildCrowd() needs no rotation math */
-    const dir = new THREE.Vector3(ax, 0, az);
-    const tan = new THREE.Vector3(-az, 0, ax);
-
-    for(let t = 0; t < STAND_TIERS; t++){
-      for(let r = 0; r < STAND_ROWS; r++){
-        const topY = tierBaseY(t) + (r + 1) * STAND_RISE + .9;
-        const runC = d0 + tierStartRun(t) + r * STAND_TREAD + STAND_TREAD / 2;
-        seatAnchors.push({
-          x: dir.x * runC,
-          y: topY,
-          z: dir.z * runC,
-          tx: tan.x,
-          tz: tan.z,
-          len
-        });
-      }
-    }
-  }
-}
-
-/* Crowd excitement drives fan jumping here, stage-beam pulses, and later
-   the audio crowd level. Spiked by hits / KOs, decays back to idle. */
-let crowdExcitement = 0;
-
-function pulseCrowd(a){
-  crowdExcitement = Math.min(2.4, crowdExcitement + a);
-}
-
-const FAN_PAL = [0x94a3b8,0x64748b,0xf2c14e,0x2f8fe0,0xef3e42,0xe2e8f0,0x334155,0x005a9c,0x15803d,0xc41e3a];
-const SKIN_PAL = [0xf1c9a5,0xe0b08a,0xd9a06b,0xa9744f,0x8a5a3b];
-
-const fans = {
-  count: 0,
-  cursor: 0,
-  x: [], y: [], z: [],
-  rotY: [], phase: [], freq: [], jitter: []
-};
-let fanBodies = null;
-let fanHeads = null;
 
 function buildCrowd(){
-  const pts = [];
-  const SPACING = 4.7;
+  const pal = [0x94a3b8,0x64748b,0xf2c14e,0x2f8fe0,0xef3e42,0xe2e8f0,0x334155,0x005a9c];
+  const sp = [];
 
-  for(const row of seatAnchors){
-    const n = Math.floor(row.len / SPACING);
-    for(let i = 0; i < n; i++){
-      if(Math.random() < .07) continue;   // a few empty seats read naturally
-
-      const o = (i - n / 2) * SPACING + (Math.random() - .5) * 1.4;
-      pts.push([
-        row.x + row.tx * o + (Math.random() - .5) * 1.2,
-        row.y,
-        row.z + row.tz * o + (Math.random() - .5) * 1.2
-      ]);
+  for(let r = 0; r < 6; r++){
+    for(let x = -172; x <= 172; x += 4.6){
+      sp.push([x + (Math.random() - .5) * 1.6, 53.4 + r * 1.25, -92 - r * 4.4]);
     }
   }
 
-  fans.count = pts.length;
+  for(let r = 0; r < 5; r++){
+    for(let z = -108; z <= 108; z += 4.6){
+      sp.push([-163 - r * 4.4, 45.4 + r * 1.25, z + (Math.random() - .5) * 1.6]);
+      sp.push([163 + r * 4.4, 45.4 + r * 1.25, z + (Math.random() - .5) * 1.6]);
+    }
+  }
 
-  /* Torso + head as separate InstancedMeshes sharing one index space */
-  fanBodies = new THREE.InstancedMesh(
-    new THREE.CapsuleGeometry(.62, 1.15, 4, 10),
-    new THREE.MeshStandardMaterial({ roughness:.92 }),
-    fans.count
-  );
-  fanHeads = new THREE.InstancedMesh(
-    new THREE.SphereGeometry(.4, 10, 8),
-    new THREE.MeshStandardMaterial({ roughness:.85 }),
-    fans.count
+  const cr = new THREE.InstancedMesh(
+    new THREE.BoxGeometry(1.6, 2.2, 1.6),
+    new THREE.MeshStandardMaterial({ roughness:.9 }),
+    sp.length
   );
 
   const d = new THREE.Object3D();
   const c = new THREE.Color();
 
-  pts.forEach((p, i) => {
-    fans.x.push(p[0]);
-    fans.y.push(p[1]);
-    fans.z.push(p[2]);
-    fans.rotY.push(Math.random() * Math.PI * 2);
-    fans.phase.push(Math.random() * Math.PI * 2);
-    fans.freq.push(1.1 + Math.random() * 1.5);
-    fans.jitter.push(.65 + Math.random() * .6);
-
-    d.position.set(p[0], p[1] + 1.25, p[2]);   // torso center
-    d.rotation.y = fans.rotY[i];
+  sp.forEach((s, i) => {
+    d.position.set(...s);
+    d.rotation.y = Math.random() * Math.PI;
     d.updateMatrix();
-    fanBodies.setMatrixAt(i, d.matrix);
-    fanBodies.setColorAt(i, c.setHex(FAN_PAL[(Math.random() * FAN_PAL.length) | 0]));
-
-    d.position.set(p[0], p[1] + 2.45, p[2]);   // head center
-    d.updateMatrix();
-    fanHeads.setMatrixAt(i, d.matrix);
-    fanHeads.setColorAt(i, c.setHex(SKIN_PAL[(Math.random() * SKIN_PAL.length) | 0]));
+    cr.setMatrixAt(i, d.matrix);
+    cr.setColorAt(i, c.setHex(pal[(Math.random() * pal.length) | 0]));
   });
 
-  fanBodies.instanceMatrix.needsUpdate = true;
-  fanHeads.instanceMatrix.needsUpdate = true;
-  if(fanBodies.instanceColor) fanBodies.instanceColor.needsUpdate = true;
-  if(fanHeads.instanceColor) fanHeads.instanceColor.needsUpdate = true;
-
-  scene.add(fanBodies);
-  scene.add(fanHeads);
+  cr.instanceMatrix.needsUpdate = true;
+  if(cr.instanceColor) cr.instanceColor.needsUpdate = true;
+  scene.add(cr);
 }
 
-const _fanM = new THREE.Matrix4();
-const _fanR = new THREE.Matrix4();
+function buildScoreboard(){
+  const cv = document.createElement("canvas");
+  cv.width = 1024;
+  cv.height = 256;
 
-/* Idle: gentle shoulder sway. Excited: full jumps. Staggered updates —
-   one third of the stadium re-bounced per frame keeps CPU flat. */
-function updateFans(dt){
-  if(!fans.count) return;
-
-  crowdExcitement = Math.max(0, crowdExcitement - dt * .5);
-
-  const k = Math.min(1, crowdExcitement);
-  const batch = Math.ceil(fans.count / 3);
-  const start = fans.cursor;
-
-  for(let n = 0; n < batch; n++){
-    const i = (start + n) % fans.count;
-
-    const idle = Math.sin(ambTime * fans.freq[i] + fans.phase[i]) * .09;
-    const cheer = Math.abs(Math.sin(ambTime * fans.freq[i] * 1.7 + fans.phase[i])) * 1.35 * fans.jitter[i];
-    const off = idle + (cheer - idle) * k;
-    const y = fans.y[i] + off;
-
-    _fanM.makeRotationY(fans.rotY[i]);
-
-    _fanM.setPosition(fans.x[i], y + 1.25, fans.z[i]);
-    fanBodies.setMatrixAt(i, _fanM);
-
-    _fanR.copy(_fanM);
-    _fanR.setPosition(fans.x[i], y + 2.45 + k * .18, fans.z[i]);
-    fanHeads.setMatrixAt(i, _fanR);
-  }
-
-  fans.cursor = (start + batch) % fans.count;
-
-  /* Partial GPU upload: only the instances this frame rewrote move over the
-     bus (~1/3 of each buffer) instead of the full ~384KB matrix arrays.
-     The written slice is contiguous unless the batch wraps the ring —
-     handle both shapes with explicit update ranges. */
-  fanBodies.instanceMatrix.clearUpdateRanges();
-  fanHeads.instanceMatrix.clearUpdateRanges();
-  if(start + batch <= fans.count){
-    fanBodies.instanceMatrix.addUpdateRange(start * 16, batch * 16);
-    fanHeads.instanceMatrix.addUpdateRange(start * 16, batch * 16);
-  }else{
-    const tail = fans.count - start;
-    fanBodies.instanceMatrix.addUpdateRange(start * 16, tail * 16);
-    fanHeads.instanceMatrix.addUpdateRange(start * 16, tail * 16);
-    fanBodies.instanceMatrix.addUpdateRange(0, (batch - tail) * 16);
-    fanHeads.instanceMatrix.addUpdateRange(0, (batch - tail) * 16);
-  }
-  fanBodies.instanceMatrix.needsUpdate = true;
-  fanHeads.instanceMatrix.needsUpdate = true;
-}
-
-/* ===================== JUMBOTRON ===================== */
-
-const JUMBO_W = 1024;
-const JUMBO_H = 256;
-
-let jumboScreen = null;
-let jumboCtx = null;
-let jumboTexture = null;
-let jumboMode = 0;      // 0 live scores · 1 stats · 2 attract
-let jumboTimer = 0;
-let jumboFlash = 0;     // seconds left in forced KO mode
-let jumboKoText = "";
-
-function jumboChrome(g, label){
-  g.fillStyle = "#050b18";
-  g.fillRect(0, 0, JUMBO_W, JUMBO_H);
+  const g = cv.getContext("2d");
+  g.fillStyle = "#0a1428";
+  g.fillRect(0, 0, 1024, 256);
 
   g.strokeStyle = "#f2c14e";
-  g.lineWidth = 8;
-  g.strokeRect(6, 6, JUMBO_W - 12, JUMBO_H - 12);
+  g.lineWidth = 10;
+  g.strokeRect(10, 10, 1004, 236);
 
-  g.textAlign = "left";
+  g.textAlign = "center";
   g.fillStyle = "#f2c14e";
-  g.font = "bold 26px Bungee,Arial Black,sans-serif";
-  g.fillText("FBBR", 26, 42);
+  g.font = "bold 72px Bungee,Arial Black,sans-serif";
+  g.fillText("FANTASY BASEBALL", 512, 110);
 
-  g.textAlign = "right";
-  g.fillStyle = "#8fa6bd";
-  g.font = "bold 24px Barlow Condensed,Arial Narrow,sans-serif";
-  g.fillText(label, JUMBO_W - 26, 40);
-}
+  g.fillStyle = "#e8eef7";
+  g.font = "bold 62px Barlow Condensed,Arial Narrow,sans-serif";
+  g.fillText("BATTLE ROYALE · 11 FIGHTERS", 512, 200);
 
-function jumboBar(g, x, y, w, h, pct, fill, back){
-  g.fillStyle = back || "rgba(255,255,255,.14)";
-  g.fillRect(x, y, w, h);
-  g.fillStyle = fill;
-  g.fillRect(x, y, Math.max(0, Math.min(1, pct)) * w, h);
-}
+  const t = new THREE.CanvasTexture(cv);
+  t.anisotropy = 4;
 
-function jumboFighterColumn(g, cx, charKey, fighter, alignRight){
-  const c = CHARACTERS[charKey];
-  if(!c) return;
-
-  const colW = 380;
-  const x = alignRight ? cx - colW : cx;
-
-  g.textAlign = alignRight ? "right" : "left";
-  g.fillStyle = "#ffffff";
-  g.font = "bold 44px Bungee,Arial Black,sans-serif";
-  g.fillText(c.fighterName, x, 108);
-
-  g.fillStyle = c.cssColor;
-  g.font = "bold 24px Barlow Condensed,Arial Narrow,sans-serif";
-  g.fillText(c.team.toUpperCase(), x, 138);
-
-  jumboBar(g, alignRight ? x - colW : x, 152, colW, 20, (fighter ? fighter.health : 100) / 100,
-    fighter && fighter.health <= 25 ? "#ef4444" : "#22c55e");
-
-  for(let i = 0; i < 2; i++){
-    g.beginPath();
-    const px = alignRight ? x - 10 - i * 34 : x + 10 + i * 34;
-    g.arc(px, 200, 9, 0, Math.PI * 2);
-    g.fillStyle = fighter && i < (alignRight ? state.cWins : state.pWins)
-      ? "#f2c14e"
-      : "rgba(255,255,255,.18)";
-    g.fill();
-  }
-}
-
-function drawJumbotron(){
-  if(!jumboCtx) return;
-  const g = jumboCtx;
-  const pc = CHARACTERS[state.playerChar];
-  const cc = CHARACTERS[state.cpuChar];
-
-  if(jumboMode === 3){
-    g.fillStyle = ((ambTime * 7) | 0) % 2 ? "#7f1d1d" : "#3f0d0d";
-    g.fillRect(0, 0, JUMBO_W, JUMBO_H);
-    g.strokeStyle = "#fca5a5";
-    g.lineWidth = 8;
-    g.strokeRect(6, 6, JUMBO_W - 12, JUMBO_H - 12);
-
-    g.textAlign = "center";
-    g.fillStyle = "#ffffff";
-    g.font = "bold 120px Bungee,Arial Black,sans-serif";
-    g.fillText(jumboKoText || "K.O.", JUMBO_W / 2, 150);
-
-    g.fillStyle = "#fecaca";
-    g.font = "bold 34px Barlow Condensed,Arial Narrow,sans-serif";
-    g.fillText(pc && cc ? `${pc.fighterName} VS ${cc.fighterName}` : "", JUMBO_W / 2, 210);
-  }
-  else if(jumboMode === 1){
-    jumboChrome(g, "STATS · TAP TO CYCLE");
-
-    g.textAlign = "center";
-    g.fillStyle = "#f2c14e";
-    g.font = "bold 54px Bungee,Arial Black,sans-serif";
-    g.fillText(`ROUND ${state.round}`, JUMBO_W / 2, 96);
-
-    g.fillStyle = "#e8eef7";
-    g.font = "bold 30px Barlow Condensed,Arial Narrow,sans-serif";
-    g.fillText(`STREAK ${state.matchesWon}   ·   OPPONENT ${Math.min(state.opponentIndex + 1, state.queue.length || 10)} OF ${state.queue.length || 10}`, JUMBO_W / 2, 146);
-
-    if(player && cpu){
-      g.fillStyle = pc ? pc.cssColor : "#fff";
-      g.fillText(`${pc.fighterName} SPECIAL ${Math.round(player.special)}%`, 300, 204);
-      g.fillStyle = cc ? cc.cssColor : "#fff";
-      g.fillText(`${cc.fighterName} SPECIAL ${Math.round(cpu.special)}%`, JUMBO_W - 300, 204);
-    }
-  }
-  else if(jumboMode === 2){
-    jumboChrome(g, "ATTRACT");
-
-    g.textAlign = "center";
-    g.fillStyle = "#ffffff";
-    g.font = "bold 64px Bungee,Arial Black,sans-serif";
-    g.fillText("FANTASY BASEBALL", JUMBO_W / 2, 104);
-    g.fillStyle = "#f2c14e";
-    g.fillText("BATTLE ROYALE", JUMBO_W / 2, 172);
-
-    g.fillStyle = "#8fa6bd";
-    g.font = "bold 28px Barlow Condensed,Arial Narrow,sans-serif";
-    g.fillText("11 FIGHTERS · GAUNTLET MODE · TAP THE JUMBOTRON TO CYCLE VIEWS", JUMBO_W / 2, 222);
-  }
-  else{
-    jumboChrome(g, ((ambTime * 1.4) | 0) % 2 ? "● LIVE" : "  LIVE");
-
-    jumboFighterColumn(g, 70, state.playerChar, player, false);
-    jumboFighterColumn(g, JUMBO_W - 70, state.cpuChar, cpu, true);
-
-    g.textAlign = "center";
-    g.fillStyle = "#f2c14e";
-    g.font = "bold 46px Bungee,Arial Black,sans-serif";
-    g.fillText(`R${state.round}`, JUMBO_W / 2, 118);
-
-    g.fillStyle = "#8fa6bd";
-    g.font = "bold 24px Barlow Condensed,Arial Narrow,sans-serif";
-    const total = state.queue.length || 10;
-    g.fillText(`GAUNTLET ${Math.min(state.opponentIndex + 1, total)}/${total}`, JUMBO_W / 2, 196);
-  }
-
-  if(jumboTexture) jumboTexture.needsUpdate = true;
-}
-
-function buildJumbotron(){
-  const cv = document.createElement("canvas");
-  cv.width = JUMBO_W;
-  cv.height = JUMBO_H;
-  jumboCtx = cv.getContext("2d");
-
-  jumboTexture = new THREE.CanvasTexture(cv);
-  jumboTexture.anisotropy = 4;
-
-  /* Support truss */
-  const frameMat = new THREE.MeshStandardMaterial({ color:0x0f172a, roughness:.7, metalness:.3 });
-  const legGeo = new THREE.BoxGeometry(2.4, 56, 2.4);
-
-  for(const sx of [-48, 48]){
-    const leg = new THREE.Mesh(legGeo, frameMat);
-    leg.position.set(sx, 28, -93);
-    leg.castShadow = true;
-    leg.receiveShadow = true;
-    scene.add(leg);
-  }
-
-  const cab = new THREE.Mesh(new THREE.BoxGeometry(116, 33, 6), frameMat);
-  cab.position.set(0, 58, -93);
-  cab.castShadow = true;
-  cab.receiveShadow = true;
-  scene.add(cab);
-
-  const trim = new THREE.Mesh(
-    new THREE.BoxGeometry(119, 36, 2),
-    new THREE.MeshStandardMaterial({ color:0xf2c14e, roughness:.5, emissive:0xf2c14e, emissiveIntensity:.45 })
+  const b = new THREE.Mesh(
+    new THREE.PlaneGeometry(96, 24),
+    new THREE.MeshBasicMaterial({ map:t })
   );
-  trim.position.set(0, 58, -92.6);
-  scene.add(trim);
-
-  jumboScreen = new THREE.Mesh(
-    new THREE.PlaneGeometry(110, 27.5),
-    new THREE.MeshBasicMaterial({ map:jumboTexture })
-  );
-  jumboScreen.position.set(0, 58, -89.8);
-  jumboScreen.rotation.x = -.06;
-  scene.add(jumboScreen);
-
-  /* Tap the screen itself to cycle LIVE → STATS → ATTRACT.
-     Registered here (not top-level) because renderer exists only after
-     initThree() has run. */
-  const _ray = new THREE.Raycaster();
-  const _ndc = new THREE.Vector2();
-
-  renderer.domElement.addEventListener("pointerdown", e => {
-    if(gameScreen.classList.contains("hidden")) return;
-
-    _ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
-    _ray.setFromCamera(_ndc, camera);
-
-    if(_ray.intersectObject(jumboScreen, false).length){
-      ensureAudio();
-      jumboMode = (jumboMode + 1) % 3;
-      jumboTimer = 0;
-      playSfx("nav");
-    }
-  });
-
-  drawJumbotron();
-}
-
-function updateJumbotron(dt){
-  if(!jumboScreen) return;
-
-  if(jumboFlash > 0){
-    jumboFlash -= dt;
-    if(jumboFlash <= 0 && jumboMode === 3) jumboMode = 0;
-  }
-
-  jumboTimer -= dt;
-  if(jumboTimer <= 0){
-    jumboTimer = .25;
-    drawJumbotron();
-  }
-}
-
-/* ===================== STADIUM LIGHTING FX ===================== */
-
-const beamCones = [];
-const stageBeams = [];
-const spotLights = [];
-let lightPulse = 0;
-
-function pulseLights(a){
-  lightPulse = Math.min(1.5, lightPulse + a);
-}
-
-const _beamDown = new THREE.Vector3(0, -1, 0);
-const _beamDir = new THREE.Vector3();
-const _beamEuler = new THREE.Euler();
-
-function buildLightFX(){
-  const towers = [[-125,92,-85],[125,92,-85],[-125,92,85],[125,92,85]];
-
-  /* Visible floodlight shafts hanging from each tower lamp */
-  const coneGeo = new THREE.ConeGeometry(15, 98, 20, 1, true);
-  coneGeo.translate(0, -49, 0);   // apex at local origin, beam points down -Y
-
-  for(const p of towers){
-    const mat = new THREE.MeshBasicMaterial({
-      color: 0xfff7d6,
-      transparent: true,
-      opacity: .05,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-      fog: false
-    });
-
-    const cone = new THREE.Mesh(coneGeo, mat);
-    cone.position.set(p[0], p[1], p[2]);
-    _beamDir.set(-p[0] * .55, -p[1], -p[2] * .55).normalize();
-    cone.quaternion.setFromUnitVectors(_beamDown, _beamDir);
-    cone.renderOrder = 3;
-    scene.add(cone);
-    beamCones.push({ mesh:cone, mat });
-  }
-
-  /* Two real spotlights from the near towers — intensity pulses on action */
-  for(const p of [[-125,92,85],[125,92,85]]){
-    const s = new THREE.SpotLight(0xfff2cc, 0, 420, .55, .55, 1.4);
-    s.position.set(p[0], p[1], p[2]);
-    s.target.position.set(0, 0, 0);
-    scene.add(s);
-    scene.add(s.target);
-    spotLights.push(s);
-  }
-
-  /* Background stage beams sweeping above the back stand */
-  const colors = [0x2f8fe0, 0xef3e42, 0xf2c14e, 0x8b5cf6];
-  const sGeo = new THREE.ConeGeometry(7, 150, 12, 1, true);
-  sGeo.translate(0, -75, 0);
-
-  colors.forEach((col, i) => {
-    const mat = new THREE.MeshBasicMaterial({
-      color: col,
-      transparent: true,
-      opacity: .06,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-      fog: false
-    });
-
-    const b = new THREE.Mesh(sGeo, mat);
-    b.position.set(-135 + i * 90, 130, -175);
-    b.renderOrder = 3;
-    scene.add(b);
-    stageBeams.push({ mesh:b, mat, phase:i * 1.7, yaw:(i - 1.5) * .22, speed:.5 + i * .13 });
-  });
-}
-
-/* Pulses with combat (lightPulse spikes on hits), swells with crowd hype */
-function updateLightFX(){
-  lightPulse = Math.max(0, lightPulse - .033 * 2.2);
-
-  const pulse = Math.min(1.6, lightPulse + crowdExcitement * .18 + camShake * .05);
-
-  for(const bc of beamCones){
-    bc.mat.opacity = Math.min(.22, .045 + pulse * .05);
-  }
-
-  for(const s of spotLights){
-    s.intensity = .55 + pulse * .95;
-  }
-
-  for(const sb of stageBeams){
-    sb.mat.opacity = Math.min(.16, .055 + pulse * .04);
-    _beamEuler.set(Math.sin(ambTime * sb.speed + sb.phase) * .34, sb.yaw + Math.sin(ambTime * sb.speed * .6 + sb.phase) * .18, 0);
-    sb.mesh.quaternion.setFromEuler(_beamEuler);
-  }
+  b.position.set(0, 30, -87.6);
+  scene.add(b);
 }
 
 function onResize(){
@@ -1853,104 +767,6 @@ function onResize(){
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
 }
-
-/* ===================== ATMOSPHERE (fog, mist, ambience) ===================== */
-
-let ambTime = 0;
-const mistPlanes = [];
-
-function makeSoftTexture(){
-  const cv = document.createElement("canvas");
-  cv.width = 256;
-  cv.height = 128;
-
-  const g = cv.getContext("2d");
-  const grad = g.createRadialGradient(128, 64, 8, 128, 64, 120);
-  grad.addColorStop(0, "rgba(255,255,255,.9)");
-  grad.addColorStop(.55, "rgba(255,255,255,.38)");
-  grad.addColorStop(1, "rgba(255,255,255,0)");
-  g.fillStyle = grad;
-  g.fillRect(0, 0, 256, 128);
-
-  return new THREE.CanvasTexture(cv);
-}
-
-let mistTexture = null;
-
-/* Volumetric look on a budget: layered soft-alpha sheets hugging the field
-   plus upright billboard wisps ringing the diamond. All drift + breathe. */
-function buildMist(){
-  mistTexture = makeSoftTexture();
-
-  const sheets = [
-    /*   x     y    z    w    h   op  speed */
-    [   0,  2.2,  10, 300, 90, .16, 2.1],
-    [  40,  3.4, -30, 240, 70, .12, 1.6],
-    [ -55,  2.8,  25, 210, 64, .13, 1.9],
-    [   0,  4.6, -60, 260, 80, .10, 1.3],
-    [  70,  3.0,  40, 180, 56, .11, 2.4],
-    [ -80,  3.8, -15, 200, 60, .12, 1.7],
-    [  20,  5.5,  55, 160, 50, .09, 2.2],
-    [ -25,  4.2, -80, 220, 66, .10, 1.5]
-  ];
-
-  for(const [x, y, z, w, h, op, speed] of sheets){
-    const m = new THREE.Mesh(
-      new THREE.PlaneGeometry(w, h),
-      new THREE.MeshBasicMaterial({
-        map: mistTexture,
-        transparent: true,
-        opacity: op,
-        depthWrite: false,
-        color: 0xaebfd8
-      })
-    );
-    m.rotation.x = -Math.PI / 2;
-    m.rotation.z = (Math.random() - .5) * .6;
-    m.position.set(x, y, z);
-    m.renderOrder = 2;
-    scene.add(m);
-    mistPlanes.push({ mesh:m, baseOp:op, speed, phase:Math.random() * Math.PI * 2, drift:3 + Math.random() * 5 });
-  }
-
-  for(let i = 0; i < 6; i++){
-    const a = (i / 6) * Math.PI * 2 + .4;
-    const r = 52 + (i % 2) * 14;
-    const m = new THREE.Mesh(
-      new THREE.PlaneGeometry(90, 26),
-      new THREE.MeshBasicMaterial({
-        map: mistTexture,
-        transparent: true,
-        opacity: .10,
-        depthWrite: false,
-        color: 0x9fb4d4,
-        side: THREE.DoubleSide
-      })
-    );
-    m.position.set(Math.cos(a) * r, 8, Math.sin(a) * r * .8);
-    m.renderOrder = 2;
-    scene.add(m);
-    mistPlanes.push({ mesh:m, baseOp:.10, speed:.8 + Math.random() * .8, phase:Math.random() * Math.PI * 2, drift:1.5 + Math.random() * 2 });
-  }
-}
-
-/* Runs every rendered frame while the game screen is visible — even between
-   rounds and while paused, so the stadium never looks frozen. */
-function updateAmbience(dt){
-  ambTime += dt;
-
-  for(const mp of mistPlanes){
-    mp.mesh.position.x += Math.sin(ambTime * .13 + mp.phase) * mp.drift * dt;
-    mp.mesh.material.opacity = mp.baseOp * (.72 + .28 * Math.sin(ambTime * mp.speed + mp.phase));
-  }
-
-  updateFans(dt);
-  updateJumbotron(dt);
-  updateLightFX();
-  updateAmbienceLevels();
-}
-
-
 
 /* ===================== FBX + MIXAMO RETARGETING ===================== */
 
@@ -2434,15 +1250,11 @@ class Fighter{
       this.vx *= this.onGround ? .8 : .98;
     }
 
-    const wasAir = !this.onGround;
-
     this.vy -= 190 * dt;
     this.x += this.vx * dt;
     this.y += this.vy * dt;
 
     if(this.y <= 0){
-      if(wasAir && this.vy < -34) spawnLandingFX(this);
-
       this.y = 0;
       this.vy = 0;
       this.onGround = true;
@@ -2507,22 +1319,6 @@ class Fighter{
       this.effect.position.set(0, a.y, a.effectD / 2 + 6);
       this.effect.material.color.set(a.color);
       this.effect.material.opacity = this.attack.type === "special" ? .48 : .75;
-
-      /* Motion-blur-style trail streaming off the strike hitbox */
-      for(let n = 0; n < (this.attack.type === "special" ? 3 : 2); n++){
-        spawnParticle(
-          this.x + this.face * (a.effectD / 2 + Math.random() * 8),
-          this.y + a.y + (Math.random() - .5) * a.effectH,
-          (Math.random() - .5) * 5,
-          this.face * (26 + Math.random() * 22),
-          (Math.random() - .5) * 9,
-          0,
-          this.attack.type === "special" ? (n % 2 ? 0xfacc15 : 0xfff7cc) : 0xffffff,
-          .16 + Math.random() * .08,
-          12,
-          7
-        );
-      }
     }else{
       this.effect.visible = false;
     }
@@ -2544,190 +1340,13 @@ class Fighter{
   }
 }
 
-/* ===================== PARTICLES (pooled, zero-alloc) ===================== */
-
-const PARTICLE_MAX = 500;
-
-let particles = null;
-
-function initParticles(){
-  const pos = new Float32Array(PARTICLE_MAX * 3);
-  const col = new Float32Array(PARTICLE_MAX * 3);
-
-  for(let i = 0; i < PARTICLE_MAX; i++) pos[i * 3 + 1] = -9999;   // park offscreen
-
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
-
-  const points = new THREE.Points(geo, new THREE.PointsMaterial({
-    size: 1.9,
-    vertexColors: true,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-    transparent: true,
-    sizeAttenuation: true
-  }));
-  points.frustumCulled = false;
-  points.renderOrder = 4;
-  scene.add(points);
-
-  particles = {
-    points, geo, pos, col,
-    vel:  new Float32Array(PARTICLE_MAX * 3),
-    base: new Float32Array(PARTICLE_MAX * 3),
-    life: new Float32Array(PARTICLE_MAX),
-    max:  new Float32Array(PARTICLE_MAX),
-    grav: new Float32Array(PARTICLE_MAX),
-    drag: new Float32Array(PARTICLE_MAX),
-    cursor: 0,
-    aliveCount: 0,   // lets updateParticles skip the sweep + GPU upload when idle
-    dirty: false     // set on spawn so a fresh burst always reaches the GPU
-  };
-}
-
-const _pc = new THREE.Color();
-
-function spawnParticle(x, y, z, vx, vy, vz, hex, life, grav, drag){
-  if(!particles) return;
-
-  const p = particles;
-  const i = p.cursor;
-  p.cursor = (p.cursor + 1) % PARTICLE_MAX;   // ring buffer: oldest overwritten
-  const j = i * 3;
-
-  if(p.life[i] <= 0) p.aliveCount++;   // reviving a dead slot, not replacing a live one
-  p.dirty = true;
-
-  _pc.setHex(hex);
-
-  p.pos[j] = x;     p.pos[j+1] = y;     p.pos[j+2] = z;
-  p.vel[j] = vx;    p.vel[j+1] = vy;    p.vel[j+2] = vz;
-  p.base[j] = _pc.r;  p.base[j+1] = _pc.g;  p.base[j+2] = _pc.b;
-  p.col[j] = _pc.r;   p.col[j+1] = _pc.g;   p.col[j+2] = _pc.b;
-  p.life[i] = life;
-  p.max[i] = life;
-  p.grav[i] = grav;
-  p.drag[i] = drag;
-}
-
-function burst(x, y, z, o){
-  for(let n = 0; n < o.count; n++){
-    const th = Math.random() * Math.PI * 2;
-    const ph = Math.acos(2 * Math.random() - 1);
-    const sp = o.speed * (.35 + Math.random() * .75);
-    const spr = o.spread || 0;
-
-    spawnParticle(
-      x + (Math.random() - .5) * spr,
-      y + (Math.random() - .5) * spr,
-      z + (Math.random() - .5) * spr,
-      Math.sin(ph) * Math.cos(th) * sp,
-      Math.abs(Math.cos(ph)) * sp * .7 + (o.upBias || 0),
-      Math.sin(ph) * Math.sin(th) * sp * .45,
-      o.colors[(Math.random() * o.colors.length) | 0],
-      o.life * (.6 + Math.random() * .8),
-      o.grav ?? 70,
-      o.drag ?? 2.6
-    );
-  }
-}
-
-/* Landing / knockdown debris: dust always, chunks + grass when a fighter
-   eats a knockdown (still in hitstun when they hit the ground) */
-function spawnLandingFX(f){
-  const heavy = f.hitstun > 0;
-  const x = f.x;
-
-  burst(x, 1.5, 0, {
-    count: heavy ? 22 : 10,
-    speed: heavy ? 30 : 18,
-    spread: 8,
-    colors: [0x9a7b52, 0xb08968, 0xd6c3a1],
-    life: .5,
-    grav: 26,
-    drag: 2,
-    upBias: 6
-  });
-
-  if(heavy){
-    burst(x, 1.2, 0, {
-      count: 12,
-      speed: 42,
-      colors: [0x92400e, 0x78350f],
-      life: .55,
-      grav: 120,
-      drag: .6,
-      upBias: 14
-    });
-
-    burst(x, 1.4, 0, {
-      count: 9,
-      speed: 36,
-      colors: [0x4ade80, 0x15803d, 0xbbf7d0],
-      life: .45,
-      grav: 90,
-      drag: .8,
-      upBias: 20
-    });
-
-    camShake = Math.min(camShake + 1.1, 4);
-  }
-}
-
-function updateParticles(dt){
-  if(!particles) return;
-  const p = particles;
-
-  /* Empty pool: skip the 500-slot sweep AND both GPU buffer uploads.
-     Positions are already parked at y=-9999 with black colors, so the
-     previous upload stays valid forever until something spawns. */
-  if(p.aliveCount === 0 && !p.dirty) return;
-  p.dirty = false;
-
-  for(let i = 0; i < PARTICLE_MAX; i++){
-    if(p.life[i] <= 0) continue;
-
-    p.life[i] -= dt;
-    const j = i * 3;
-    const dr = Math.max(0, 1 - p.drag[i] * dt);
-
-    p.vel[j] *= dr;
-    p.vel[j+1] = p.vel[j+1] * dr - p.grav[i] * dt;
-    p.vel[j+2] *= dr;
-
-    p.pos[j]   += p.vel[j] * dt;
-    p.pos[j+1] += p.vel[j+1] * dt;
-    p.pos[j+2] += p.vel[j+2] * dt;
-
-    if(p.pos[j+1] < .3){        // bounce off the field, heavily damped
-      p.pos[j+1] = .3;
-      p.vel[j+1] *= -.38;
-    }
-
-    const fade = Math.max(0, p.life[i] / p.max[i]);
-    const b = fade * fade;      // additive: black == invisible
-
-    p.col[j]   = p.base[j]   * b;
-    p.col[j+1] = p.base[j+1] * b;
-    p.col[j+2] = p.base[j+2] * b;
-
-    if(p.life[i] <= 0){
-      p.pos[j+1] = -9999;
-      p.aliveCount--;
-    }
-  }
-
-  p.geo.attributes.position.needsUpdate = true;
-  p.geo.attributes.color.needsUpdate = true;
-}
-
 /* ===================== MATCH ===================== */
 
 function clearEffects(){
   for(const e of effects){
     scene.remove(e.mesh);
-    e.mesh.material.dispose();   // shared hitGeo stays alive across matches
+    e.mesh.geometry.dispose();
+    e.mesh.material.dispose();
   }
   effects = [];
 }
@@ -2760,22 +1379,6 @@ function resetRound(){
 
   state.over = false;
   state.transitionTimer = 0;
-  state.roundTime = 99;
-  state.lastTickSec = 100;
-  state.introTimer = 1.6;
-  state.koCam = 0;
-  slowmoTimer = 0;
-  introFightShown = false;
-
-  resetCombos();
-  koBanner.classList.remove("show");
-
-  showBanner(state.pWins === 1 && state.cWins === 1 ? "FINAL ROUND" : `ROUND ${state.round}`);
-  playAnnouncer("round");
-
-  jumboMode = 0;
-  jumboFlash = 0;
-  jumboTimer = 0;
 
   if(state.round === 1){
     const total = state.queue.length || 10;
@@ -2793,7 +1396,6 @@ function resetRound(){
 function startMatch(){
   showScreen("gameScreen");
   touchControls.style.display = isTouch() ? "flex" : "none";
-  startAmbience();
 
   requestAnimationFrame(() => {
     onResize();
@@ -2805,7 +1407,6 @@ function startMatch(){
 /* Kick off a fresh gauntlet: pick order, load player + first opponent, then fight */
 async function beginGauntlet(){
   ensureAudio();
-  setPaused(false); /* a stale pause must never freeze the next gauntlet */
 
   state.playerChar = selectedChar;
   state.queue = shuffle(Object.keys(CHARACTERS).filter(k => k !== selectedChar));
@@ -2925,18 +1526,11 @@ function endGauntlet(victory){
   removeFighters();
   clearEffects();
   showScreen("gameOverScreen");
-  stopAmbience();          // fanfare plays over silence
-  playFanfare(victory);
 }
 
-/* One shared sphere for every impact flash — creating + disposing a geometry
-   per strike was pure GC/GPU churn during exchanges */
-let hitGeo = null;
-
 function spawnHit(x, y, t){
-  if(!hitGeo) hitGeo = new THREE.SphereGeometry(2.2, 14, 14);
   const m = new THREE.Mesh(
-    hitGeo,
+    new THREE.SphereGeometry(2.2, 14, 14),
     new THREE.MeshBasicMaterial({
       color: ATTACKS[t]?.color || 0xffffff,
       transparent: true,
@@ -2947,18 +1541,6 @@ function spawnHit(x, y, t){
   m.position.set(x, y + 18, 0);
   scene.add(m);
   effects.push({ mesh:m, life:.22, max:.22 });
-
-  /* Stylized impact burst */
-  const special = t === "special";
-  burst(x, y + 20, 0, {
-    count: special ? 26 : 14,
-    speed: special ? 54 : 34,
-    spread: 7,
-    colors: special ? [0xfacc15, 0xffffff, 0xfb7185] : [0xffffff, 0xffe9a8, 0x93c5fd],
-    life: .42,
-    grav: 70,
-    drag: 3
-  });
 }
 
 function processHits(a, d){
@@ -2978,45 +1560,21 @@ function processHits(a, d){
   let dmg = at.damage;
   const bl = d.blocking;
 
-  /* Counter-hit: caught the defender mid-swing */
-  const counter = !bl && !!d.attack;
-
   if(bl){
     dmg = Math.max(1, Math.round(dmg * .25));
     d.hitstun = .08;
     d.vx = a.face * at.knock * .35;
     playSfx("block");
     camShake = Math.min(camShake + .7, 4);
-    pulseCrowd(.3);
-    pulseLights(.25);
   }else{
     d.hitstun = at.type === "special" ? .42 : .22;
     d.vx = a.face * at.knock;
     if(at.type === "special") d.vy = 38;
     playSfx("hit");
-
-    if(counter){
-      dmg = Math.round(dmg * 1.25);
-      d.hitstun += .12;
-      screenFlash(at.type === "special" ? .8 : .6);
-      showCounterPop();
-      playSfx("counter");
-      pulseLights(.7);
-      pulseCrowd(.9);
-      camShake = Math.min(camShake + 1, 4);
-    }
-
     camShake = Math.min(camShake + (at.type === "special" ? 2.6 : 1.4), 4);
-    pulseCrowd(at.type === "special" ? 1.2 : .6);
-    pulseLights(at.type === "special" ? 1.1 : .55);
   }
 
   d.health = Math.max(0, d.health - dmg);
-
-  if(!bl){
-    registerCombo(a === player ? 1 : 2);
-    breakCombo(d === player ? 1 : 2);
-  }
 
   a.special = Math.min(100, a.special + at.meter);
   d.special = Math.min(100, d.special + at.meter * (bl ? .35 : .7));
@@ -3083,117 +1641,27 @@ function checkRoundEnd(){
   state.over = true;
   state.transitionTimer = 1.85;
 
-  /* KO impact cam + slow-mo punch */
-  state.koCam = 1.15;
-  slowmoTimer = .5;
-  if(player.health <= 0 && cpu.health <= 0) state.koFocusX = (player.x + cpu.x) / 2;
-  else if(cpu.health <= 0) state.koFocusX = cpu.x;
-  else state.koFocusX = player.x;
-
   if(player.health <= 0 && cpu.health <= 0){
     state.pWins++;
     state.cWins++;
     state.message = "DOUBLE KO";
-    showKoBanner("DOUBLE K.O.");
   }else if(cpu.health <= 0){
     state.pWins++;
     state.message = `${CHARACTERS[state.playerChar].fighterName} WINS ROUND ${state.round}`;
-    showKoBanner("K.O.");
   }else{
     state.cWins++;
     state.message = `${CHARACTERS[state.cpuChar].fighterName} WINS ROUND ${state.round}`;
-    showKoBanner("K.O.");
   }
 
   state.messageTimer = 1.85;
   playSfx("win");
-  playAnnouncer("ko");
-  pulseCrowd(2);
-  pulseLights(1.4);
-  breakCombo(1);
-  breakCombo(2);
-
-  /* Jumbotron KO takeover */
-  jumboKoText = (player.health <= 0 && cpu.health <= 0) ? "DOUBLE K.O." : "K.O.";
-  jumboMode = 3;
-  jumboFlash = 2;
-  jumboTimer = 0;
 }
 
-/* Timer expired: whoever has more health takes the round; a true draw
-   counts for both sides so best-of-3 always progresses */
-function resolveTimeUp(){
-  if(state.over) return;
-
-  state.over = true;
-  state.transitionTimer = 1.85;
-
-  if(player.health === cpu.health){
-    state.pWins++;
-    state.cWins++;
-    state.message = "TIME UP · DRAW";
-  }else if(player.health > cpu.health){
-    state.pWins++;
-    state.message = `TIME UP · ${CHARACTERS[state.playerChar].fighterName} LEADS`;
-  }else{
-    state.cWins++;
-    state.message = `TIME UP · ${CHARACTERS[state.cpuChar].fighterName} LEADS`;
-  }
-
-  state.messageTimer = 1.85;
-  playSfx("win");
-  pulseCrowd(1.2);
-  pulseLights(.9);
-
-  jumboKoText = "TIME UP";
-  jumboMode = 3;
-  jumboFlash = 1.6;
-  jumboTimer = 0;
-}
-
-/* Neon HUD damage ghosts: white-hot layer lingers where health just dropped */
-const hudFx = {
-  p1:{ ghost:100 },
-  p2:{ ghost:100 }
-};
-
-const HP_TIERS = ["hp-hi", "hp-mid", "hp-low"];
-
-function hpTier(hp){
-  return hp >= 55 ? "hp-hi" : hp >= 25 ? "hp-mid" : "hp-low";
-}
-
-function applyHpTier(el, hp){
-  const t = hpTier(hp);
-  for(const c of HP_TIERS) el.classList.toggle(c, c === t);
-}
-
-/* Portraits only rewrite the DOM when the matchup changes */
-const portraitCache = { p1:"", p2:"" };
-
-function applyPortrait(side, el, initEl, charKey){
-  if(portraitCache[side] === charKey) return;
-  const c = CHARACTERS[charKey];
-  if(!c) return;
-
-  portraitCache[side] = charKey;
-  el.style.background = c.cardBg;
-  el.style.borderColor = c.cssColor;
-  el.style.boxShadow = `0 4px 14px rgba(0,0,0,.5),inset 0 0 20px rgba(0,0,0,.28),0 0 12px ${c.cssColor}66`;
-  initEl.textContent = c.fighterName.charAt(0);
-}
-
-function updateHUD(dt = 0){
+function updateHUD(){
   if(!player || !cpu) return;
 
   const c1 = CHARACTERS[state.playerChar];
   const c2 = CHARACTERS[state.cpuChar];
-
-  applyPortrait("p1", p1Portrait, p1PortraitInit, state.playerChar);
-  applyPortrait("p2", p2Portrait, p2PortraitInit, state.cpuChar);
-
-  p1HpPct.textContent = `${Math.max(0, Math.round(player.health))}%`;
-  p2HpPct.textContent = `${Math.max(0, Math.round(cpu.health))}%`;
 
   p1Name.textContent = c1.fighterName;
   p2Name.textContent = c2.fighterName;
@@ -3204,20 +1672,6 @@ function updateHUD(dt = 0){
   p1Health.style.width = `${player.health}%`;
   p2Health.style.width = `${cpu.health}%`;
 
-  /* Ghost bars only ever drain — resets/heals snap them back up instantly */
-  hudFx.p1.ghost = player.health >= hudFx.p1.ghost
-    ? player.health
-    : Math.max(player.health, hudFx.p1.ghost - 36 * dt);
-  hudFx.p2.ghost = cpu.health >= hudFx.p2.ghost
-    ? cpu.health
-    : Math.max(cpu.health, hudFx.p2.ghost - 36 * dt);
-
-  p1HealthGhost.style.width = `${hudFx.p1.ghost}%`;
-  p2HealthGhost.style.width = `${hudFx.p2.ghost}%`;
-
-  applyHpTier(p1Health, player.health);
-  applyHpTier(p2Health, cpu.health);
-
   p1Special.style.width = `${player.special}%`;
   p2Special.style.width = `${cpu.special}%`;
 
@@ -3226,10 +1680,6 @@ function updateHUD(dt = 0){
 
   const msg = state.messageTimer > 0 ? state.message : "";
   roundText.textContent = msg;
-
-  const tSec = Math.ceil(state.roundTime);
-  roundTimerEl.textContent = String(tSec).padStart(2, "0");
-  roundTimerEl.classList.toggle("warn", tSec <= 10 && !state.over);
 
   if(msg && msg !== lastMessage){
     roundText.classList.remove("pop");
@@ -3242,43 +1692,17 @@ function updateHUD(dt = 0){
   if(specialTouchBtn) specialTouchBtn.classList.toggle("disabled", player.special < 60);
 }
 
-/* Dynamic rig: pans with the midpoint, dollies with fighter distance,
-   and punches in toward the fallen fighter on KO (state.koCam). */
-function updateCamera(dt){
+function updateCamera(){
   let tx = 0;
-  let d = 40;
-
-  if(player && cpu){
-    tx = ((player.x + cpu.x) / 2) * .35;
-    d = Math.abs(player.x - cpu.x);
-  }
-
-  let koW = 0;
-  if(state.koCam > 0){
-    state.koCam = Math.max(0, state.koCam - dt);
-    koW = Math.pow(state.koCam / 1.15, 1.4);   // fast punch-in, gentle release
-    tx = tx * (1 - koW) + state.koFocusX * koW;
-  }
-
-  const dc = Math.min(d, 115);
-
-  /* Zoom framing: close & low when fighters meet, wide & high when apart */
-  const tz = 108 + dc * .62 - 30 * koW;
-  const ty = 50 + dc * .17 - 12 * koW;
-  const ly = 23 + dc * .035;
+  if(player && cpu) tx = ((player.x + cpu.x) / 2) * .35;
 
   camera.position.x += (tx - camera.position.x) * .06;
-  camera.position.z += (tz - camera.position.z) * .05;
-  camera.position.y += (ty - camera.position.y) * .05;
 
-  /* pause parks the shake too: a frozen frame shouldn't buzz forever */
-  const shakeAmp = (state.running && state.paused) ? 0 : camShake;
-  const sy = shakeAmp > 0 ? (Math.random() - .5) * shakeAmp : 0;
-  const sx = shakeAmp > 0 ? (Math.random() - .5) * shakeAmp : 0;
+  const sy = camShake > 0 ? (Math.random() - .5) * camShake : 0;
+  const sx = camShake > 0 ? (Math.random() - .5) * camShake : 0;
 
-  camera.position.y += sy * .3;
-
-  camera.lookAt(tx + sx * 2, ly, 0);
+  camera.position.y = 62 + sy;
+  camera.lookAt(tx + sx * 2, 26, 0);
 }
 
 function update(dt){
@@ -3288,7 +1712,6 @@ function update(dt){
 
   camShake = Math.max(0, camShake - dt * 9);
 
-  updateParticles(dt);
   for(let i = effects.length - 1; i >= 0; i--){
     const e = effects[i];
     e.life -= dt;
@@ -3299,60 +1722,28 @@ function update(dt){
 
     if(e.life <= 0){
       scene.remove(e.mesh);
-      e.mesh.material.dispose();   // geometry is the shared hitGeo — never disposed here
+      e.mesh.geometry.dispose();
+      e.mesh.material.dispose();
       effects.splice(i, 1);
     }
   }
 
   const idle = { left:false, right:false, block:false, actionQueue:[] };
 
-  /* Round intro lock: nobody acts until FIGHT! */
-  if(state.introTimer > 0){
-    state.introTimer -= dt;
-    input.queue.length = 0;   // drop anything buffered pre-FIGHT
-
-    if(!introFightShown && state.introTimer <= .7){
-      introFightShown = true;
-      showBanner("FIGHT!", true);
-      playAnnouncer("fight");
-      pulseLights(.8);
-      pulseCrowd(.8);
-    }
-  }
-
-  const locked = state.introTimer > 0;
-
   if(!state.over){
-    if(!locked){
-      state.roundTime -= dt;
-      if(state.roundTime <= 0){
-        state.roundTime = 0;
-        resolveTimeUp();
-      }
+    const q = input.queue.splice(0, input.queue.length);
 
-      /* timer warning ticks: last 10 seconds, final 3 accented */
-      const sec = Math.ceil(state.roundTime);
-      if(sec !== state.lastTickSec){
-        state.lastTickSec = sec;
-        if(sec <= 10 && sec > 0) playSfx(sec <= 3 ? "tickHi" : "tick");
-      }
-    }
-
-    const q = locked ? [] : input.queue.splice(0, input.queue.length);
-
-    player.update(dt, cpu, locked ? idle : {
+    player.update(dt, cpu, {
       left: input.left,
       right: input.right,
       block: input.block,
       actionQueue: q
     });
 
-    cpu.update(dt, player, locked ? idle : updateAI(cpu, player, dt));
+    cpu.update(dt, player, updateAI(cpu, player, dt));
 
     processHits(player, cpu);
     processHits(cpu, player);
-
-    updateCombos(dt);
 
     checkRoundEnd();
   }else{
@@ -3367,61 +1758,15 @@ function update(dt){
     }
   }
 
-  updateHUD(dt);
-}
-
-/* ===================== PERF GOVERNOR ===================== */
-
-/* Adaptive render scale: when frame times slip past ~48fps the drawing
-   buffer steps down in 15% increments; with sustained headroom it climbs
-   back toward native. Judges a 1.5s window so one hitch never flips it,
-   and the hysteresis band (48→57fps) stops oscillation. */
-
-let perfEmaDt = 1 / 60;
-let perfWindow = 0;
-let perfScale = 1;
-
-function setPerfScale(s){
-  if(!renderer || !innerWidth) return;
-  perfScale = s;
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2) * s);
-  renderer.setSize(innerWidth, innerHeight, false);   // false: CSS size untouched
-}
-
-function updatePerfGovernor(raw){
-  perfEmaDt = perfEmaDt * .95 + raw * .05;
-
-  perfWindow += raw;
-  if(perfWindow < 1.5) return;
-  perfWindow = 0;
-
-  if(perfEmaDt > 1 / 48 && perfScale > .55){
-    setPerfScale(Math.max(.55, +(perfScale - .15).toFixed(2)));
-  }else if(perfEmaDt < 1 / 57 && perfScale < 1){
-    setPerfScale(Math.min(1, +(perfScale + .15).toFixed(2)));
-  }
+  updateHUD();
 }
 
 function animate(){
-  const raw = Math.min(clock.getDelta(), .033);
-
-  /* KO slow motion: everything (physics, anims, timers) shares the scaled dt */
-  if(slowmoTimer > 0 && !state.paused) slowmoTimer -= raw;
-  const dt = slowmoTimer > 0 ? raw * .38 : raw;
-
-  /* Whiteout flash decay runs in real time, even through slow-mo */
-  if(flashLevel > 0){
-    flashLevel = Math.max(0, flashLevel - raw * 2.6);
-    flashOverlay.style.opacity = flashLevel.toFixed(3);
-  }
+  const dt = Math.min(clock.getDelta(), .033);
 
   if(!gameScreen.classList.contains("hidden")){
-    /* paused: sim freezes but the stadium keeps breathing; koCam parks at 0 dt
-       so a mid-punch-in KO shot holds its frame instead of drifting */
-    if(state.running && !state.paused) update(dt);
-    updateCamera((state.running && state.paused) ? 0 : raw);
-    updateAmbience(raw);
-    updatePerfGovernor(raw);
+    if(state.running) update(dt);
+    updateCamera();
     renderer.render(scene, camera);
   }
 }
@@ -3443,7 +1788,7 @@ const keyMap = {
 };
 
 addEventListener("keydown", e => {
-  if(!state.running || state.paused) return;
+  if(!state.running) return;
 
   const a = keyMap[e.code];
   if(!a) return;
@@ -3520,10 +1865,7 @@ function buildCharacterSelect(){
       selectRow.querySelectorAll(".charCard").forEach(x => x.classList.remove("selected"));
       card.classList.add("selected");
       ensureAudio();
-      playSfx("select");
     });
-
-    card.addEventListener("pointerenter", navChime);
 
     selectRow.appendChild(card);
   });
@@ -3546,87 +1888,20 @@ rematchBtn.addEventListener("click", () => beginGauntlet());
 
 menuBtn.addEventListener("click", () => {
   state.running = false;
-  setPaused(false);
   touchControls.style.display = "none";
   removeFighters();
   clearEffects();
-  stopAmbience();
   showScreen("menuScreen");
 });
 
 function toggleSfx(){
   state.sfx = !state.sfx;
   updateSfxButtons();
-  if(state.sfx){
-    playSfx("hit");
-    if(!gameScreen.classList.contains("hidden")) startAmbience();
-  }else{
-    stopAmbience();
-  }
+  if(state.sfx) playSfx("hit");
 }
 
 sfxMenuBtn.addEventListener("click", toggleSfx);
 sfxGameBtn.addEventListener("click", toggleSfx);
-
-/* ---- match pause: freeze the sim, duck the stadium, keep rendering ---- */
-
-let prePauseTouch = null;
-
-function setPaused(p){
-  if(p === state.paused) return;
-  /* can only pause a live match; unpausing is always safe */
-  if(p && !state.running) return;
-  state.paused = p;
-  pauseMenu.classList.toggle("hidden", !p);
-  if(p){
-    prePauseTouch = touchControls.style.display;
-    touchControls.style.display = "none";
-  }else if(prePauseTouch !== null){
-    touchControls.style.display = prePauseTouch;
-    prePauseTouch = null;
-  }
-  updateAmbienceLevels();
-}
-
-function togglePause(){
-  setPaused(!state.paused);
-}
-
-pauseBtn.addEventListener("click", togglePause);
-resumeBtn.addEventListener("click", () => setPaused(false));
-pauseSfxBtn.addEventListener("click", toggleSfx);
-quitBtn.addEventListener("click", () => {
-  setPaused(false);
-  menuBtn.click();
-});
-
-addEventListener("keydown", e => {
-  if((e.code === "Escape" || e.code === "KeyP") && !gameScreen.classList.contains("hidden")){
-    e.preventDefault();
-    togglePause();
-  }
-});
-
-/* tabbed away mid-match? auto-pause so nobody eats a free combo */
-document.addEventListener("visibilitychange", () => {
-  if(document.hidden && state.running && !gameScreen.classList.contains("hidden")) setPaused(true);
-});
-
-/* ---- menu navigation chimes: soft tick on hover, confirm on press ---- */
-
-let lastNavSfx = 0;
-
-function navChime(){
-  const now = performance.now();
-  if(now - lastNavSfx < 60) return;
-  lastNavSfx = now;
-  playSfx("nav");
-}
-
-document.querySelectorAll(".btnGhost, .btnPlate, .iconBtn").forEach(b => {
-  b.addEventListener("pointerenter", navChime);
-  b.addEventListener("pointerdown", () => playSfx("select"));
-});
 
 addEventListener("resize", onResize);
 addEventListener("dblclick", e => e.preventDefault(), { passive:false });
