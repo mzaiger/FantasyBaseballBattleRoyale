@@ -1,7 +1,7 @@
-# Fantasy Baseball Battle Royale
+# Fantasy League Battle Royale
 
 A browser-based 3D fighting game (Three.js) where the fighters are the
-managers from a fantasy baseball league, each skinned in their team's
+managers from a fantasy League league, each skinned in their team's
 colors — pick a fighter and punch it out.
 
 ## How it works
@@ -22,7 +22,7 @@ colors — pick a fighter and punch it out.
 ## Structure
 
 ```
-FantasyBaseballBattleRoyale-main/
+FantasyLeagueBattleRoyale-main/
 ├── index.html          # entire game: markup, styles, and Three.js logic
 ├── *Idle.fbx            # per-fighter idle animation
 ├── *Punch.fbx            # per-fighter punch animation
