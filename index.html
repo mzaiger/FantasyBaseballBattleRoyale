@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<title>Fantasy Baseball Battle Royale</title>
+<title>Fantasy League Battle Royale</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -48,17 +48,17 @@ html,body{
 .beam.right{right:4%;transform:rotate(-15deg);animation:swayR 11s ease-in-out infinite alternate}
 @keyframes swayL{from{transform:rotate(12deg)}to{transform:rotate(19deg)}}
 @keyframes swayR{from{transform:rotate(-12deg)}to{transform:rotate(-19deg)}}
-.baseball{
+.League{
   position:absolute;right:9%;top:16%;width:76px;height:76px;border-radius:50%;overflow:hidden;
   background:radial-gradient(circle at 32% 28%,#fff,#dfe5ee 62%,#b6c0ce);
   box-shadow:inset -10px -12px 20px rgba(10,20,40,.28),0 20px 34px rgba(0,0,0,.4);
   animation:floatBall 7s ease-in-out infinite alternate;pointer-events:none
 }
-.baseball::before,.baseball::after{
+.League::before,.League::after{
   content:"";position:absolute;top:-16px;bottom:-16px;width:60px;border:3px dashed var(--stitch);border-radius:50%
 }
-.baseball::before{left:-38px}
-.baseball::after{right:-38px}
+.League::before{left:-38px}
+.League::after{right:-38px}
 @keyframes floatBall{from{transform:translateY(-10px) rotate(-8deg)}to{transform:translateY(12px) rotate(10deg)}}
 .diamondMark{position:absolute;width:240px;height:240px;border:2px solid rgba(242,193,78,.18);transform:rotate(45deg);animation:diamondPulse 5s ease-in-out infinite;pointer-events:none}
 @keyframes diamondPulse{0%,100%{opacity:.5;transform:rotate(45deg) scale(1)}50%{opacity:1;transform:rotate(45deg) scale(1.06)}}
@@ -202,16 +202,16 @@ html,body{
   .tbtn.xl{width:64px;height:64px}
   .tbtn.wide{width:64px}
   .actions{max-width:62vw}
-  .baseball{display:none}
+  .League{display:none}
 }
 </style>
 </head>
 <body>
 
 <div id="menuScreen" class="screen">
-  <div class="beam left"></div><div class="beam right"></div><div class="diamondMark"></div><div class="baseball"></div>
+  <div class="beam left"></div><div class="beam right"></div><div class="diamondMark"></div><div class="League"></div>
   <p class="eyebrow">Gauntlet · Best of 3 · One on One</p>
-  <h1 class="title" style="font-size:clamp(26px,7.5vw,68px)">FANTASY<br/>BASEBALL<br/><span class="gold">BATTLE ROYALE</span></h1>
+  <h1 class="title" style="font-size:clamp(26px,7.5vw,68px)">FANTASY<br/>League<br/><span class="gold">BATTLE ROYALE</span></h1>
   <p class="subtitle">11 Fighters · Fight All 10</p>
   <button id="startBtn" class="btnPlate">Start Gauntlet</button>
   <button id="sfxMenuBtn" class="btnGhost">SFX: ON</button>
@@ -743,7 +743,7 @@ function buildScoreboard(){
   g.textAlign = "center";
   g.fillStyle = "#f2c14e";
   g.font = "bold 72px Bungee,Arial Black,sans-serif";
-  g.fillText("FANTASY BASEBALL", 512, 110);
+  g.fillText("FANTASY League", 512, 110);
 
   g.fillStyle = "#e8eef7";
   g.font = "bold 62px Barlow Condensed,Arial Narrow,sans-serif";
